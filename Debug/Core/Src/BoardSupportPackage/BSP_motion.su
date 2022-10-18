@@ -1,0 +1,4 @@
+../Core/Src/BoardSupportPackage/BSP_motion.c:15:9:BSP_MotionSensorInit	168	static
+../Core/Src/BoardSupportPackage/BSP_motion.c:113:9:BSP_ReadAccelXYZ	32	static
+../Core/Src/BoardSupportPackage/BSP_motion.c:125:9:BSP_ReadGyroXYZ	32	static
+../Core/Src/BoardSupportPackage/BSP_motion.c:137:9:BSP_ReadTemperatureMotion	16	static

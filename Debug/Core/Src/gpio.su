@@ -1,0 +1,5 @@
+../Core/Src/gpio.c:68:6:MX_GPIO_Init	64	static
+../Core/Src/gpio.c:291:6:CAM_GPIO_Init	32	static
+../Core/Src/gpio.c:316:6:DCMI_GPIO_Init	56	static
+../Core/Src/gpio.c:371:6:Ram_GPIO_Init	56	static
+../Core/Src/gpio.c:431:6:MotionSensor_GPIO_Init	32	static

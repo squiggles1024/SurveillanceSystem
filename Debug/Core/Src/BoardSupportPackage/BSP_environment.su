@@ -1,0 +1,5 @@
+../Core/Src/BoardSupportPackage/BSP_environment.c:24:9:BSP_TempHumSensorInit	24	static
+../Core/Src/BoardSupportPackage/BSP_environment.c:39:9:BSP_ReadTemperature	16	static
+../Core/Src/BoardSupportPackage/BSP_environment.c:45:9:BSP_ReadHumidity	16	static
+../Core/Src/BoardSupportPackage/BSP_environment.c:50:9:BSP_EnableHeater	8	static
+../Core/Src/BoardSupportPackage/BSP_environment.c:55:9:BSP_DisableHeater	8	static
