@@ -14,6 +14,8 @@
 
 #define HTS221_I2C_ADDR (0xBEU)
 #define ISM330DHCX_I2C_ADDR (0xD6U)
+#define LPS22HH_I2C_ADDR (0xBAU)
+#define IIS2MDC_I2C_ADDR (0x3CU)
 #define i2c_initialized (1)
 #define i2c_uninitialized (0)
 
@@ -97,9 +99,72 @@ void BSP_ISM330DHCX_IO_Init(void)
 	BSP_I2C2_Init();
 }
 
+void BSP_LPS22HH_IO_Init(void)
+{
+	PressureSensor_GPIO_Init();
+	BSP_I2C2_Init();
+}
+
+int32_t BSP_I2C2_ReadRegLPS22HH(uint8_t Reg, uint8_t *pData, uint8_t Length)
+{
+	int32_t ret = HAL_I2C_Mem_Read(&hi2c2, LPS22HH_I2C_ADDR, Reg, I2C_MEMADD_SIZE_8BIT, pData, Length, 100);
+    return ret;
+}
+
+int32_t BSP_I2C2_WriteRegLPS22HH(uint8_t Reg, uint8_t *pData, uint8_t Length)
+{
+	int32_t ret = HAL_I2C_Mem_Write(&hi2c2, LPS22HH_I2C_ADDR, Reg, I2C_MEMADD_SIZE_8BIT, pData, Length, 100);
+	if(ret != HAL_OK && hi2c2.ErrorCode == HAL_I2C_ERROR_AF)
+	{
+		ret = HAL_I2C_Mem_Write(&hi2c2, LPS22HH_I2C_ADDR, Reg, I2C_MEMADD_SIZE_8BIT, pData, Length, 100); //Retry
+	}
+
+	if(ret != HAL_OK)
+	{
+		return hi2c2.ErrorCode;
+	}
+    return ret;
+}
+
+int32_t BSP_ReadPinLPS22HH(void)
+{
+	return HAL_GPIO_ReadPin(Mems_INT_LPS22HH_GPIO_Port, Mems_INT_LPS22HH_Pin);
+}
+
+void BSP_IIS2MDC_IO_Init(void)
+{
+	MagSensor_GPIO_Init();
+	BSP_I2C2_Init();
+}
+
+int32_t BSP_I2C2_ReadRegIIS2MDC(uint8_t Reg, uint8_t *pData, uint8_t Length)
+{
+	int32_t ret = HAL_I2C_Mem_Read(&hi2c2, IIS2MDC_I2C_ADDR, Reg, I2C_MEMADD_SIZE_8BIT, pData, Length, 100);
+	if(ret != HAL_OK)
+	{
+		return hi2c2.ErrorCode;
+	}
+    return ret;
+}
+
+int32_t BSP_I2C2_WriteRegIIS2MDC(uint8_t Reg, uint8_t *pData, uint8_t Length)
+{
+	int32_t ret = HAL_I2C_Mem_Write(&hi2c2, IIS2MDC_I2C_ADDR, Reg, I2C_MEMADD_SIZE_8BIT, pData, Length, 100);
+	if(ret != HAL_OK)
+	{
+		return hi2c2.ErrorCode;
+	}
+    return ret;
+}
+
+int32_t BSP_ReadPinIIS2MDC(void)
+{
+	return HAL_GPIO_ReadPin(Mems_INT_IIS2MDC_GPIO_Port, Mems_INT_IIS2MDC_Pin);
+}
+
 uint32_t BSP_GetTick(void)
 {
-  return HAL_GetTick();
+    return HAL_GetTick();
 }
 
 

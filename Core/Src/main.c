@@ -59,6 +59,10 @@ float AccelZ[50] = {0};
 float GyroX[50] = {0};
 float GyroY[50] = {0};
 float GyroZ[50] = {0};
+float Pressure[50] = {0};
+float MagX[50] = {0};
+float MagY[50] = {0};
+float MagZ[50] = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -114,18 +118,35 @@ uint32_t j = 0;
   //MX_I2C1_Init();
   //MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
+
+  /***********Temp Sensor Test********/
   float temperature = 0;
   float humidity = 0;
   BSP_TempHumSensorInit();
-  for(uint8_t i = 0; i < 10; i++){
+  for(uint8_t i = 0; i < 10; i++)
+  {
 	  BSP_ReadTemperature(&temperature);
 	  BSP_ReadHumidity(&humidity);
 	  HAL_Delay(1200);
   }
-
+  /***********Mag Sensor Test********/
+  int32_t ret = BSP_MagnetometerInit();
+  i = 0;
+  time = HAL_GetTick();
+  while(HAL_GetTick() < time + 1000)
+  {
+      if(BSP_ReadMagnetometerXYZ(&MagX[i], &MagY[i], &MagZ[i]) == 0)
+      {
+    	  i++;
+      }
+  }
+  /***********Motion Sensor Test********/
   BSP_MotionSensorInit();
   time = HAL_GetTick();
-  while(HAL_GetTick() < time + 1000){
+  i = 0;
+  j = 0;
+  while(HAL_GetTick() < time + 1000)
+  {
     if(BSP_ReadAccelXYZ(&AccelX[i], &AccelY[i], &AccelZ[i]) == 0)
     {
     	i++;
@@ -136,6 +157,17 @@ uint32_t j = 0;
     }
   }
 
+  /***********Pressure Sensor Test********/
+  BSP_PressureSensorInit();
+  time = HAL_GetTick();
+  i = 0;
+  while(HAL_GetTick() < time + 5000){
+    if(BSP_ReadPressure(&Pressure[i]) == 0)
+    {
+    	i++;
+    }
+  }
+  /***********Camera Test********/
   BSP_RamInit();
   BSP_RamErase();
   BSP_CameraInit();

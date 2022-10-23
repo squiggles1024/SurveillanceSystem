@@ -44,6 +44,8 @@ void CAM_GPIO_Init(void);
 void DCMI_GPIO_Init(void);
 void I2C1_GPIO_Init(void);
 void MotionSensor_GPIO_Init(void);
+void PressureSensor_GPIO_Init(void);
+void MagSensor_GPIO_Init(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

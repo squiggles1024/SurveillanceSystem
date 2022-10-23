@@ -178,8 +178,8 @@ int32_t ISM330DHCX_ReadGyro(ISM330DHCX_Handle_t *Handle, float *Wx, float *Wy, f
     }
     //Convert Gyro Data to DPS
     ConvertGData(Handle->GyroResolution, &buffer[0], Wx);
-    ConvertGData(Handle->GyroResolution, &buffer[2], Wy);
-    ConvertGData(Handle->GyroResolution, &buffer[4], Wz);
+    ConvertGData(Handle->GyroResolution, &buffer[1], Wy);
+    ConvertGData(Handle->GyroResolution, &buffer[2], Wz);
     return ISM330DHCX_DataReady;
 }
 
@@ -507,7 +507,7 @@ static void ConvertGData(ISM330DHCX_GyroFullScale_t GyroResolution, int16_t *buf
 	  {
 		  ConversionFactor = 0.140;
 	  }
-      *data = ConversionFactor * (*buffer);
+      *data = ConversionFactor * (*buffer) / 1000.0; //Div by 1000 to convert to DPS from mDPS
 }
 
 static void ConvertTData(uint8_t *buffer, float *data)
