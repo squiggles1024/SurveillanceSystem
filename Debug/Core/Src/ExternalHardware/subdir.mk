@@ -8,27 +8,33 @@ C_SRCS += \
 ../Core/Src/ExternalHardware/HTS221.c \
 ../Core/Src/ExternalHardware/HTS221_Register.c \
 ../Core/Src/ExternalHardware/IIS2MDC.c \
+../Core/Src/ExternalHardware/IIS2MDC_Registers.c \
 ../Core/Src/ExternalHardware/ISM330DHCX.c \
 ../Core/Src/ExternalHardware/ISM330DHCX_Registers.c \
 ../Core/Src/ExternalHardware/LPS22HH.c \
+../Core/Src/ExternalHardware/LPS22HH_Registers.c \
 ../Core/Src/ExternalHardware/OV5640.c 
 
 OBJS += \
 ./Core/Src/ExternalHardware/HTS221.o \
 ./Core/Src/ExternalHardware/HTS221_Register.o \
 ./Core/Src/ExternalHardware/IIS2MDC.o \
+./Core/Src/ExternalHardware/IIS2MDC_Registers.o \
 ./Core/Src/ExternalHardware/ISM330DHCX.o \
 ./Core/Src/ExternalHardware/ISM330DHCX_Registers.o \
 ./Core/Src/ExternalHardware/LPS22HH.o \
+./Core/Src/ExternalHardware/LPS22HH_Registers.o \
 ./Core/Src/ExternalHardware/OV5640.o 
 
 C_DEPS += \
 ./Core/Src/ExternalHardware/HTS221.d \
 ./Core/Src/ExternalHardware/HTS221_Register.d \
 ./Core/Src/ExternalHardware/IIS2MDC.d \
+./Core/Src/ExternalHardware/IIS2MDC_Registers.d \
 ./Core/Src/ExternalHardware/ISM330DHCX.d \
 ./Core/Src/ExternalHardware/ISM330DHCX_Registers.d \
 ./Core/Src/ExternalHardware/LPS22HH.d \
+./Core/Src/ExternalHardware/LPS22HH_Registers.d \
 ./Core/Src/ExternalHardware/OV5640.d 
 
 
@@ -39,7 +45,7 @@ Core/Src/ExternalHardware/%.o Core/Src/ExternalHardware/%.su: ../Core/Src/Extern
 clean: clean-Core-2f-Src-2f-ExternalHardware
 
 clean-Core-2f-Src-2f-ExternalHardware:
-	-$(RM) ./Core/Src/ExternalHardware/HTS221.d ./Core/Src/ExternalHardware/HTS221.o ./Core/Src/ExternalHardware/HTS221.su ./Core/Src/ExternalHardware/HTS221_Register.d ./Core/Src/ExternalHardware/HTS221_Register.o ./Core/Src/ExternalHardware/HTS221_Register.su ./Core/Src/ExternalHardware/IIS2MDC.d ./Core/Src/ExternalHardware/IIS2MDC.o ./Core/Src/ExternalHardware/IIS2MDC.su ./Core/Src/ExternalHardware/ISM330DHCX.d ./Core/Src/ExternalHardware/ISM330DHCX.o ./Core/Src/ExternalHardware/ISM330DHCX.su ./Core/Src/ExternalHardware/ISM330DHCX_Registers.d ./Core/Src/ExternalHardware/ISM330DHCX_Registers.o ./Core/Src/ExternalHardware/ISM330DHCX_Registers.su ./Core/Src/ExternalHardware/LPS22HH.d ./Core/Src/ExternalHardware/LPS22HH.o ./Core/Src/ExternalHardware/LPS22HH.su ./Core/Src/ExternalHardware/OV5640.d ./Core/Src/ExternalHardware/OV5640.o ./Core/Src/ExternalHardware/OV5640.su
+	-$(RM) ./Core/Src/ExternalHardware/HTS221.d ./Core/Src/ExternalHardware/HTS221.o ./Core/Src/ExternalHardware/HTS221.su ./Core/Src/ExternalHardware/HTS221_Register.d ./Core/Src/ExternalHardware/HTS221_Register.o ./Core/Src/ExternalHardware/HTS221_Register.su ./Core/Src/ExternalHardware/IIS2MDC.d ./Core/Src/ExternalHardware/IIS2MDC.o ./Core/Src/ExternalHardware/IIS2MDC.su ./Core/Src/ExternalHardware/IIS2MDC_Registers.d ./Core/Src/ExternalHardware/IIS2MDC_Registers.o ./Core/Src/ExternalHardware/IIS2MDC_Registers.su ./Core/Src/ExternalHardware/ISM330DHCX.d ./Core/Src/ExternalHardware/ISM330DHCX.o ./Core/Src/ExternalHardware/ISM330DHCX.su ./Core/Src/ExternalHardware/ISM330DHCX_Registers.d ./Core/Src/ExternalHardware/ISM330DHCX_Registers.o ./Core/Src/ExternalHardware/ISM330DHCX_Registers.su ./Core/Src/ExternalHardware/LPS22HH.d ./Core/Src/ExternalHardware/LPS22HH.o ./Core/Src/ExternalHardware/LPS22HH.su ./Core/Src/ExternalHardware/LPS22HH_Registers.d ./Core/Src/ExternalHardware/LPS22HH_Registers.o ./Core/Src/ExternalHardware/LPS22HH_Registers.su ./Core/Src/ExternalHardware/OV5640.d ./Core/Src/ExternalHardware/OV5640.o ./Core/Src/ExternalHardware/OV5640.su
 
 .PHONY: clean-Core-2f-Src-2f-ExternalHardware
 
