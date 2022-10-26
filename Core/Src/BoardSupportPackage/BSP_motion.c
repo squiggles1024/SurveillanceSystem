@@ -54,7 +54,7 @@ int32_t BSP_MotionSensorInit(void)
 			.TRIG_COUNTER_BDR = ISM330DHCX_DefaultSetting,
 			.CNT_BDR_TH = ISM330DHCX_DefaultSetting,
 
-			.ODR_XL = ISM330DHCX_XL_26Hz,
+			.ODR_XL = ISM330DHCX_XL_52Hz,
 			.XL_HM_MODE = ISM330DHCX_XL_HPModeEnabled,
 			.HP_SLOPE_XL_EN = ISM330DHCX_XL_LowPass,
 			.LPF2_XL_EN =ISM330DHCX_XL_SSF_Enabled,
@@ -69,7 +69,7 @@ int32_t BSP_MotionSensorInit(void)
 
 			.FS_XL = ISM330DHCX_XL_8g,
 
-			.ODR_G = ISM330DHCX_G_26Hz,
+			.ODR_G = ISM330DHCX_G_52Hz,
 			.HPM_G = ISM330DHCX_DefaultSetting,
 			.HP_EN_G = ISM330DHCX_G_HP_Disabled,
 			.FTYPE = ISM330DHCX_DefaultSetting,
