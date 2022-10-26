@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "app_threadx.h"
+#include "cordic.h"
 #include "dcache.h"
 #include "dcmi.h"
 #include "gpdma.h"
@@ -53,12 +54,12 @@
 
 /* USER CODE BEGIN PV */
 uint32_t *CameraBuff = (uint32_t*)OSPI1_RAM_BASE;
-float AccelX[50] = {0};
-float AccelY[50] = {0};
-float AccelZ[50] = {0};
-float GyroX[50] = {0};
-float GyroY[50] = {0};
-float GyroZ[50] = {0};
+float AccelX[100] = {0};
+float AccelY[100] = {0};
+float AccelZ[100] = {0};
+float GyroX[100] = {0};
+float GyroY[100] = {0};
+float GyroZ[100] = {0};
 float Pressure[50] = {0};
 float MagX[50] = {0};
 float MagY[50] = {0};
@@ -105,11 +106,12 @@ uint32_t j = 0;
   SystemPower_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  __HAL_RCC_PWR_CLK_ENABLE();
+  HAL_PWREx_EnableVddA();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_GPIO_Init(); //LED GPIO
+  MX_GPIO_Init();
   //MX_DCMI_Init();
   //MX_GPDMA1_Init();
   //MX_OCTOSPI1_Init();
@@ -117,6 +119,7 @@ uint32_t j = 0;
   MX_DCACHE1_Init();
   //MX_I2C1_Init();
   //MX_I2C2_Init();
+  MX_CORDIC_Init();
   /* USER CODE BEGIN 2 */
 
   /***********Temp Sensor Test********/
@@ -130,7 +133,7 @@ uint32_t j = 0;
 	  HAL_Delay(1200);
   }
   /***********Mag Sensor Test********/
-  int32_t ret = BSP_MagnetometerInit();
+  BSP_MagnetometerInit();
   i = 0;
   time = HAL_GetTick();
   while(HAL_GetTick() < time + 1000)
