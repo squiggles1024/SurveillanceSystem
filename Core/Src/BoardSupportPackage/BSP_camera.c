@@ -13,17 +13,17 @@
 #include "dcmi.h"
 
 #define CAMERA_OV5640_ADDRESS          0x78U
+#define CAMERA_PF OV5640_RGB565
 
-#define CAMERA_PF_RGB888                1U
+extern DMA_QListTypeDef ProjectDMAQueue;
 
 static void BSP_CameraHwReset(void);
 static void BSP_CameraHWInit(void);
 
-BSP_CameraStatus_t BSP_CameraInit(void){
-	CAM_GPIO_Init();    //Reset Pin, Power Pin init
-	//DCMI_GPIO_Init();   //DCMI GPIO Init
-	DCMI_DMA_Init();    //DCMI DMA Init
-	MX_DCMI_Init();     //DCMI Init
+BSP_CameraStatus_t BSP_CameraInit(void)
+{
+	MX_GPDMA1_Init();
+	MX_DCMI_Init();
 	BSP_CameraHwReset();//Reset it
     BSP_CameraHWInit(); //Init OV5460 driver
 	return CameraOK;
@@ -67,5 +67,11 @@ static void BSP_CameraHWInit(void){
       IO.GetTick = BSP_GetTick;
       OV5640_LinkBus(&OV5640_Handle, &IO);
       OV5640_ReadID(&OV5640_Handle,&temp);
-      OV5640_Init(&OV5640_Handle, OV5640_R640x480, OV5640_RGB565);
+      OV5640_Init(&OV5640_Handle, OV5640_R640x480, CAMERA_PF);
 }
+
+void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
+{
+    UNUSED(hdcmi);
+}
+

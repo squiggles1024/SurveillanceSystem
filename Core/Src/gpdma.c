@@ -22,7 +22,9 @@
 
 /* USER CODE BEGIN 0 */
 #include "dcmi.h"
-
+#include "linked_list.h"
+extern DMA_NodeTypeDef DCMItoMemory;
+extern DMA_QListTypeDef ProjectDMAQueue;
 static DMA_QListTypeDef  DCMIQueue;
 /* USER CODE END 0 */
 
@@ -34,49 +36,7 @@ void MX_GPDMA1_Init(void)
 {
 
   /* USER CODE BEGIN GPDMA1_Init 0 */
-	 __HAL_RCC_GPDMA1_CLK_ENABLE();
-	  static DMA_NodeTypeDef DCMINode1;
-	  static DMA_NodeTypeDef DCMINode2;
-	  DMA_NodeConfTypeDef node_config;
-	  node_config.NodeType                            = DMA_GPDMA_2D_NODE;
-	  /* Set common node parameters */
-	  node_config.Init.Request                        = GPDMA1_REQUEST_DCMI;
-	  node_config.Init.BlkHWRequest                   = DMA_BREQ_SINGLE_BURST;
-	  node_config.Init.Direction                      = DMA_PERIPH_TO_MEMORY;
-	  node_config.Init.SrcInc                         = DMA_SINC_FIXED;
-	  node_config.Init.DestInc                        = DMA_DINC_INCREMENTED;
-	  node_config.Init.SrcDataWidth                   = DMA_SRC_DATAWIDTH_WORD;
-	  node_config.Init.DestDataWidth                  = DMA_DEST_DATAWIDTH_WORD;
-	  node_config.Init.SrcBurstLength                 = 1;
-	  node_config.Init.DestBurstLength                = 1;
-	  node_config.Init.TransferAllocatedPort          = DMA_SRC_ALLOCATED_PORT0 | DMA_DEST_ALLOCATED_PORT1;
-	  node_config.Init.TransferEventMode              = DMA_TCEM_EACH_LL_ITEM_TRANSFER;
-	  /* Set node data handling parameters */
-	  node_config.DataHandlingConfig.DataExchange     = DMA_EXCHANGE_NONE;
-	  node_config.DataHandlingConfig.DataAlignment    = DMA_DATA_RIGHTALIGN_ZEROPADDED;
-	  /* Set node trigger parameters */
-	  node_config.TriggerConfig.TriggerPolarity       = DMA_TRIG_POLARITY_MASKED;
-	  /* Set node repeated block parameters */
-	  node_config.RepeatBlockConfig.RepeatCount       = 1U;
-	  node_config.RepeatBlockConfig.SrcAddrOffset     = 0;
-	  node_config.RepeatBlockConfig.DestAddrOffset    = 0;
-	  node_config.RepeatBlockConfig.BlkSrcAddrOffset  = 0;
-	  node_config.RepeatBlockConfig.BlkDestAddrOffset = 0;
 
-	  /* Build DCMINode1 */
-	  HAL_DMAEx_List_BuildNode(&node_config, &DCMINode1);
-
-	  /* Insert DCMINode1 to DCMI queue */
-	  HAL_DMAEx_List_InsertNode_Tail(&DCMIQueue, &DCMINode1);
-
-	  /* Build DCMINode2 */
-	  HAL_DMAEx_List_BuildNode(&node_config, &DCMINode2);
-
-	  /* Insert DCMINode2 to DCMI queue */
-	  HAL_DMAEx_List_InsertNode_Tail(&DCMIQueue, &DCMINode2);
-
-	  /* Set queue circular mode for DCMI queue */
-	  HAL_DMAEx_List_SetCircularMode(&DCMIQueue);
   /* USER CODE END GPDMA1_Init 0 */
 
   /* Peripheral clock enable */
@@ -104,7 +64,10 @@ void MX_GPDMA1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN GPDMA1_Init 2 */
-
+  MX_ProjectDMAQueue_Config();
+  HAL_DMAEx_List_LinkQ(&handle_GPDMA1_Channel12, &ProjectDMAQueue);
+  //HAL_DMAEx_List_Start(&handle_GPDMA1_Channel12);
+  __HAL_LINKDMA(&hdcmi, DMA_Handle, handle_GPDMA1_Channel12);
   /* USER CODE END GPDMA1_Init 2 */
 
 }
