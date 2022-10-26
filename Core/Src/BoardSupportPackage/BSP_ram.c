@@ -29,17 +29,16 @@ void BSP_RamErase(void){
 
 /*
 void BSP_RamTest(void){
-    uint8_t test8b_write = 0xD1;
-    uint8_t test8b_read = 0;
-    uint8_t *ram_ptr8b = (uint8_t*)(OSPI1_RAM_BASE_ADDR + OSPI1_RAM_LENGTH);
-    *ram_ptr8b = test8b_write;
-    test8b_read = *ram_ptr8b;
-
     uint32_t test32b_write = 0xDEADBEEF;
     uint32_t test32b_read = 0;
-    uint32_t *ram_ptr32b = (uint32_t*)(OSPI1_RAM_BASE_ADDR);
+    uint32_t *ram_ptr32b = (uint32_t*)(OSPI1_RAM_BASE);
     *ram_ptr32b = test32b_write;
     test32b_read = *ram_ptr32b;
 
+    uint8_t test8b_write = 0xD1;
+    uint8_t test8b_read = 0;
+    uint8_t *ram_ptr8b = (uint8_t*)(OSPI1_RAM_BASE + OSPI1_RAM_LENGTH - 1);
+    *ram_ptr8b = test8b_write;
+    test8b_read = *ram_ptr8b;
 }
 */
