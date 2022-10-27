@@ -9,7 +9,7 @@
 #define SRC_BOARDSUPPORTPACKAGE_BSP_CAMERA_H_
 #include <stdint.h>
 
-#define CAMERA_DATA_SIZE              ((640*480 * 2) / 4) //640 * 480 resolution, 2 bytes per pixel, 1 word per 4 bytes
+#define CAMERA_DATA_SIZE              ((480*272 * 2) / 4) //640 * 480 resolution, 2 bytes per pixel, 1 word per 4 bytes
 
 typedef enum {
     CameraOK = 0,

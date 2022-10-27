@@ -67,7 +67,7 @@ static void BSP_CameraHWInit(void){
       IO.GetTick = BSP_GetTick;
       OV5640_LinkBus(&OV5640_Handle, &IO);
       OV5640_ReadID(&OV5640_Handle,&temp);
-      OV5640_Init(&OV5640_Handle, OV5640_R640x480, CAMERA_PF);
+      OV5640_Init(&OV5640_Handle, OV5640_R480x272, CAMERA_PF);
 }
 
 void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
