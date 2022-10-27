@@ -50,12 +50,10 @@
      PF1   ------> OCTOSPIM_P2_IO1
      PF2   ------> OCTOSPIM_P2_IO2
      PD1   ------> SPI2_SCK
-     PA10   ------> USART1_RX
      PA13 (JTMS/SWDIO)   ------> DEBUG_JTMS-SWDIO
      PA12   ------> USB_OTG_FS_DP
      PF3   ------> OCTOSPIM_P2_IO3
      PF4   ------> OCTOSPIM_P2_CLK
-     PA9   ------> USART1_TX
      PA11   ------> USB_OTG_FS_DM
      PF10   ------> MDF1_CCK1
      PE10   ------> ADF1_SDI0
@@ -198,14 +196,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PAPin PAPin */
-  GPIO_InitStruct.Pin = T_VCP_RX_Pin|T_VCP_TX_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PAPin PAPin */
   GPIO_InitStruct.Pin = USB_C_P_Pin|USB_C_PA11_Pin;
