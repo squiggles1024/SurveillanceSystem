@@ -165,5 +165,7 @@ int32_t LPS22HH_GetReferencePressure(LPS22HH_Handle_t *Handle, float *Pressure);
 int32_t LPS22HH_StartConversion(LPS22HH_Handle_t *Handle);
 int32_t LPS22HH_ReadPressure(LPS22HH_Handle_t *Handle, float *Pressure);
 
+int32_t LPS22HH_GetSamplePeriod(LPS22HH_Handle_t *Handle, uint32_t *Period);
+
 
 #endif /* SRC_EXTERNALHARDWARE_LPS22HH_H_ */

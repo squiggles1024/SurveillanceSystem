@@ -128,7 +128,7 @@ int32_t BSP_MagnetometerInit(void)
 
     IIS2MDC_InitStruct_t MagnetometerSettings =
     {
-    		.ConfigRegA = IISMDC_ODR_10Hz | IIS2MDC_TempCompensationEnabled,
+    		.ConfigRegA = IIS2MDC_ODR_10Hz | IIS2MDC_TempCompensationEnabled,
 			.ConfigRegB = IIS2MDC_LPF,
 			.ConfigRegC = IIS2MDC_DRDY_on_PIN | IIS2MDC_BDU,
 			.IntCtrlReg = IIS2MDC_DefaultSetting,
@@ -165,3 +165,23 @@ int32_t BSP_ReadMagnetometerZ(float *Mz)
 	int32_t ret = IIS2MDC_ReadMagnetismZ(&Magnetometer, Mz);
 	return ret;
 }
+
+int32_t BSP_GetTempPeriod(uint32_t *Period)
+{
+    int32_t ret = HTS221_GetSamplePeriod(&TempSensor_Handle, Period);
+    return ret;
+}
+
+
+int32_t BSP_GetMagneticPeriod(uint32_t *Period)
+{
+    int32_t ret = IIS2MDC_GetSamplePeriod(&Magnetometer, Period);
+    return ret;
+}
+
+int32_t BSP_GetPressurePeriod(uint32_t *Period){
+    int32_t ret = LPS22HH_GetSamplePeriod(&PressureSensor, Period);
+    return ret;
+}
+
+

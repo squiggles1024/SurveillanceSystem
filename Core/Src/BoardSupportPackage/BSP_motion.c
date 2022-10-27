@@ -9,6 +9,7 @@
 #include "BSP_IOBus.h"
 #include "BSP_motion.h"
 #include <stddef.h>
+#include "tim.h"
 
 static ISM330DHCX_Handle_t MotionSensor;
 
@@ -136,7 +137,33 @@ int32_t BSP_ReadGyroXYZ(float *Wx, float *Wy, float *Wz)
 
 }
 
+/*
 int32_t BSP_ReadTemperatureMotion(float *temp)
 {
 	return ISM330DHCX_ReadTemp(&MotionSensor, temp);
+}
+*/
+
+int32_t BSP_GetAccelPeriod(uint32_t *Period)
+{
+	int32_t ret = ISM330DHCX_GetAccelPeriod(&MotionSensor, Period);
+	return ret;
+}
+
+int32_t BSP_GetGyroPeriod(uint32_t *Period)
+{
+	int32_t ret = ISM330DHCX_GetGyroPeriod(&MotionSensor, Period);
+	return ret;
+}
+
+void BSP_SynchronizeIRQ(void)
+{
+    float dummy_data[3];
+    //Read any data thats available
+    BSP_ReadAccelXYZ(&dummy_data[0],&dummy_data[1],&dummy_data[2]);
+    BSP_ReadGyroXYZ(&dummy_data[0],&dummy_data[1],&dummy_data[2]);
+    //Wait for New Data
+    while(BSP_ReadAccelXYZ(&dummy_data[0],&dummy_data[1],&dummy_data[2]) == ISM330DHCX_DataNotReady);
+    BSP_ReadGyroXYZ(&dummy_data[0],&dummy_data[1],&dummy_data[2]);
+    HAL_TIM_Base_Start_IT(&htim7);
 }

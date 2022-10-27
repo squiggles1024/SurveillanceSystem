@@ -53,7 +53,7 @@ int32_t IIS2MDC_Init(IIS2MDC_Handle_t *Handle, IIS2MDC_InitStruct_t Settings, II
         Handle->Context.Handle = Handle;
         Handle->Context.Read = IIS2MDC_ReadRegWrapper;
         Handle->Context.Write = IIS2MDC_WriteRegWrapper;
-        if((Settings.ConfigRegA & IIS2MDC_ODR_Msk) == IISM2MDC_ODR_OneShot)
+        if((Settings.ConfigRegA & IIS2MDC_ODR_Msk) == IIS2MDC_ODR_OneShot)
         {
         	Handle->DataMode = IIS2MDC_OneShotMode;
         } else
@@ -61,6 +61,7 @@ int32_t IIS2MDC_Init(IIS2MDC_Handle_t *Handle, IIS2MDC_InitStruct_t Settings, II
         	Handle->DataMode = IIS2MDC_Continuous;
         }
 
+        Handle->OutputDataRate = Settings.ConfigRegA & IIS2MDC_ODR_Msk;
         int32_t ret = IIS2MDC_RegisterInit(Handle, Settings);
         if(ret != IIS2MDC_Ok)
         {
@@ -244,7 +245,7 @@ int32_t IIS2MDC_StartConversion(IIS2MDC_Handle_t *Handle)
 	{
 		return ret;
 	}
-	buffer |= IISM2MDC_ODR_OneShot;
+	buffer |= IIS2MDC_ODR_OneShot;
 	ret = IIS2MDC_WriteReg(&Handle->Context, IIS2MDC_REG_CFG_REG_A, &buffer, 1);
 	if(ret != IIS2MDC_Ok)
 	{
@@ -497,4 +498,35 @@ static void DeConvertMagData(float magnetism, uint8_t *buffer)
     int16_t result = magnetism / 1.5f;
     buffer[1] = (result & 0xFF00) >> 8;
     buffer[0] = result & 0x00FF;
+}
+
+int32_t IIS2MDC_GetSamplePeriod(IIS2MDC_Handle_t *Handle, uint32_t *Period)
+{
+	if(Handle->Status != IIS2MDC_Initialized)
+	{
+		return IIS2MDC_InitError;
+	}
+
+	switch(Handle->OutputDataRate)
+	{
+	case(IIS2MDC_ODR_OneShot):
+			*Period = 0;
+	        return IIS2MDC_ODR_PeriodOneShot;
+	case(IIS2MDC_ODR_10Hz):
+			*Period =  (1000 / 10);
+	        break;
+	case(IIS2MDC_ODR_20Hz):
+			*Period = (1000 / 20);
+	        break;
+	case(IIS2MDC_ODR_50Hz):
+			*Period = (1000 / 50);
+	        break;
+	case(IIS2MDC_ODR_100Hz):
+			*Period = (1000 / 100);
+	        break;
+	default:
+		    return IIS2MDC_ODR_Error;
+	}
+
+	return IIS2MDC_Ok;
 }

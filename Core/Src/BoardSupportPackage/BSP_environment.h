@@ -8,6 +8,9 @@
 #ifndef SRC_BOARDSUPPORTPACKAGE_BSP_ENVIRONMENT_H_
 #define SRC_BOARDSUPPORTPACKAGE_BSP_ENVIRONMENT_H_
 #include <stdint.h>
+#include "LPS22HH.h"
+#include "HTS221.h"
+#include "IIS2MDC.h"
 
 int32_t BSP_TempHumSensorInit(void);
 int32_t BSP_ReadTemperature(float *result);
@@ -24,5 +27,8 @@ int32_t BSP_ReadMagnetometerXYZ(float *Mx, float *My, float *Mz);
 int32_t BSP_ReadMagnetometerX(float *Mx);
 int32_t BSP_ReadMagnetometerY(float *My);
 int32_t BSP_ReadMagnetometerZ(float *Mz);
+int32_t BSP_GetTempPeriod(uint32_t *Period);
+int32_t BSP_GetMagneticPeriod(uint32_t *Period);
+int32_t BSP_GetPressurePeriod(uint32_t *Period);
 
 #endif /* SRC_BOARDSUPPORTPACKAGE_BSP_ENVIRONMENT_H_ */

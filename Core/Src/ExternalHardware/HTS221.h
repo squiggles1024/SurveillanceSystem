@@ -10,7 +10,9 @@
 #include "HTS221_Registers.h"
 #include <stdint.h>
 
+#define HTS221_ODR_Error (-2)
 #define HTS221_Error (-1)
+#define HTS221_PeriodOneShot (1)
 #define HTS221_Ok (0)
 
 #define HTS221_RebootSignal (1 << 7)
@@ -98,6 +100,7 @@ typedef struct{
 	HTS221_Context_t Context;
 	HTS221_DataReadyConfig_t DRDY_Config;
 	HTS221_DataReadySignalPolarity_t DRDY_Polarity;
+	HTS221_OutputDataRate_t OutputDataRate;
 }HTS221_Handle_t;
 
 int32_t HTS221_Init(HTS221_Handle_t *Handle, HTS221_Init_Struct_t Settings, HTS221_IO_t *IO);
@@ -111,5 +114,7 @@ int32_t HTS221_ReadTemperature(HTS221_Handle_t *Handle, float *temperature);
 int32_t HTS221_ReadHumidity(HTS221_Handle_t *Handle, float *humidity);
 int32_t HTS221_PowerDown(HTS221_Handle_t *Handle);
 int32_t HTS221_PowerUp(HTS221_Handle_t *Handle);
+
+int32_t HTS221_GetSamplePeriod(HTS221_Handle_t *Handle, uint32_t *Period);
 
 #endif /* SRC_EXTERNALHARDWARE_HTS221_H_ */

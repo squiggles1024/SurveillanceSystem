@@ -404,3 +404,41 @@ static void ConvertPressureData(uint8_t *buffer, float *pressure)
 	*pressure = Data / 4096.0;
 }
 
+int32_t LPS22HH_GetSamplePeriod(LPS22HH_Handle_t *Handle, uint32_t *Period)
+{
+	if(Handle->Status != LPS22HH_Initialized)
+	{
+		return LPS22HH_InitError;
+	}
+
+	switch(Handle->DataRate)
+	{
+	case(LPS22HH_OneShot):
+			*Period = 0;
+	        return LPS22HH_OneShotError;
+			break;
+	case(LPS22HH_1Hz):
+			*Period = 1000 / 1;
+			break;
+	case(LPS22HH_10Hz):
+			*Period = 1000 / 10;
+			break;
+	case(LPS22HH_25Hz):
+			*Period = 1000 / 25;
+			break;
+	case(LPS22HH_50Hz):
+			*Period = 1000 / 50;
+			break;
+	case(LPS22HH_75Hz):
+			*Period = 1000 / 75;
+	        break;
+	case(LPS22HH_100Hz):
+			*Period = 1000 / 100;
+			break;
+	case(LPS22HH_200Hz):
+			*Period = 1000 / 200;
+			break;
+	}
+	return LPS22HH_Ok;
+}
+

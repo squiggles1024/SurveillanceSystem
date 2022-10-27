@@ -40,6 +40,8 @@ int32_t HTS221_Init(HTS221_Handle_t *Handle, HTS221_Init_Struct_t Settings, HTS2
         Handle->IO.Init();
     }
 
+    Handle->OutputDataRate = Settings.OutputDataRate;
+
     //Initialize Device
     return HTS221_RegisterInit(Handle, Settings);
 }
@@ -372,4 +374,27 @@ static int32_t HTS221_CalculateHumidity(HTS221_Handle_t *Handle, float *humidity
     }
 
     return HTS221_Ok;
+}
+
+int32_t HTS221_GetSamplePeriod(HTS221_Handle_t *Handle, uint32_t *Period)
+{
+	switch(Handle->OutputDataRate)
+	{
+	case(HTS221_OneShotMode):
+			*Period = 0;
+	        return HTS221_PeriodOneShot;
+			break;
+	case(HTS221_1_0Hz):
+			*Period = 1000;
+			break;
+	case(HTS221_7_0p0Hz):
+			*Period = 143;
+	        break;
+	case(HTS221_12_5Hz):
+			*Period = 80;
+	        break;
+	default:
+		   return HTS221_ODR_Error;
+	}
+	return HTS221_Ok;
 }

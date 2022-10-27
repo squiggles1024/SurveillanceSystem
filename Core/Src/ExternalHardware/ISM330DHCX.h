@@ -14,9 +14,13 @@
 #define ISM330DHCX_ReadRegErr (-2)
 #define ISM330DHCX_ParamError (-3)
 #define ISM330DHCX_Ok (0)
+#define ISM330DHCX_InitError (-4)
 
 #define ISM330DHCX_ResetSignal (0x01)
 #define ISM330DHCX_DefaultSetting (0x00)
+
+#define ISM330DHCX_SubMilliPeriod (1)
+#define ISM330DHCX_PeriodOneShot (2)
 
 typedef struct{
     void (*Init)(void);
@@ -32,6 +36,12 @@ typedef enum{
 	ISM330DHCX_DataReady,
 	ISM330DHCX_DataNotReady = 0xBEEF
 }ISM330DHCX_DataReadyStatus_t;
+
+typedef enum
+{
+	ISM330DHCX_Uninitialized = 0,
+	ISM330DHCX_Initialized
+}ISM330DHCX_InitStatus_t;
 
 /*PIN_CTRL REG, set bits 0-5 to 1*/
 
@@ -430,6 +440,9 @@ typedef struct{
 	ISM330DHCX_Int2trigger_t Int2Mode;
 	ISM330DHCX_IRQPinMux_t IntPinMux;
 	ISM330DHCX_IRQPolarity_t IntPolarity;
+	ISM330DHCX_GyroODR_t GyroDataRate;
+	ISM330DHCX_AccelODR_t AccelDataRate;
+	ISM330DHCX_InitStatus_t Status;
 }ISM330DHCX_Handle_t;
 
 int32_t ISM330DHCX_Init(ISM330DHCX_Handle_t *Handle, ISM330DHCX_Init_Struct_t Settings, ISM330DHCX_IO_t *IO);
@@ -442,6 +455,7 @@ int32_t ISM330DHCX_ReadTemp(ISM330DHCX_Handle_t *Handle, float *Data);
 int32_t ISM330DHCX_Reboot(ISM330DHCX_Handle_t *Handle);
 int32_t ISM330DHCX_Reset(ISM330DHCX_Handle_t *Handle);
 
-
+int32_t ISM330DHCX_GetAccelPeriod(ISM330DHCX_Handle_t *Handle, uint32_t *Period);
+int32_t ISM330DHCX_GetGyroPeriod(ISM330DHCX_Handle_t *Handle, uint32_t *Period);
 
 #endif /* SRC_EXTERNALHARDWARE_ISM330DHCX_H_ */

@@ -19,6 +19,11 @@
 #define IIS2MDC_OneShotError (-5)
 #define IIS2MDC_Timeout (-6)
 
+#define IIS2MDC_ODR_PeriodOneShot (1)
+#define IIS2MDC_ODR_Error (2)
+
+typedef uint8_t IIS2MDC_ODR_t;
+
 typedef enum{
 	IIS2MDC_DataReady = 0,
 	IIS2MDC_DataNotReady = 0xBEEF
@@ -32,9 +37,9 @@ typedef enum
 
 typedef enum
 {
-	IISMDC_ODR_10Hz = 0,
-	IISM2MDC_ODR_OneShot = 1,
-	IISMDC_ODR_20Hz = 1 << 2,
+	IIS2MDC_ODR_10Hz = 0,
+	IIS2MDC_ODR_OneShot = 1,
+	IIS2MDC_ODR_20Hz = 1 << 2,
 	IIS2MDC_ODR_50Hz = 2 << 2,
 	IIS2MDC_ODR_100Hz = 3 << 2,
 
@@ -104,6 +109,7 @@ typedef struct
 	IIS2MDC_IO_t IO;
 	IIS2MDC_InitStatus_t Status;
 	IIS2MDC_DataMode_t DataMode;
+	IIS2MDC_ODR_t OutputDataRate;
 }IIS2MDC_Handle_t;
 
 int32_t IIS2MDC_Init(IIS2MDC_Handle_t *Handle, IIS2MDC_InitStruct_t Settings, IIS2MDC_IO_t *IO);
@@ -124,5 +130,7 @@ int32_t IIS2MDC_ReadMagnetismXYZ(IIS2MDC_Handle_t *Handle, float *Mx, float *My,
 int32_t IIS2MDC_ReadMagnetismX(IIS2MDC_Handle_t *Handle, float *Mx);
 int32_t IIS2MDC_ReadMagnetismY(IIS2MDC_Handle_t *Handle, float *My);
 int32_t IIS2MDC_ReadMagnetismZ(IIS2MDC_Handle_t *Handle, float *Mz);
+
+int32_t IIS2MDC_GetSamplePeriod(IIS2MDC_Handle_t *Handle, uint32_t *Period);
 
 #endif /* SRC_EXTERNALHARDWARE_IIS2MDC_H_ */

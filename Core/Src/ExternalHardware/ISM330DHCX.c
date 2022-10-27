@@ -61,6 +61,8 @@ int32_t ISM330DHCX_Init(ISM330DHCX_Handle_t *Handle, ISM330DHCX_Init_Struct_t Se
     Handle->Int2Mode = Settings.INT2_CTRL;
     Handle->IntPinMux = Settings.INT2_on_INT1;
     Handle->IntPolarity = Settings.H_LACTIVE;
+    Handle->GyroDataRate = Settings.ODR_G;
+    Handle->AccelDataRate = Settings.ODR_XL;
 
     //Initialize Bus
     if(Handle->IO.Init != NULL)
@@ -461,7 +463,7 @@ static int32_t ISM330DHCX_RegisterInit(ISM330DHCX_Handle_t *Handle,ISM330DHCX_In
     {
     	return ret;
     }
-
+    Handle->Status = ISM330DHCX_Initialized;
     return ISM330DHCX_Ok;
 }
 
@@ -514,5 +516,93 @@ static void ConvertTData(uint8_t *buffer, float *data)
 {
 	int16_t DataSigned = ((int16_t)buffer[1] << 8) | buffer[0];
 	*data = (DataSigned / 256.0f) + 25.0;
+}
+
+int32_t ISM330DHCX_GetAccelPeriod(ISM330DHCX_Handle_t *Handle, uint32_t *Period)
+{
+    if(Handle->Status != ISM330DHCX_Initialized)
+    {
+    	return ISM330DHCX_InitError;
+    }
+
+    switch(Handle->AccelDataRate)
+    {
+    case(ISM330DHCX_XL_PowerDown):
+    		*Period = 0;
+            return ISM330DHCX_PeriodOneShot;
+    		break;
+    case(ISM330DHCX_XL_1_6Hz):
+    		*Period = 1000 / 1.6;
+    		break;
+    case(ISM330DHCX_XL_12_5Hz):
+    		*Period = 1000 / 12.5;
+    		break;
+    case(ISM330DHCX_XL_26Hz):
+    		*Period = 1000 / 26;
+    		break;
+    case(ISM330DHCX_XL_52Hz):
+    		*Period = 1000 / 52;
+    		break;
+    case(ISM330DHCX_XL_104Hz):
+    		*Period = 1000 / 104;
+    		break;
+    case(ISM330DHCX_XL_208Hz):
+    		*Period = 1000 / 208;
+    		break;
+    case(ISM330DHCX_XL_416Hz):
+    		*Period = 1000 / 416;
+    		break;
+    case(ISM330DHCX_XL_833Hz):
+    		*Period = 1000 / 833;
+    		break;
+    default:
+    	*Period = 0;
+    	return ISM330DHCX_SubMilliPeriod;
+
+    }
+
+    return ISM330DHCX_Ok;
+}
+
+int32_t ISM330DHCX_GetGyroPeriod(ISM330DHCX_Handle_t *Handle, uint32_t *Period)
+{
+    if(Handle->Status != ISM330DHCX_Initialized)
+    {
+    	return ISM330DHCX_InitError;
+    }
+
+    switch(Handle->GyroDataRate)
+    {
+    case(ISM330DHCX_GyroPowerDown):
+    		*Period = 0;
+            return ISM330DHCX_PeriodOneShot;
+    		break;
+    case(ISM330DHCX_G_12_5Hz):
+    		*Period = 1000 / 12.5;
+    		break;
+    case(ISM330DHCX_G_26Hz):
+    		*Period = 1000 / 26;
+    		break;
+    case(ISM330DHCX_G_52Hz):
+    		*Period = 1000 / 52;
+    		break;
+    case(ISM330DHCX_G_104Hz):
+    		*Period = 1000 / 104;
+    		break;
+    case(ISM330DHCX_G_208Hz):
+    		*Period = 1000 / 208;
+    		break;
+    case(ISM330DHCX_G_416Hz):
+    		*Period = 1000 / 416;
+    		break;
+    case(ISM330DHCX_G_833Hz):
+    		*Period = 1000 / 833;
+    		break;
+    default:
+    	*Period = 0;
+    	return ISM330DHCX_SubMilliPeriod;
+
+    }
+    return ISM330DHCX_Ok;
 }
 
