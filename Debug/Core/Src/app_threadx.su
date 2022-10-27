@@ -1,5 +1,11 @@
-../Core/Src/app_threadx.c:68:6:App_ThreadX_Init	56	static
-../Core/Src/app_threadx.c:121:6:MX_ThreadX_Init	8	static
-../Core/Src/app_threadx.c:135:6:thread1_evt	16	static
-../Core/Src/app_threadx.c:143:6:thread2_evt	16	static
-../Core/Src/app_threadx.c:151:6:thread_LED	24	static
+../Core/Src/app_threadx.c:102:6:App_ThreadX_Init	56	static
+../Core/Src/app_threadx.c:215:6:MX_ThreadX_Init	8	static
+../Core/Src/app_threadx.c:229:6:thread1_evt	16	static
+../Core/Src/app_threadx.c:237:6:thread2_evt	16	static
+../Core/Src/app_threadx.c:245:6:thread_LED	24	static
+../Core/Src/app_threadx.c:263:6:ReadTemperatureThread	32	static
+../Core/Src/app_threadx.c:293:6:ReadHumidityThread	32	static
+../Core/Src/app_threadx.c:323:6:ReadPressureThread	32	static
+../Core/Src/app_threadx.c:352:6:ReadMagneticThread	40	static
+../Core/Src/app_threadx.c:385:6:ReadMotionThread	48	static
+../Core/Src/app_threadx.c:419:6:TIM7_ResumeMotionThread	8	static

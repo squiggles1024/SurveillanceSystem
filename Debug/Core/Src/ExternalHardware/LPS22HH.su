@@ -11,3 +11,4 @@
 ../Core/Src/ExternalHardware/LPS22HH.c:288:16:LPS22HH_ReadRegWrapper	32	static
 ../Core/Src/ExternalHardware/LPS22HH.c:298:16:LPS22HH_RegisterInit	24	static
 ../Core/Src/ExternalHardware/LPS22HH.c:392:13:ConvertPressureData	24	static
+../Core/Src/ExternalHardware/LPS22HH.c:407:9:LPS22HH_GetSamplePeriod	16	static

@@ -10,3 +10,6 @@
 ../Core/Src/BoardSupportPackage/BSP_environment.c:151:9:BSP_ReadMagnetometerX	24	static
 ../Core/Src/BoardSupportPackage/BSP_environment.c:157:9:BSP_ReadMagnetometerY	24	static
 ../Core/Src/BoardSupportPackage/BSP_environment.c:163:9:BSP_ReadMagnetometerZ	24	static
+../Core/Src/BoardSupportPackage/BSP_environment.c:169:9:BSP_GetTempPeriod	24	static
+../Core/Src/BoardSupportPackage/BSP_environment.c:176:9:BSP_GetMagneticPeriod	24	static
+../Core/Src/BoardSupportPackage/BSP_environment.c:182:9:BSP_GetPressurePeriod	24	static
