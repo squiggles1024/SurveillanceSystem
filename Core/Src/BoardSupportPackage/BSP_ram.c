@@ -18,6 +18,7 @@ void BSP_RamInit(void){
     OSPI_RamInit();
     OSPI_DelayBlockConfig();
     OSPI_EnableMemMappedMode();
+    BSP_RamErase();
 }
 
 void BSP_RamErase(void){
