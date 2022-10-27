@@ -26,6 +26,8 @@
 #include "i2c.h"
 #include "icache.h"
 #include "octospi.h"
+#include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -34,6 +36,7 @@
 #include "./BoardSupportPackage/BSP_camera.h"
 #include "./BoardSupportPackage/BSP_environment.h"
 #include "./BoardSupportPackage/BSP_motion.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,16 +57,7 @@
 
 /* USER CODE BEGIN PV */
 uint32_t *CameraBuff = (uint32_t*)OSPI1_RAM_BASE;
-float AccelX[100] = {0};
-float AccelY[100] = {0};
-float AccelZ[100] = {0};
-float GyroX[100] = {0};
-float GyroY[100] = {0};
-float GyroZ[100] = {0};
-float Pressure[50] = {0};
-float MagX[50] = {0};
-float MagY[50] = {0};
-float MagZ[50] = {0};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -94,9 +88,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-uint32_t time = 0;
-uint32_t i = 0;
-uint32_t j = 0;
+
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -120,60 +112,20 @@ uint32_t j = 0;
   //MX_I2C1_Init();
   //MX_I2C2_Init();
   MX_CORDIC_Init();
+  MX_USART1_UART_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
-
-  /***********Temp Sensor Test********/
-  float temperature = 0;
-  float humidity = 0;
+  printf("System Starting\r\n");
   BSP_TempHumSensorInit();
-  for(uint8_t i = 0; i < 10; i++)
-  {
-	  BSP_ReadTemperature(&temperature);
-	  BSP_ReadHumidity(&humidity);
-	  HAL_Delay(1200);
-  }
-  /***********Mag Sensor Test********/
   BSP_MagnetometerInit();
-  i = 0;
-  time = HAL_GetTick();
-  while(HAL_GetTick() < time + 1000)
-  {
-      if(BSP_ReadMagnetometerXYZ(&MagX[i], &MagY[i], &MagZ[i]) == 0)
-      {
-    	  i++;
-      }
-  }
-  /***********Motion Sensor Test********/
   BSP_MotionSensorInit();
-  time = HAL_GetTick();
-  i = 0;
-  j = 0;
-  while(HAL_GetTick() < time + 1000)
-  {
-    if(BSP_ReadAccelXYZ(&AccelX[i], &AccelY[i], &AccelZ[i]) == 0)
-    {
-    	i++;
-    }
-    if(BSP_ReadGyroXYZ(&GyroX[j], &GyroY[j], &GyroZ[j]) == 0)
-    {
-    	j++;
-    }
-  }
-
-  /***********Pressure Sensor Test********/
   BSP_PressureSensorInit();
-  time = HAL_GetTick();
-  i = 0;
-  while(HAL_GetTick() < time + 5000){
-    if(BSP_ReadPressure(&Pressure[i]) == 0)
-    {
-    	i++;
-    }
-  }
-  /***********Camera Test********/
   BSP_RamInit();
-  BSP_RamErase();
   BSP_CameraInit();
+  printf("System Initialized\r\n");
+
+
+  /***********Camera Test********/
   BSP_CameraStart((uint8_t*)CameraBuff);
 
   /* USER CODE END 2 */
@@ -266,7 +218,13 @@ static void SystemPower_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+int __io_putchar(int ch)
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the USART1 and Loop until the end of transmission */
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
+  return ch;
+}
 /* USER CODE END 4 */
 
 /**
