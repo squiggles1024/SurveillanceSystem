@@ -23,12 +23,15 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "app_azure_rtos.h"
 #include "main.h"
 #include "tim.h"
 #include "./BoardSupportPackage/BSP_ram.h"
 #include "./BoardSupportPackage/BSP_camera.h"
 #include "./BoardSupportPackage/BSP_environment.h"
 #include "./BoardSupportPackage/BSP_motion.h"
+#include "./BoardSupportPackage/BSP_LED.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -38,7 +41,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define THREAD_STACK_SIZE (1024U)
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -48,15 +51,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-uint8_t thread_stack1[THREAD_STACK_SIZE];
-uint8_t thread_stack2[THREAD_STACK_SIZE];
-uint8_t thread_stack3[THREAD_STACK_SIZE];
-
-uint8_t Read_TemperatureStack[THREAD_STACK_SIZE];
-uint8_t Read_HumidityStack[THREAD_STACK_SIZE];
-uint8_t Read_PressureStack[THREAD_STACK_SIZE];
-uint8_t Read_MotionStack[THREAD_STACK_SIZE];
-uint8_t Read_MagneticStack[THREAD_STACK_SIZE];
 
 
 //Debug Variables - Live Expressions
@@ -66,32 +60,35 @@ float pressure_data;
 float accelx, accely, accelz;
 float gyrox, gyroy, gyroz;
 float magx, magy, magz;
+float light;
+#define TRACEX_BUFFER_SIZE (64000)
+uint8_t tracex_buffer[TRACEX_BUFFER_SIZE] __attribute__ ((section (".trace")));
 
 
-TX_THREAD thread_ptr1;
-TX_THREAD thread_ptr2;
-TX_THREAD thread_ptr3;
+TX_THREAD LED_Red_Toggle;
+TX_THREAD LED_Green_Toggle;
 TX_THREAD Read_TemperatureThreadPtr;
 TX_THREAD Read_HumidityThreadPtr;
 TX_THREAD Read_PressureThreadPtr;
 TX_THREAD Read_MotionThreadPtr;
 TX_THREAD Read_MagneticThreadPtr;
+TX_THREAD Read_LightThreadPtr;
 
 TX_MUTEX MutexI2C2;
 
-TX_EVENT_FLAGS_GROUP LED_Evt;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-VOID thread1_evt(ULONG initial_input);
-VOID thread2_evt(ULONG initial_input);
-VOID thread_LED(ULONG initial_input);
+VOID RedLEDToggleThread(ULONG init);
+VOID GreenLEDToggleThread(ULONG init);
 VOID ReadTemperatureThread(ULONG init);
 VOID ReadHumidityThread(ULONG init);
 VOID ReadPressureThread(ULONG init);
 VOID ReadMagneticThread(ULONG init);
 VOID ReadMotionThread(ULONG init);
+VOID ReadLightThread(ULONG init);
 /* USER CODE END PFP */
 
 /**
@@ -106,102 +103,143 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 
    /* USER CODE BEGIN App_ThreadX_MEM_POOL */
   (void)byte_pool;
+  UCHAR *Ptr = byte_pool->tx_byte_pool_start;
   /* USER CODE END App_ThreadX_MEM_POOL */
 
   /* USER CODE BEGIN App_ThreadX_Init */
-  tx_event_flags_create(&LED_Evt, "LED Event");
-  ret = tx_thread_create(&thread_ptr1,           //Thread Ptr
-		            "thread1",             //Thread Name
-					thread1_evt,           //Thread Fn Ptr (address)
-					0xBEEF,                //Initial input
-					thread_stack1,         //Stack Ptr
-					THREAD_STACK_SIZE,     //Stack Size
+
+  if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, LED_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
+  {
+	  return TX_POOL_ERROR;
+  }
+  ret = tx_thread_create(&LED_Red_Toggle,           //Thread Ptr
+		            "Red LED",             //Thread Name
+					RedLEDToggleThread,           //Thread Fn Ptr (address)
+					0,                //Initial input
+					Ptr,         //Stack Ptr
+					LED_STACK_SIZE,     //Stack Size
+					15,                    //Priority
+					15,                    //Preempt Threshold
+					1,                     //Time Slize
+					TX_AUTO_START);        //Auto Start or Auto Activate
+  ret = tx_byte_allocate(byte_pool, (VOID **) &Ptr, LED_STACK_SIZE, TX_NO_WAIT);
+  if(ret != TX_SUCCESS)
+  {
+	  return TX_POOL_ERROR;
+  }
+
+  ret = tx_thread_create(&LED_Green_Toggle,           //Thread Ptr
+		            "Green LED",             //Thread Name
+					GreenLEDToggleThread,           //Thread Fn Ptr (address)
+					0,                //Initial input
+					Ptr,         //Stack Ptr
+					LED_STACK_SIZE,     //Stack Size
 					15,                    //Priority
 					15,                    //Preempt Threshold
 					1,                     //Time Slize
 					TX_AUTO_START);        //Auto Start or Auto Activate
 
-  ret = tx_thread_create(&thread_ptr2,
-		            "thread2",
-					thread2_evt,
-					0xBEEF,
-					thread_stack2,
-					THREAD_STACK_SIZE,
-					15,
-					15,
-					1,
-					TX_AUTO_START);
-
-  ret = tx_thread_create(&thread_ptr3,
-		            "thread3",
-					thread_LED,
-					0xBEEF,
-					thread_stack3,
-					THREAD_STACK_SIZE,
-					15,
-					15,
-					1,
-					TX_AUTO_START);
-
   //Motion
+  if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, MOT_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
+  {
+	  return TX_POOL_ERROR;
+  }
+
   ret = tx_thread_create(&Read_MotionThreadPtr,     //Thread Ptr
 		            "Motion Sensor",        //Thread Name
 					ReadMotionThread,      //Thread Fn Ptr (address)
 					0,                     //Initial input
-					Read_MotionStack,      //Stack Ptr
-					THREAD_STACK_SIZE,     //Stack Size
+					Ptr,      //Stack Ptr
+					MOT_THREAD_STACK_SIZE,     //Stack Size
 					10,                    //Priority
 					10,                    //Preempt Threshold
 				    5,                     //Time Slize
 					TX_AUTO_START);        //Auto Start or Auto Activate
 
   //Temp
+  if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, TEMP_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
+  {
+	  return TX_POOL_ERROR;
+  }
+
   ret = tx_thread_create(&Read_TemperatureThreadPtr,   //Thread Ptr
 		            "Temp Sensor",              //Thread Name
 					ReadTemperatureThread,      //Thread Fn Ptr (address)
 					0,                     //Initial input
-					Read_TemperatureStack, //Stack Ptr
-					THREAD_STACK_SIZE,     //Stack Size
+					Ptr, //Stack Ptr
+					TEMP_THREAD_STACK_SIZE,     //Stack Size
 					15,                    //Priority
 					15,                    //Preempt Threshold
 				    1,                     //Time Slize
 					TX_AUTO_START);        //Auto Start or Auto Activate
   //Humidity
+  if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, HUM_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
+  {
+	  return TX_POOL_ERROR;
+  }
+
   ret = tx_thread_create(&Read_HumidityThreadPtr,   //Thread Ptr
 		            "Humidity Sensor",              //Thread Name
 					ReadHumidityThread,      //Thread Fn Ptr (address)
 					0,                     //Initial input
-					Read_HumidityStack,    //Stack Ptr
-					THREAD_STACK_SIZE,     //Stack Size
+					Ptr,    //Stack Ptr
+					HUM_THREAD_STACK_SIZE,     //Stack Size
 					15,                    //Priority
 					15,                    //Preempt Threshold
 				    1,                     //Time Slize
 					TX_AUTO_START);        //Auto Start or Auto Activate
   //Pressure
+  if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, PRES_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
+  {
+	  return TX_POOL_ERROR;
+  }
+
   ret = tx_thread_create(&Read_PressureThreadPtr,   //Thread Ptr
 		            "Pressure Sensor",              //Thread Name
 					ReadPressureThread,      //Thread Fn Ptr (address)
 					0,                     //Initial input
-					Read_PressureStack,    //Stack Ptr
-					THREAD_STACK_SIZE,     //Stack Size
+					Ptr,    //Stack Ptr
+					PRES_THREAD_STACK_SIZE,     //Stack Size
 					15,                    //Priority
 					15,                    //Preempt Threshold
 				    1,                     //Time Slize
 					TX_AUTO_START);        //Auto Start or Auto Activate
 
   //Magnet
+  if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, MAG_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
+  {
+	  return TX_POOL_ERROR;
+  }
+
   ret = tx_thread_create(&Read_MagneticThreadPtr,   //Thread Ptr
 		            "Magnetic Sensor",              //Thread Name
 					ReadMagneticThread,      //Thread Fn Ptr (address)
 					0,                     //Initial input
-					Read_MagneticStack,    //Stack Ptr
-					THREAD_STACK_SIZE,     //Stack Size
+					Ptr,    //Stack Ptr
+					MAG_THREAD_STACK_SIZE,     //Stack Size
+					15,                    //Priority
+					15,                    //Preempt Threshold
+				    1,                     //Time Slize
+					TX_AUTO_START);        //Auto Start or Auto Activate
+  //Light
+  if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, LIGHT_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
+  {
+	  return TX_POOL_ERROR;
+  }
+
+  ret = tx_thread_create(&Read_LightThreadPtr,   //Thread Ptr
+		            "Light Sensor",              //Thread Name
+					ReadLightThread,      //Thread Fn Ptr (address)
+					0,                     //Initial input
+					Ptr,    //Stack Ptr
+					LIGHT_THREAD_STACK_SIZE,     //Stack Size
 					15,                    //Priority
 					15,                    //Preempt Threshold
 				    1,                     //Time Slize
 					TX_AUTO_START);        //Auto Start or Auto Activate
 
   ret = tx_mutex_create(&MutexI2C2, "I2C2 Mutex", TX_INHERIT);
+  //tx_trace_enable(&tracex_buffer, TRACEX_BUFFER_SIZE,30);
   /* USER CODE END App_ThreadX_Init */
 
   return ret;
@@ -226,39 +264,6 @@ void MX_ThreadX_Init(void)
 }
 
 /* USER CODE BEGIN 1 */
-VOID thread1_evt(ULONG initial_input){
-	while(1)
-	{
-		tx_event_flags_set(&LED_Evt,1,TX_OR);
-		tx_thread_suspend(&thread_ptr1);
-	}
-}
-
-VOID thread2_evt(ULONG initial_input){
-	while(1)
-	{
-		tx_event_flags_set(&LED_Evt,2,TX_OR);
-		tx_thread_suspend(&thread_ptr2);
-	}
-}
-
-VOID thread_LED(ULONG initial_input){
-	uint32_t FlagValue = 0;
-	while(1)
-	{
-		FlagValue = LED_Evt.tx_event_flags_group_current;
-
-	    if(FlagValue == 3){
-	        HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
-	        HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
-	        tx_event_flags_set(&LED_Evt, 0xFFFC, TX_AND);
-	        tx_thread_resume(&thread_ptr1);
-	        tx_thread_resume(&thread_ptr2);
-	        tx_thread_sleep(100);
-	    }
-
-	}
-}
 
 VOID ReadTemperatureThread(ULONG init)
 {
@@ -415,11 +420,48 @@ VOID ReadMotionThread(ULONG init)
 	}
 }
 
+VOID ReadLightThread(ULONG init)
+{
+	float Light = 0;
+	int32_t ret = 0;
+	while(1)
+	{
+	    tx_mutex_get(&MutexI2C2,TX_WAIT_FOREVER);
+		ret = BSP_ReadAmbientLight(&Light);
+	    tx_mutex_put(&MutexI2C2);
+		if(ret == VEML6030_Ok)
+		{
+			light = Light;
+		}
+		tx_thread_sleep(100);
+	}
+}
+
+VOID RedLEDToggleThread(ULONG init)
+{
+	while(1)
+	{
+		BSP_LEDToggleRed();
+		tx_thread_sleep(100);
+	}
+}
+
+VOID GreenLEDToggleThread(ULONG init)
+{
+	while(1)
+	{
+		BSP_LEDToggleGreen();
+		tx_thread_sleep(100);
+	}
+}
+
 
 void TIM7_ResumeMotionThread(void)
 {
 	if(Read_MotionThreadPtr.tx_thread_state == TX_SUSPENDED)
 	{
+		//uint32_t time = HAL_GetTick();
+		//printf("Time is %lu \n", time);
 	    tx_thread_resume(&Read_MotionThreadPtr);
 	}
 }
