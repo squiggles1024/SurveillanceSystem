@@ -11,6 +11,7 @@
 #include "LPS22HH.h"
 #include "HTS221.h"
 #include "IIS2MDC.h"
+#include "VEML6030.h"
 
 int32_t BSP_TempHumSensorInit(void);
 int32_t BSP_ReadTemperature(float *result);
@@ -27,6 +28,10 @@ int32_t BSP_ReadMagnetometerXYZ(float *Mx, float *My, float *Mz);
 int32_t BSP_ReadMagnetometerX(float *Mx);
 int32_t BSP_ReadMagnetometerY(float *My);
 int32_t BSP_ReadMagnetometerZ(float *Mz);
+
+int32_t BSP_AmbientLightInit(void);
+int32_t BSP_ReadAmbientLight(float *Light);
+
 int32_t BSP_GetTempPeriod(uint32_t *Period);
 int32_t BSP_GetMagneticPeriod(uint32_t *Period);
 int32_t BSP_GetPressurePeriod(uint32_t *Period);

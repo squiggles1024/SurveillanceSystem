@@ -8,6 +8,7 @@
 #include "../ExternalHardware/HTS221.h"
 #include "../ExternalHardware/LPS22HH.h"
 #include "../ExternalHardware/IIS2MDC.h"
+#include "../ExternalHardware/VEML6030.h"
 #include "BSP_IOBus.h"
 #include "BSP_environment.h"
 #include <stddef.h>
@@ -21,6 +22,8 @@ static HTS221_Handle_t TempSensor_Handle = {0};
 static LPS22HH_Handle_t PressureSensor = {0};
 
 static IIS2MDC_Handle_t Magnetometer = {0};
+
+static VEML6030_Handle_t AmbientLightSensor = {0};
 
 
 int32_t BSP_TempHumSensorInit(void)
@@ -84,8 +87,8 @@ int32_t BSP_PressureSensorInit(void)
 			.INTERRUPT_CFG = LPS22HH_DefaultSetting,
 			.THS_P = LPS22HH_DefaultSetting,
 			.IF_CTRL = LPS22HH_DefaultSetting,
-			.ODR = LPS22HH_1Hz,
-			.LPFP = LPS22HH_ODRDiv2,
+			.ODR = LPS22HH_10Hz,
+			.LPFP = LPS22HH_ODRDiv9,
 			.SIM = LPS22HH_DefaultSetting,
 			.CTRL_REG2 = LPS22HH_IncrementAddress | LPS22HH_LowNoiseMode,
 			.INT_DRDY_Control = LPS22HH_DRDY,
@@ -181,6 +184,32 @@ int32_t BSP_GetMagneticPeriod(uint32_t *Period)
 
 int32_t BSP_GetPressurePeriod(uint32_t *Period){
     int32_t ret = LPS22HH_GetSamplePeriod(&PressureSensor, Period);
+    return ret;
+}
+
+int32_t BSP_AmbientLightInit(void)
+{
+    VEML6030_IO_t IO = {
+    		.Init = BSP_I2C2_Init,
+			.Deinit = NULL,
+			.GetTick = BSP_GetTick,
+			.Read = BSP_I2C2_ReadRegVEML6030,
+			.Write = BSP_I2C2_WriteRegVEML6030
+    };
+
+    VEML_InitSettings_t Settings =
+    {
+    		.ALSConfig = VEML6030_INTTIME_100 | VEML6030_ALS_GAIN_DIV4 | VEML6030_PERS_1,
+			.PowerSavingMode = VEML_POWERSAVING_MODE1
+    };
+
+    int32_t ret = VEML6030_Init(&AmbientLightSensor, Settings, &IO);
+    return ret;
+}
+
+int32_t BSP_ReadAmbientLight(float *Light)
+{
+    int32_t ret = VEML6030_ReadLight(&AmbientLightSensor, Light);
     return ret;
 }
 
