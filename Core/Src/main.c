@@ -36,6 +36,7 @@
 #include "./BoardSupportPackage/BSP_camera.h"
 #include "./BoardSupportPackage/BSP_environment.h"
 #include "./BoardSupportPackage/BSP_motion.h"
+#include "./BoardSupportPackage/BSP_LED.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
@@ -79,7 +80,6 @@ static void SystemPower_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -120,12 +120,11 @@ int main(void)
   BSP_MagnetometerInit();
   BSP_MotionSensorInit();
   BSP_PressureSensorInit();
+  BSP_AmbientLightInit();
   BSP_RamInit();
   BSP_CameraInit();
   printf("System Initialized\r\n");
 
-
-  /***********Camera Test********/
   BSP_CameraStart((uint8_t*)CameraBuff);
 
   /* USER CODE END 2 */
