@@ -59,7 +59,7 @@ int32_t BSP_MotionSensorInit(void)
 			.XL_HM_MODE = ISM330DHCX_XL_HPModeEnabled,
 			.HP_SLOPE_XL_EN = ISM330DHCX_XL_LowPass,
 			.LPF2_XL_EN =ISM330DHCX_XL_SSF_Enabled,
-			.HPCF_XL = ISM330DHCX_ODRDiv4,
+			.HPCF_XL = ISM330DHCX_ODRDiv45,
 			.USR_OFF_ON_OUT = ISM330DHCX_XL_UserOffsetOutputDisabled,
 			.USR_OFF_W = ISM330DHCX_DefaultSetting,
 			.X_OFS_USR = ISM330DHCX_DefaultSetting,
