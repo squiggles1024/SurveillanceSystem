@@ -14,11 +14,10 @@
 
 
 void BSP_RamInit(void){
-    Ram_GPIO_Init();
-    OSPI_RamInit();
     OSPI_DelayBlockConfig();
     OSPI_EnableMemMappedMode();
     BSP_RamErase();
+   // BSP_RamTest();
 }
 
 void BSP_RamErase(void){
@@ -27,6 +26,7 @@ void BSP_RamErase(void){
 		  *(pRam + i) = 0;
 	  }
 }
+
 
 /*
 void BSP_RamTest(void){
@@ -43,3 +43,4 @@ void BSP_RamTest(void){
     test8b_read = *ram_ptr8b;
 }
 */
+

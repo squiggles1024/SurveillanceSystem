@@ -22,8 +22,6 @@ static void BSP_CameraHWInit(void);
 
 BSP_CameraStatus_t BSP_CameraInit(void)
 {
-	MX_GPDMA1_Init();
-	MX_DCMI_Init();
 	BSP_CameraHwReset();//Reset it
     BSP_CameraHWInit(); //Init OV5460 driver
 	return CameraOK;
