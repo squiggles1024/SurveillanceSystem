@@ -1,7 +1,7 @@
 Core/Src/app_threadx.o: ../Core/Src/app_threadx.c \
  ../Core/Inc/app_threadx.h ../Middlewares/ST/threadx/common/inc/tx_api.h \
  ../Middlewares/ST/threadx/ports/cortex_m33/gnu/inc/tx_port.h \
- ../Core/Inc/tx_user.h ../Core/Inc/main.h \
+ ../Core/Inc/tx_user.h ../AZURE_RTOS/App/app_azure_rtos.h \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal.h \
  ../Core/Inc/stm32u5xx_hal_conf.h \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_rcc.h \
@@ -38,6 +38,7 @@ Core/Src/app_threadx.o: ../Core/Src/app_threadx.c \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_cordic.h \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_dcmi.h \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_exti.h \
+ ../AZURE_RTOS/App/app_azure_rtos_config.h ../Core/Inc/main.h \
  ../Core/Inc/tim.h ../Core/Inc/main.h \
  ../Core/Src/./BoardSupportPackage/BSP_ram.h \
  ../Core/Src/./BoardSupportPackage/BSP_camera.h \
@@ -48,14 +49,17 @@ Core/Src/app_threadx.o: ../Core/Src/app_threadx.c \
  C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/HTS221_Registers.h \
  C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/IIS2MDC.h \
  C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/IIS2MDC_Registers.h \
+ C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/VEML6030.h \
+ C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/VEML6030_Registers.h \
  ../Core/Src/./BoardSupportPackage/BSP_motion.h \
  C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/ISM330DHCX.h \
- C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/ISM330DHCX_Registers.h
+ C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/ISM330DHCX_Registers.h \
+ ../Core/Src/./BoardSupportPackage/BSP_LED.h
 ../Core/Inc/app_threadx.h:
 ../Middlewares/ST/threadx/common/inc/tx_api.h:
 ../Middlewares/ST/threadx/ports/cortex_m33/gnu/inc/tx_port.h:
 ../Core/Inc/tx_user.h:
-../Core/Inc/main.h:
+../AZURE_RTOS/App/app_azure_rtos.h:
 ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal.h:
 ../Core/Inc/stm32u5xx_hal_conf.h:
 ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_rcc.h:
@@ -92,6 +96,8 @@ Core/Src/app_threadx.o: ../Core/Src/app_threadx.c \
 ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_cordic.h:
 ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_dcmi.h:
 ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_exti.h:
+../AZURE_RTOS/App/app_azure_rtos_config.h:
+../Core/Inc/main.h:
 ../Core/Inc/tim.h:
 ../Core/Inc/main.h:
 ../Core/Src/./BoardSupportPackage/BSP_ram.h:
@@ -103,6 +109,9 @@ C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/Surve
 C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/HTS221_Registers.h:
 C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/IIS2MDC.h:
 C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/IIS2MDC_Registers.h:
+C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/VEML6030.h:
+C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/VEML6030_Registers.h:
 ../Core/Src/./BoardSupportPackage/BSP_motion.h:
 C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/ISM330DHCX.h:
 C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/ISM330DHCX_Registers.h:
+../Core/Src/./BoardSupportPackage/BSP_LED.h:

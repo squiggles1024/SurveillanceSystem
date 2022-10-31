@@ -1,0 +1,9 @@
+../Core/Src/ExternalHardware/VEML6030.c:27:9:VEML6030_Init	40	static
+../Core/Src/ExternalHardware/VEML6030.c:80:9:VEML6030_ReadLight	24	static
+../Core/Src/ExternalHardware/VEML6030.c:100:9:VEML6030_SetALSHighThreshold	32	static
+../Core/Src/ExternalHardware/VEML6030.c:133:9:VEML6030_SetALSLowThreshold	32	static
+../Core/Src/ExternalHardware/VEML6030.c:166:9:VEML6030_GetALSHighThreshold	24	static
+../Core/Src/ExternalHardware/VEML6030.c:188:9:VEML6030_GetALSLowThreshold	24	static
+../Core/Src/ExternalHardware/VEML6030.c:211:16:VEML6030_ReadRegWrapper	32	static
+../Core/Src/ExternalHardware/VEML6030.c:223:16:VEML6030_WriteRegWrapper	32	static
+../Core/Src/ExternalHardware/VEML6030.c:235:13:ConvertLight	24	static
