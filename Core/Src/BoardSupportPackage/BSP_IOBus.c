@@ -16,6 +16,7 @@
 #define ISM330DHCX_I2C_ADDR (0xD6U)
 #define LPS22HH_I2C_ADDR (0xBAU)
 #define IIS2MDC_I2C_ADDR (0x3CU)
+#define VEML6030_I2C_ADDR (0x20U)
 #define i2c_initialized (1)
 #define i2c_uninitialized (0)
 
@@ -165,6 +166,26 @@ int32_t BSP_ReadPinIIS2MDC(void)
 uint32_t BSP_GetTick(void)
 {
     return HAL_GetTick();
+}
+
+int32_t BSP_I2C2_ReadRegVEML6030(uint8_t Reg, uint8_t *pData, uint8_t Length)
+{
+	int32_t ret = HAL_I2C_Mem_Read(&hi2c2, VEML6030_I2C_ADDR, Reg, I2C_MEMADD_SIZE_8BIT, pData, Length, 100);
+	if(ret != HAL_OK)
+	{
+		return hi2c2.ErrorCode;
+	}
+    return ret;
+}
+
+int32_t BSP_I2C2_WriteRegVEML6030(uint8_t Reg, uint8_t *pData, uint8_t Length)
+{
+	int32_t ret = HAL_I2C_Mem_Write(&hi2c2, VEML6030_I2C_ADDR, Reg, I2C_MEMADD_SIZE_8BIT, pData, Length, 100);
+	if(ret != HAL_OK)
+	{
+		return hi2c2.ErrorCode;
+	}
+    return ret;
 }
 
 

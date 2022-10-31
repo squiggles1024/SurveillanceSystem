@@ -37,6 +37,9 @@ int32_t BSP_I2C2_ReadRegIIS2MDC(uint8_t Reg, uint8_t *pData, uint8_t Length);
 int32_t BSP_I2C2_WriteRegIIS2MDC(uint8_t Reg, uint8_t *pData, uint8_t Length);
 int32_t BSP_ReadPinIIS2MDC(void);
 
+int32_t BSP_I2C2_ReadRegVEML6030(uint8_t Reg, uint8_t *pData, uint8_t Length);
+int32_t BSP_I2C2_WriteRegVEML6030(uint8_t Reg, uint8_t *pData, uint8_t Length);
+
 uint32_t BSP_GetTick(void);
 
 #endif /* SRC_BOARDSUPPORTPACKAGE_BSP_IOBUS_H_ */
