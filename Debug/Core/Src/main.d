@@ -28,6 +28,8 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_pwr_ex.h \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_ospi.h \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_ll_dlyb.h \
+ ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_spi.h \
+ ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_spi_ex.h \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_tim.h \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_tim_ex.h \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_uart.h \
@@ -40,8 +42,8 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Inc/tx_user.h ../Core/Inc/cordic.h ../Core/Inc/main.h \
  ../Core/Inc/dcache.h ../Core/Inc/dcmi.h ../Core/Inc/gpdma.h \
  ../Core/Inc/i2c.h ../Core/Inc/icache.h ../Core/Inc/octospi.h \
- ../Core/Inc/tim.h ../Core/Inc/usart.h ../Core/Inc/gpio.h \
- ../Core/Src/./BoardSupportPackage/BSP_ram.h \
+ ../Core/Inc/spi.h ../Core/Inc/tim.h ../Core/Inc/usart.h \
+ ../Core/Inc/gpio.h ../Core/Src/./BoardSupportPackage/BSP_ram.h \
  ../Core/Src/./BoardSupportPackage/BSP_camera.h \
  ../Core/Src/./BoardSupportPackage/BSP_environment.h \
  C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/LPS22HH.h \
@@ -86,6 +88,8 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_pwr_ex.h:
 ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_ospi.h:
 ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_ll_dlyb.h:
+../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_spi.h:
+../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_spi_ex.h:
 ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_tim.h:
 ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_tim_ex.h:
 ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_uart.h:
@@ -105,6 +109,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/i2c.h:
 ../Core/Inc/icache.h:
 ../Core/Inc/octospi.h:
+../Core/Inc/spi.h:
 ../Core/Inc/tim.h:
 ../Core/Inc/usart.h:
 ../Core/Inc/gpio.h:
