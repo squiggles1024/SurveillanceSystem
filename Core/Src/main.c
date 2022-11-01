@@ -26,6 +26,7 @@
 #include "i2c.h"
 #include "icache.h"
 #include "octospi.h"
+#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -114,6 +115,7 @@ int main(void)
   MX_CORDIC_Init();
   MX_USART1_UART_Init();
   MX_TIM7_Init();
+  MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
   printf("System Starting\r\n");
   BSP_TempHumSensorInit();
