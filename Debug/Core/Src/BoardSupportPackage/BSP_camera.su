@@ -1,6 +1,6 @@
 ../Core/Src/BoardSupportPackage/BSP_camera.c:23:20:BSP_CameraInit	8	static
-../Core/Src/BoardSupportPackage/BSP_camera.c:32:6:BSP_CameraStart	16	static
-../Core/Src/BoardSupportPackage/BSP_camera.c:36:6:BSP_CameraStop	8	static
-../Core/Src/BoardSupportPackage/BSP_camera.c:40:13:BSP_CameraHwReset	8	static
-../Core/Src/BoardSupportPackage/BSP_camera.c:58:13:BSP_CameraHWInit	40	static
-../Core/Src/BoardSupportPackage/BSP_camera.c:73:6:HAL_DCMI_FrameEventCallback	16	static
+../Core/Src/BoardSupportPackage/BSP_camera.c:30:6:BSP_CameraStart	16	static
+../Core/Src/BoardSupportPackage/BSP_camera.c:34:6:BSP_CameraStop	8	static
+../Core/Src/BoardSupportPackage/BSP_camera.c:38:13:BSP_CameraHwReset	8	static
+../Core/Src/BoardSupportPackage/BSP_camera.c:56:13:BSP_CameraHWInit	40	static
+../Core/Src/BoardSupportPackage/BSP_camera.c:71:6:HAL_DCMI_FrameEventCallback	16	static

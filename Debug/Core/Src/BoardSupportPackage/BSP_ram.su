@@ -1,2 +1,2 @@
 ../Core/Src/BoardSupportPackage/BSP_ram.c:16:6:BSP_RamInit	8	static
-../Core/Src/BoardSupportPackage/BSP_ram.c:24:6:BSP_RamErase	16	static
+../Core/Src/BoardSupportPackage/BSP_ram.c:23:6:BSP_RamErase	16	static
