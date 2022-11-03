@@ -9,7 +9,10 @@
 #define SRC_BOARDSUPPORTPACKAGE_BSP_CAMERA_H_
 #include <stdint.h>
 
-#define CAMERA_DATA_SIZE              ((480*272 * 2) / 4) //640 * 480 resolution, 2 bytes per pixel, 1 word per 4 bytes
+#define CAMERA_DATA_SIZE_BYTES             (480*272 * 2)
+#define CAMERA_DATA_SIZE_WORDS             (CAMERA_DATA_SIZE_BYTES / 4)
+#define CAMERA_FRAMEBUFFER1_ADDR           (0x90000000)
+#define CAMERA_FRAMEBUFFER2_ADDR           ((CAMERA_FRAMEBUFFER1_ADDR + CAMERA_DATA_SIZE_BYTES))
 
 typedef enum {
     CameraOK = 0,
@@ -22,5 +25,6 @@ typedef enum {
 BSP_CameraStatus_t BSP_CameraInit(void);
 void BSP_CameraStart(uint8_t* Buffer);
 void BSP_CameraStop(void);
+void BSP_CameraCaptureFrame(uint8_t* Buffer);
 
 #endif /* SRC_BOARDSUPPORTPACKAGE_BSP_CAMERA_H_ */

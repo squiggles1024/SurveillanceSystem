@@ -28,11 +28,16 @@ BSP_CameraStatus_t BSP_CameraInit(void)
 }
 
 void BSP_CameraStart(uint8_t* Buffer){
-	  HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)Buffer, CAMERA_DATA_SIZE);
+	  HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)Buffer, CAMERA_DATA_SIZE_WORDS);
 }
 
 void BSP_CameraStop(void){
 	  HAL_DCMI_Stop(&hdcmi);
+}
+
+void BSP_CameraCaptureFrame(uint8_t* Buffer)
+{
+	HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)Buffer, CAMERA_DATA_SIZE_WORDS);
 }
 
 static void BSP_CameraHwReset(void)
@@ -68,8 +73,4 @@ static void BSP_CameraHWInit(void){
       OV5640_Init(&OV5640_Handle, OV5640_R480x272, CAMERA_PF);
 }
 
-void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
-{
-    UNUSED(hdcmi);
-}
 
