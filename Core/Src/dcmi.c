@@ -133,7 +133,7 @@ void HAL_DCMI_MspInit(DCMI_HandleTypeDef* dcmiHandle)
     HAL_GPIO_Init(CAM_PIXCLK_GPIO_Port, &GPIO_InitStruct);
 
     /* DCMI interrupt Init */
-    HAL_NVIC_SetPriority(DCMI_PSSI_IRQn, 15, 0);
+    HAL_NVIC_SetPriority(DCMI_PSSI_IRQn, 12, 0);
     HAL_NVIC_EnableIRQ(DCMI_PSSI_IRQn);
   /* USER CODE BEGIN DCMI_MspInit 1 */
 

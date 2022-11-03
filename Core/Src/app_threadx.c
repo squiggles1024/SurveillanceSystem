@@ -26,6 +26,7 @@
 #include "app_azure_rtos.h"
 #include "main.h"
 #include "tim.h"
+#include "dcache.h"
 #include "./BoardSupportPackage/BSP_ram.h"
 #include "./BoardSupportPackage/BSP_camera.h"
 #include "./BoardSupportPackage/BSP_environment.h"
@@ -61,8 +62,10 @@ float accelx, accely, accelz;
 float gyrox, gyroy, gyroz;
 float magx, magy, magz;
 float light;
-#define TRACEX_BUFFER_SIZE (64000)
-uint8_t tracex_buffer[TRACEX_BUFFER_SIZE] __attribute__ ((section (".trace")));
+uint32_t Frame0Send = 0;
+uint32_t Frame1Send = 0;
+//#define TRACEX_BUFFER_SIZE (64000)
+//uint8_t tracex_buffer[TRACEX_BUFFER_SIZE] __attribute__ ((section (".trace")));
 
 
 TX_THREAD LED_Red_Toggle;
@@ -74,7 +77,12 @@ TX_THREAD Read_MotionThreadPtr;
 TX_THREAD Read_MagneticThreadPtr;
 TX_THREAD Read_LightThreadPtr;
 
+TX_THREAD CaptureFrameThreadPtr;
+TX_THREAD SendFrameThreadPtr;
+
 TX_MUTEX MutexI2C2;
+TX_MUTEX MutexDCMI;
+TX_SEMAPHORE CameraBufferData[2];
 
 
 /* USER CODE END PV */
@@ -89,6 +97,8 @@ VOID ReadPressureThread(ULONG init);
 VOID ReadMagneticThread(ULONG init);
 VOID ReadMotionThread(ULONG init);
 VOID ReadLightThread(ULONG init);
+VOID CaptureFrameThread(ULONG init);
+VOID SendFrameThread(ULONG init);
 /* USER CODE END PFP */
 
 /**
@@ -108,10 +118,13 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 
   /* USER CODE BEGIN App_ThreadX_Init */
 
+  //LED Threads
+
   if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, LED_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
   {
 	  return TX_POOL_ERROR;
   }
+
   ret = tx_thread_create(&LED_Red_Toggle,           //Thread Ptr
 		            "Red LED",             //Thread Name
 					RedLEDToggleThread,           //Thread Fn Ptr (address)
@@ -123,11 +136,11 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 					1,                     //Time Slize
 					TX_AUTO_START);        //Auto Start or Auto Activate
   ret = tx_byte_allocate(byte_pool, (VOID **) &Ptr, LED_STACK_SIZE, TX_NO_WAIT);
+
   if(ret != TX_SUCCESS)
   {
 	  return TX_POOL_ERROR;
   }
-
   ret = tx_thread_create(&LED_Green_Toggle,           //Thread Ptr
 		            "Green LED",             //Thread Name
 					GreenLEDToggleThread,           //Thread Fn Ptr (address)
@@ -238,7 +251,43 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 				    1,                     //Time Slize
 					TX_AUTO_START);        //Auto Start or Auto Activate
 
+  //Capture Frame
+  if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, CAPFRAME_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
+  {
+	  return TX_POOL_ERROR;
+  }
+
+  ret = tx_thread_create(&CaptureFrameThreadPtr,   //Thread Ptr
+		            "Capture Frame Thread",              //Thread Name
+					CaptureFrameThread,      //Thread Fn Ptr (address)
+					0,                     //Initial input
+					Ptr,    //Stack Ptr
+					CAPFRAME_THREAD_STACK_SIZE,     //Stack Size
+					15,                    //Priority
+					15,                    //Preempt Threshold
+				    1,                     //Time Slize
+					TX_AUTO_START);        //Auto Start or Auto Activate
+
+  //Send Frame
+  if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, SENDFRAME_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
+  {
+	  return TX_POOL_ERROR;
+  }
+
+  ret = tx_thread_create(&SendFrameThreadPtr,   //Thread Ptr
+		            "Send Frame Thread",              //Thread Name
+					SendFrameThread,      //Thread Fn Ptr (address)
+					0,                     //Initial input
+					Ptr,    //Stack Ptr
+					SENDFRAME_THREAD_STACK_SIZE,     //Stack Size
+					15,                    //Priority
+					15,                    //Preempt Threshold
+				    1,                     //Time Slize
+					TX_AUTO_START);        //Auto Start or Auto Activate
+
   ret = tx_mutex_create(&MutexI2C2, "I2C2 Mutex", TX_INHERIT);
+  ret = tx_semaphore_create(&CameraBufferData[0], "Camera Buffer 1 Semaphore", 0);
+  ret = tx_semaphore_create(&CameraBufferData[1], "Camera Buffer 2 Semaphore", 0);
   //tx_trace_enable(&tracex_buffer, TRACEX_BUFFER_SIZE,30);
   /* USER CODE END App_ThreadX_Init */
 
@@ -420,6 +469,14 @@ VOID ReadMotionThread(ULONG init)
 	}
 }
 
+void TIM7_ResumeMotionThread(void)
+{
+	if(Read_MotionThreadPtr.tx_thread_state == TX_SUSPENDED)
+	{
+	    tx_thread_resume(&Read_MotionThreadPtr);
+	}
+}
+
 VOID ReadLightThread(ULONG init)
 {
 	float Light = 0;
@@ -455,15 +512,79 @@ VOID GreenLEDToggleThread(ULONG init)
 	}
 }
 
-
-void TIM7_ResumeMotionThread(void)
+VOID CaptureFrameThread(ULONG init)
 {
-	if(Read_MotionThreadPtr.tx_thread_state == TX_SUSPENDED)
+    while(1)
+    {
+        if(CameraBufferData[0].tx_semaphore_count == 0)
+        {
+            BSP_CameraStart((uint8_t*)CAMERA_FRAMEBUFFER1_ADDR);
+            tx_thread_suspend(&CaptureFrameThreadPtr);
+        }
+
+        if(CameraBufferData[1].tx_semaphore_count == 0)
+        {
+            BSP_CameraStart((uint8_t*)CAMERA_FRAMEBUFFER2_ADDR);
+            tx_thread_suspend(&CaptureFrameThreadPtr);
+        }
+    }
+}
+
+
+VOID SendFrameThread(ULONG init)
+{
+
+    while(1)
+    {
+    	if(CameraBufferData[1].tx_semaphore_count == 0 && CameraBufferData[0].tx_semaphore_count == 0)
+    	{
+            tx_thread_relinquish();
+    	}
+
+    	if(CameraBufferData[0].tx_semaphore_count >= 1)
+    	{
+    		//Send Frame1 Here
+    		Frame0Send++;
+    		tx_semaphore_get(&CameraBufferData[0],TX_NO_WAIT);
+    	}
+
+    	if(CameraBufferData[1].tx_semaphore_count >= 1)
+    	{
+    		//Send Frame2 Here
+    		Frame1Send++;
+    		tx_semaphore_get(&CameraBufferData[1],TX_NO_WAIT);
+    	}
+    }
+}
+
+
+static uint32_t FrameCount = 0;
+void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
+{
+	BSP_CameraStop();
+	if(FrameCount % 2 == 0)
 	{
-		//uint32_t time = HAL_GetTick();
-		//printf("Time is %lu \n", time);
-	    tx_thread_resume(&Read_MotionThreadPtr);
+		HAL_DCACHE_CleanInvalidByAddr_IT(&hdcache1, (const uint32_t *const)CAMERA_FRAMEBUFFER1_ADDR, CAMERA_DATA_SIZE_BYTES);
+
+	} else
+	{
+		HAL_DCACHE_CleanInvalidByAddr_IT(&hdcache1, (const uint32_t *const)CAMERA_FRAMEBUFFER2_ADDR, CAMERA_DATA_SIZE_BYTES);
 	}
+	tx_thread_resume(&CaptureFrameThreadPtr);
+
+}
+
+void HAL_DCACHE_CleanAndInvalidateByAddrCallback(DCACHE_HandleTypeDef *hdcache)
+{
+
+	if((FrameCount % 2)== 0)
+	{
+		tx_semaphore_put(&CameraBufferData[0]);
+	} else
+	{
+		tx_semaphore_put(&CameraBufferData[1]);
+	}
+	FrameCount++;
 }
 
 

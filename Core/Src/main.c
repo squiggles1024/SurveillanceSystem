@@ -58,7 +58,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint32_t *CameraBuff = (uint32_t*)OSPI1_RAM_BASE;
+
 
 /* USER CODE END PV */
 
@@ -127,7 +127,6 @@ int main(void)
   BSP_CameraInit();
   printf("System Initialized\r\n");
 
-  BSP_CameraStart((uint8_t*)CameraBuff);
 
   /* USER CODE END 2 */
 

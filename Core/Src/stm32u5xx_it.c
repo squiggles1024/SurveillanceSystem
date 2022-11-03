@@ -56,6 +56,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DCACHE_HandleTypeDef hdcache1;
 extern DCMI_HandleTypeDef hdcmi;
 extern DMA_HandleTypeDef handle_GPDMA1_Channel12;
 extern TIM_HandleTypeDef htim7;
@@ -201,8 +202,21 @@ void GPDMA1_Channel12_IRQHandler(void)
   /* USER CODE END GPDMA1_Channel12_IRQn 0 */
   HAL_DMA_IRQHandler(&handle_GPDMA1_Channel12);
   /* USER CODE BEGIN GPDMA1_Channel12_IRQn 1 */
-
   /* USER CODE END GPDMA1_Channel12_IRQn 1 */
+}
+
+/**
+  * @brief This function handles Data cache global interrupt.
+  */
+void DCACHE1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DCACHE1_IRQn 0 */
+
+  /* USER CODE END DCACHE1_IRQn 0 */
+  HAL_DCACHE_IRQHandler(&hdcache1);
+  /* USER CODE BEGIN DCACHE1_IRQn 1 */
+
+  /* USER CODE END DCACHE1_IRQn 1 */
 }
 
 /**

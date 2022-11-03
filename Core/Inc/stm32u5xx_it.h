@@ -42,7 +42,6 @@
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
@@ -55,6 +54,7 @@ void DebugMon_Handler(void);
 void TIM6_IRQHandler(void);
 void TIM7_IRQHandler(void);
 void GPDMA1_Channel12_IRQHandler(void);
+void DCACHE1_IRQHandler(void);
 void DCMI_PSSI_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 
