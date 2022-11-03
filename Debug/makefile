@@ -9,10 +9,23 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include NetXDuo/Target/subdir.mk
+-include NetXDuo/App/subdir.mk
 -include Middlewares/ST/threadx/ports/cortex_m33/gnu/src/subdir.mk
 -include Middlewares/ST/threadx/common/src/subdir.mk
+-include Middlewares/ST/threadx/common/inc/subdir.mk
+-include Middlewares/ST/netxduo/nx_secure/src/subdir.mk
+-include Middlewares/ST/netxduo/crypto_libraries/src/subdir.mk
+-include Middlewares/ST/netxduo/common/src/subdir.mk
+-include Middlewares/ST/netxduo/addons/sntp/subdir.mk
+-include Middlewares/ST/netxduo/addons/mqtt/subdir.mk
+-include Middlewares/ST/netxduo/addons/dns/subdir.mk
+-include Middlewares/ST/netxduo/addons/dhcp/subdir.mk
 -include Drivers/STM32U5xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
+-include Core/Src/ExternalHardware/mx_wifi/io_pattern/subdir.mk
+-include Core/Src/ExternalHardware/mx_wifi/core/subdir.mk
+-include Core/Src/ExternalHardware/mx_wifi/subdir.mk
 -include Core/Src/ExternalHardware/subdir.mk
 -include Core/Src/BoardSupportPackage/subdir.mk
 -include Core/Src/subdir.mk

@@ -1,7 +1,8 @@
 Core/Src/app_threadx.o: ../Core/Src/app_threadx.c \
  ../Core/Inc/app_threadx.h ../Middlewares/ST/threadx/common/inc/tx_api.h \
  ../Middlewares/ST/threadx/ports/cortex_m33/gnu/inc/tx_port.h \
- ../Core/Inc/tx_user.h ../AZURE_RTOS/App/app_azure_rtos.h \
+ ../Core/Inc/tx_user.h ../Core/Inc/stm32u5xx_it.h \
+ ../AZURE_RTOS/App/app_azure_rtos.h \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal.h \
  ../Core/Inc/stm32u5xx_hal_conf.h \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_rcc.h \
@@ -41,7 +42,11 @@ Core/Src/app_threadx.o: ../Core/Src/app_threadx.c \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_dcmi.h \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_exti.h \
  ../AZURE_RTOS/App/app_azure_rtos_config.h ../Core/Inc/main.h \
- ../Core/Inc/tim.h ../Core/Inc/main.h \
+ ../NetXDuo/App/app_netxduo.h \
+ ../Middlewares/ST/netxduo/common/inc/nx_api.h \
+ ../Middlewares/ST/netxduo/ports/cortex_m33/gnu/inc/nx_port.h \
+ ../NetXDuo/App/nx_user.h ../Middlewares/ST/threadx/common/inc/tx_trace.h \
+ ../Core/Inc/tim.h ../Core/Inc/main.h ../Core/Inc/dcache.h \
  ../Core/Src/./BoardSupportPackage/BSP_ram.h \
  ../Core/Src/./BoardSupportPackage/BSP_camera.h \
  ../Core/Src/./BoardSupportPackage/BSP_environment.h \
@@ -61,6 +66,7 @@ Core/Src/app_threadx.o: ../Core/Src/app_threadx.c \
 ../Middlewares/ST/threadx/common/inc/tx_api.h:
 ../Middlewares/ST/threadx/ports/cortex_m33/gnu/inc/tx_port.h:
 ../Core/Inc/tx_user.h:
+../Core/Inc/stm32u5xx_it.h:
 ../AZURE_RTOS/App/app_azure_rtos.h:
 ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal.h:
 ../Core/Inc/stm32u5xx_hal_conf.h:
@@ -102,8 +108,14 @@ Core/Src/app_threadx.o: ../Core/Src/app_threadx.c \
 ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_exti.h:
 ../AZURE_RTOS/App/app_azure_rtos_config.h:
 ../Core/Inc/main.h:
+../NetXDuo/App/app_netxduo.h:
+../Middlewares/ST/netxduo/common/inc/nx_api.h:
+../Middlewares/ST/netxduo/ports/cortex_m33/gnu/inc/nx_port.h:
+../NetXDuo/App/nx_user.h:
+../Middlewares/ST/threadx/common/inc/tx_trace.h:
 ../Core/Inc/tim.h:
 ../Core/Inc/main.h:
+../Core/Inc/dcache.h:
 ../Core/Src/./BoardSupportPackage/BSP_ram.h:
 ../Core/Src/./BoardSupportPackage/BSP_camera.h:
 ../Core/Src/./BoardSupportPackage/BSP_environment.h:
