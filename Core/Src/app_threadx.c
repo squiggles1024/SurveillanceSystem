@@ -32,6 +32,7 @@
 #include "./BoardSupportPackage/BSP_environment.h"
 #include "./BoardSupportPackage/BSP_motion.h"
 #include "./BoardSupportPackage/BSP_LED.h"
+#include "app_netxduo.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
@@ -84,6 +85,13 @@ TX_MUTEX MutexI2C2;
 TX_MUTEX MutexDCMI;
 TX_SEMAPHORE CameraBufferData[2];
 
+TX_QUEUE TemperatureQueue;
+TX_QUEUE LightQueue;
+TX_QUEUE PressureQueue;
+TX_QUEUE HumidityQueue;
+TX_QUEUE MagXQueue;
+TX_QUEUE MagYQueue;
+TX_QUEUE MagZQueue;
 
 /* USER CODE END PV */
 
@@ -99,6 +107,8 @@ VOID ReadMotionThread(ULONG init);
 VOID ReadLightThread(ULONG init);
 VOID CaptureFrameThread(ULONG init);
 VOID SendFrameThread(ULONG init);
+
+static VOID DataSendNotify(TX_QUEUE *QueuePtr);
 /* USER CODE END PFP */
 
 /**
@@ -149,7 +159,7 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 					LED_STACK_SIZE,     //Stack Size
 					15,                    //Priority
 					15,                    //Preempt Threshold
-					1,                     //Time Slize
+					1,                     //Time Slice
 					TX_AUTO_START);        //Auto Start or Auto Activate
 
   //Motion
@@ -288,6 +298,22 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
   ret = tx_mutex_create(&MutexI2C2, "I2C2 Mutex", TX_INHERIT);
   ret = tx_semaphore_create(&CameraBufferData[0], "Camera Buffer 1 Semaphore", 0);
   ret = tx_semaphore_create(&CameraBufferData[1], "Camera Buffer 2 Semaphore", 0);
+
+  ret = tx_queue_create(&TemperatureQueue, "Temperature Queue", TX_1_ULONG, Ptr, 1*sizeof(float));
+  ret = tx_queue_create(&PressureQueue, "Pressure Queue", TX_1_ULONG, Ptr, 1*sizeof(float));
+  ret = tx_queue_create(&HumidityQueue, "Humidity Queue", TX_1_ULONG, Ptr, 1*sizeof(float));
+  ret = tx_queue_create(&LightQueue, "Light Queue", TX_1_ULONG, Ptr, 1*sizeof(float));
+  ret = tx_queue_create(&MagXQueue, "MagX Queue", TX_1_ULONG, Ptr, 1*sizeof(float));
+  ret = tx_queue_create(&MagYQueue, "MagY Queue", TX_1_ULONG, Ptr, 1*sizeof(float));
+  ret = tx_queue_create(&MagZQueue, "MagZ Queue", TX_1_ULONG, Ptr, 1*sizeof(float));
+
+  ret = tx_queue_send_notify(&TemperatureQueue,DataSendNotify);
+  ret = tx_queue_send_notify(&PressureQueue,DataSendNotify);
+  ret = tx_queue_send_notify(&HumidityQueue,DataSendNotify);
+  ret = tx_queue_send_notify(&LightQueue,DataSendNotify);
+  ret = tx_queue_send_notify(&MagXQueue,DataSendNotify);
+  ret = tx_queue_send_notify(&MagYQueue,DataSendNotify);
+  ret = tx_queue_send_notify(&MagZQueue,DataSendNotify);
   //tx_trace_enable(&tracex_buffer, TRACEX_BUFFER_SIZE,30);
   /* USER CODE END App_ThreadX_Init */
 
@@ -327,6 +353,7 @@ VOID ReadTemperatureThread(ULONG init)
 		tx_mutex_put(&MutexI2C2);
 		if(ret == HTS221_DataReady)
 		{
+            ret = tx_queue_send(&TemperatureQueue, (VOID*)&temp_data, TX_WAIT_FOREVER);
 			temp_data = Temperature;
 		}
 		ret = BSP_GetTempPeriod(&SleepTime);
@@ -335,7 +362,7 @@ VOID ReadTemperatureThread(ULONG init)
 			//Sleep Time given in milliseconds. OS Timeslice = 10 ms, +1 is to handle possible non-zero remainders.
 			if(SleepTime % 10 == 0)
 			{
-				tx_thread_sleep(SleepTime);
+				tx_thread_sleep(SleepTime / 10);
 			} else
 			{
 				tx_thread_sleep((SleepTime / 10) + 1);
@@ -357,6 +384,7 @@ VOID ReadHumidityThread(ULONG init)
 		tx_mutex_put(&MutexI2C2);
 		if(ret == HTS221_DataReady)
 		{
+            ret = tx_queue_send(&HumidityQueue, (VOID*)&humidity_data, TX_WAIT_FOREVER);
 			humidity_data = Humidity;
 		}
 		ret = BSP_GetTempPeriod(&SleepTime);
@@ -365,7 +393,7 @@ VOID ReadHumidityThread(ULONG init)
 			//Sleep Time given in milliseconds. OS Timeslice = 10 ms, +1 is to handle possible non-zero remainders.
 			if(SleepTime % 10 == 0)
 			{
-				tx_thread_sleep(SleepTime);
+				tx_thread_sleep(SleepTime / 10);
 			} else
 			{
 				tx_thread_sleep((SleepTime / 10) + 1);
@@ -386,6 +414,7 @@ VOID ReadPressureThread(ULONG init)
 		tx_mutex_put(&MutexI2C2);
 		if(ret == LPS22HH_DataReady)
 		{
+			ret = tx_queue_send(&PressureQueue, (VOID*)&pressure_data, TX_WAIT_FOREVER);
 			pressure_data = Pressure;
 		}
 		ret = BSP_GetPressurePeriod(&SleepTime);
@@ -394,7 +423,7 @@ VOID ReadPressureThread(ULONG init)
 			//Sleep Time given in milliseconds. OS Timeslice = 10 ms, +1 is to handle possible non-zero remainders.
 			if(SleepTime % 10 == 0)
 			{
-				tx_thread_sleep(SleepTime);
+				tx_thread_sleep(SleepTime / 10);
 			} else
 			{
 				tx_thread_sleep((SleepTime / 10) + 1);
@@ -417,6 +446,10 @@ VOID ReadMagneticThread(ULONG init)
 		tx_mutex_put(&MutexI2C2);
 		if(ret == IIS2MDC_DataReady)
 		{
+
+			//ret = tx_queue_send(&MagXQueue, (VOID*)&magx, TX_WAIT_FOREVER);
+			//ret = tx_queue_send(&MagYQueue, (VOID*)&magy, TX_WAIT_FOREVER);
+			//ret = tx_queue_send(&MagZQueue, (VOID*)&magz, TX_WAIT_FOREVER);
 			magx = MagX;
 			magy = MagY;
 			magz = MagZ;
@@ -427,7 +460,7 @@ VOID ReadMagneticThread(ULONG init)
 			//Sleep Time given in milliseconds. OS Timeslice = 10 ms, +1 is to handle possible non-zero remainders.
 			if(SleepTime % 10 == 0)
 			{
-				tx_thread_sleep(SleepTime);
+				tx_thread_sleep(SleepTime / 10);
 			} else
 			{
 				tx_thread_sleep((SleepTime / 10) + 1);
@@ -518,13 +551,13 @@ VOID CaptureFrameThread(ULONG init)
     {
         if(CameraBufferData[0].tx_semaphore_count == 0)
         {
-            BSP_CameraStart((uint8_t*)CAMERA_FRAMEBUFFER1_ADDR);
+        	BSP_CameraStart((uint8_t*)CAMERA_FRAMEBUFFER1_ADDR);
             tx_thread_suspend(&CaptureFrameThreadPtr);
         }
 
         if(CameraBufferData[1].tx_semaphore_count == 0)
         {
-            BSP_CameraStart((uint8_t*)CAMERA_FRAMEBUFFER2_ADDR);
+        	BSP_CameraStart((uint8_t*)CAMERA_FRAMEBUFFER2_ADDR);
             tx_thread_suspend(&CaptureFrameThreadPtr);
         }
     }
@@ -561,6 +594,7 @@ VOID SendFrameThread(ULONG init)
 static uint32_t FrameCount = 0;
 void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
+
 	BSP_CameraStop();
 	if(FrameCount % 2 == 0)
 	{
@@ -585,6 +619,38 @@ void HAL_DCACHE_CleanAndInvalidateByAddrCallback(DCACHE_HandleTypeDef *hdcache)
 		tx_semaphore_put(&CameraBufferData[1]);
 	}
 	FrameCount++;
+}
+
+static VOID DataSendNotify(TX_QUEUE *QueuePtr)
+{
+	if(QueuePtr == &TemperatureQueue)
+	{
+        tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB01_EVT_Msk, TX_OR);
+	}
+	else if(QueuePtr == &LightQueue)
+	{
+		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB04_EVT_Msk, TX_OR);
+	}
+	else if(QueuePtr == &PressureQueue)
+	{
+		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB03_EVT_Msk, TX_OR);
+	}
+	else if(QueuePtr == &HumidityQueue)
+	{
+		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB02_EVT_Msk, TX_OR);
+	}
+	else if(QueuePtr == &MagXQueue)
+	{
+		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB05_EVT_Msk, TX_OR);
+	}
+	else if(QueuePtr == &MagYQueue)
+	{
+		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB06_EVT_Msk, TX_OR);
+	}
+	else if(QueuePtr == &MagZQueue)
+	{
+		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB07_EVT_Msk, TX_OR);
+	}
 }
 
 

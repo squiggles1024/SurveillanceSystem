@@ -82,15 +82,15 @@
 
 /* NX_PHYSICAL_HEADER Specifies the size in bytes of the physical header of
    the frame. */
-/*
-#define NX_PHYSICAL_HEADER						16
-*/
+#define NX_PHYSICAL_HEADER                      44
 
 /* NX_PHYSICAL_TRAILER specifies the size in bytes of the physical packet
    trailer and is typically used to reserve storage for things like Ethernet
    CRCs, etc. */
 /* Define the max string length. The default value is 1024.  */
-#define NX_PHYSICAL_TRAILER                     44
+/*
+#define NX_PHYSICAL_TRAILER                     4
+*/
 
 /* Defined, this option bypasses the basic NetX error checking. This define
    is typically used after the application is fully debugged.
@@ -2251,9 +2251,7 @@
 
 /* The lowest level (highest numeric stratum level) SNTP Server stratum the
    Client will accept. The NetX Duo SNTP Client default is 2. */
-/*
-#define NX_SNTP_CLIENT_MIN_SERVER_STRATUM       2
-*/
+#define NX_SNTP_CLIENT_MIN_SERVER_STRATUM		5
 
 /* The minimum time adjustment in milliseconds the Client will make to its
    local clock time. Time adjustments below this will be ignored. The NetX
@@ -2338,9 +2336,7 @@
    server clock precision, the Client will accept. To disable this requirement,
    set the maximum root dispersion to 0x0. The NetX Duo SNTP Client default is
    set to 50000. */
-/*
-#define NX_SNTP_CLIENT_MAX_ROOT_DISPERSION      50000
-*/
+#define NX_SNTP_CLIENT_MAX_ROOT_DISPERSION		500000
 
 /* The limit on the number of consecutive invalid updates received from the
    Client server in either broadcast or unicast mode. When this limit is
