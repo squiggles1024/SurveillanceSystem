@@ -453,7 +453,7 @@ static VOID MQTT_Loop(ULONG input)
             	{
             		Error_Handler();
             	}
-            	printf("Message %lu received: TOPIC = %s, MESSAGE = %s\n", MessageCounter + 1, MQTT_TopicBuffer, MQTT_MessageBuffer);
+            	//printf("Message %lu received: TOPIC = %s, MESSAGE = %s\n", MessageCounter + 1, MQTT_TopicBuffer, MQTT_MessageBuffer);
             	MessageCount--;
             	MessageCounter++;
             }

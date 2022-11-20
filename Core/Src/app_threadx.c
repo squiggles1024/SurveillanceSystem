@@ -82,7 +82,6 @@ TX_THREAD CaptureFrameThreadPtr;
 TX_THREAD SendFrameThreadPtr;
 
 TX_MUTEX MutexI2C2;
-TX_MUTEX MutexDCMI;
 TX_SEMAPHORE CameraBufferData[2];
 
 TX_QUEUE TemperatureQueue;
@@ -135,16 +134,16 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 	  return TX_POOL_ERROR;
   }
 
-  ret = tx_thread_create(&LED_Red_Toggle,           //Thread Ptr
-		            "Red LED",             //Thread Name
-					RedLEDToggleThread,           //Thread Fn Ptr (address)
-					0,                //Initial input
-					Ptr,         //Stack Ptr
-					LED_STACK_SIZE,     //Stack Size
-					15,                    //Priority
-					15,                    //Preempt Threshold
-					1,                     //Time Slize
-					TX_AUTO_START);        //Auto Start or Auto Activate
+  ret = tx_thread_create(&LED_Red_Toggle,                 //Thread Ptr
+		            "Red LED",                            //Thread Name
+					RedLEDToggleThread,                   //Thread Fn Ptr (address)
+					0,                                    //Initial input
+					Ptr,                                  //Stack Ptr
+					LED_STACK_SIZE,                       //Stack Size
+					LED_THREAD_PRIORITY,                  //Priority
+					LED_THREAD_PRIORITY,                  //Preempt Threshold
+					1,                                    //Time Slice
+					TX_AUTO_START);                       //Auto Start or Auto Activate
   ret = tx_byte_allocate(byte_pool, (VOID **) &Ptr, LED_STACK_SIZE, TX_NO_WAIT);
 
   if(ret != TX_SUCCESS)
@@ -152,15 +151,15 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 	  return TX_POOL_ERROR;
   }
   ret = tx_thread_create(&LED_Green_Toggle,           //Thread Ptr
-		            "Green LED",             //Thread Name
-					GreenLEDToggleThread,           //Thread Fn Ptr (address)
-					0,                //Initial input
-					Ptr,         //Stack Ptr
-					LED_STACK_SIZE,     //Stack Size
-					15,                    //Priority
-					15,                    //Preempt Threshold
-					1,                     //Time Slice
-					TX_AUTO_START);        //Auto Start or Auto Activate
+		            "Green LED",                      //Thread Name
+					GreenLEDToggleThread,             //Thread Fn Ptr (address)
+					0,                                //Initial input
+					Ptr,                              //Stack Ptr
+					LED_STACK_SIZE,                   //Stack Size
+					LED_THREAD_PRIORITY,              //Priority
+					LED_THREAD_PRIORITY,              //Preempt Threshold
+					1,                                //Time Slice
+					TX_AUTO_START);                   //Auto Start or Auto Activate
 
   //Motion
   if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, MOT_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
@@ -168,16 +167,16 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 	  return TX_POOL_ERROR;
   }
 
-  ret = tx_thread_create(&Read_MotionThreadPtr,     //Thread Ptr
-		            "Motion Sensor",        //Thread Name
-					ReadMotionThread,      //Thread Fn Ptr (address)
-					0,                     //Initial input
-					Ptr,      //Stack Ptr
-					MOT_THREAD_STACK_SIZE,     //Stack Size
-					10,                    //Priority
-					10,                    //Preempt Threshold
-				    5,                     //Time Slize
-					TX_AUTO_START);        //Auto Start or Auto Activate
+  ret = tx_thread_create(&Read_MotionThreadPtr,      //Thread Ptr
+		            "Motion Sensor",                 //Thread Name
+					ReadMotionThread,                //Thread Fn Ptr (address)
+					0,                               //Initial input
+					Ptr,                             //Stack Ptr
+					MOT_THREAD_STACK_SIZE,           //Stack Size
+					GET_MOTION_PRIORITY,             //Priority
+					GET_MOTION_PRIORITY,             //Preempt Threshold
+					TX_NO_TIME_SLICE,                //Time Slice
+					TX_AUTO_START);                  //Auto Start or Auto Activate
 
   //Temp
   if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, TEMP_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
@@ -186,15 +185,15 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
   }
 
   ret = tx_thread_create(&Read_TemperatureThreadPtr,   //Thread Ptr
-		            "Temp Sensor",              //Thread Name
-					ReadTemperatureThread,      //Thread Fn Ptr (address)
-					0,                     //Initial input
-					Ptr, //Stack Ptr
-					TEMP_THREAD_STACK_SIZE,     //Stack Size
-					15,                    //Priority
-					15,                    //Preempt Threshold
-				    1,                     //Time Slize
-					TX_AUTO_START);        //Auto Start or Auto Activate
+		            "Temp Sensor",                     //Thread Name
+					ReadTemperatureThread,             //Thread Fn Ptr (address)
+					0,                                 //Initial input
+					Ptr,                               //Stack Ptr
+					TEMP_THREAD_STACK_SIZE,            //Stack Size
+					GET_TEMPERATURE_PRIORITY,          //Priority
+					GET_TEMPERATURE_PRIORITY,          //Preempt Threshold
+				    TX_NO_TIME_SLICE,                  //Time Slice
+					TX_AUTO_START);                    //Auto Start or Auto Activate
   //Humidity
   if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, HUM_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
   {
@@ -203,14 +202,14 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 
   ret = tx_thread_create(&Read_HumidityThreadPtr,   //Thread Ptr
 		            "Humidity Sensor",              //Thread Name
-					ReadHumidityThread,      //Thread Fn Ptr (address)
-					0,                     //Initial input
-					Ptr,    //Stack Ptr
-					HUM_THREAD_STACK_SIZE,     //Stack Size
-					15,                    //Priority
-					15,                    //Preempt Threshold
-				    1,                     //Time Slize
-					TX_AUTO_START);        //Auto Start or Auto Activate
+					ReadHumidityThread,             //Thread Fn Ptr (address)
+					0,                              //Initial input
+					Ptr,                            //Stack Ptr
+					HUM_THREAD_STACK_SIZE,          //Stack Size
+					GET_HUMIDITY_PRIORITY,          //Priority
+					GET_HUMIDITY_PRIORITY,          //Preempt Threshold
+					TX_NO_TIME_SLICE,               //Time Slice
+					TX_AUTO_START);                 //Auto Start or Auto Activate
   //Pressure
   if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, PRES_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
   {
@@ -219,14 +218,14 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 
   ret = tx_thread_create(&Read_PressureThreadPtr,   //Thread Ptr
 		            "Pressure Sensor",              //Thread Name
-					ReadPressureThread,      //Thread Fn Ptr (address)
-					0,                     //Initial input
-					Ptr,    //Stack Ptr
-					PRES_THREAD_STACK_SIZE,     //Stack Size
-					15,                    //Priority
-					15,                    //Preempt Threshold
-				    1,                     //Time Slize
-					TX_AUTO_START);        //Auto Start or Auto Activate
+					ReadPressureThread,             //Thread Fn Ptr (address)
+					0,                              //Initial input
+					Ptr,                            //Stack Ptr
+					PRES_THREAD_STACK_SIZE,         //Stack Size
+					GET_PRESSURE_PRIORITY,          //Priority
+					GET_PRESSURE_PRIORITY,          //Preempt Threshold
+					TX_NO_TIME_SLICE,               //Time Slice
+					TX_AUTO_START);                 //Auto Start or Auto Activate
 
   //Magnet
   if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, MAG_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
@@ -236,14 +235,14 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 
   ret = tx_thread_create(&Read_MagneticThreadPtr,   //Thread Ptr
 		            "Magnetic Sensor",              //Thread Name
-					ReadMagneticThread,      //Thread Fn Ptr (address)
-					0,                     //Initial input
-					Ptr,    //Stack Ptr
-					MAG_THREAD_STACK_SIZE,     //Stack Size
-					15,                    //Priority
-					15,                    //Preempt Threshold
-				    1,                     //Time Slize
-					TX_AUTO_START);        //Auto Start or Auto Activate
+					ReadMagneticThread,             //Thread Fn Ptr (address)
+					0,                              //Initial input
+					Ptr,                            //Stack Ptr
+					MAG_THREAD_STACK_SIZE,          //Stack Size
+					GET_MAGNETIC_PRIORITY,          //Priority
+					GET_MAGNETIC_PRIORITY,          //Preempt Threshold
+					TX_NO_TIME_SLICE,               //Time Slice
+					TX_AUTO_START);                 //Auto Start or Auto Activate
   //Light
   if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, LIGHT_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
   {
@@ -252,14 +251,14 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 
   ret = tx_thread_create(&Read_LightThreadPtr,   //Thread Ptr
 		            "Light Sensor",              //Thread Name
-					ReadLightThread,      //Thread Fn Ptr (address)
-					0,                     //Initial input
-					Ptr,    //Stack Ptr
+					ReadLightThread,             //Thread Fn Ptr (address)
+					0,                           //Initial input
+					Ptr,                         //Stack Ptr
 					LIGHT_THREAD_STACK_SIZE,     //Stack Size
-					15,                    //Priority
-					15,                    //Preempt Threshold
-				    1,                     //Time Slize
-					TX_AUTO_START);        //Auto Start or Auto Activate
+					GET_LIGHT_PRIORITY,          //Priority
+					GET_LIGHT_PRIORITY,          //Preempt Threshold
+					TX_NO_TIME_SLICE,            //Time Slice
+					TX_AUTO_START);              //Auto Start or Auto Activate
 
   //Capture Frame
   if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, CAPFRAME_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
@@ -268,15 +267,15 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
   }
 
   ret = tx_thread_create(&CaptureFrameThreadPtr,   //Thread Ptr
-		            "Capture Frame Thread",              //Thread Name
-					CaptureFrameThread,      //Thread Fn Ptr (address)
-					0,                     //Initial input
-					Ptr,    //Stack Ptr
-					CAPFRAME_THREAD_STACK_SIZE,     //Stack Size
-					15,                    //Priority
-					15,                    //Preempt Threshold
-				    1,                     //Time Slize
-					TX_AUTO_START);        //Auto Start or Auto Activate
+		            "Capture Frame Thread",        //Thread Name
+					CaptureFrameThread,            //Thread Fn Ptr (address)
+					0,                             //Initial input
+					Ptr,                           //Stack Ptr
+					CAPFRAME_THREAD_STACK_SIZE,    //Stack Size
+					CAPTURE_FRAME_PRIORITY,        //Priority
+					CAPTURE_FRAME_PRIORITY,        //Preempt Threshold
+					TX_NO_TIME_SLICE,              //Time Slice
+					TX_AUTO_START);                //Auto Start or Auto Activate
 
   //Send Frame
   if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, SENDFRAME_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
@@ -285,15 +284,15 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
   }
 
   ret = tx_thread_create(&SendFrameThreadPtr,   //Thread Ptr
-		            "Send Frame Thread",              //Thread Name
-					SendFrameThread,      //Thread Fn Ptr (address)
-					0,                     //Initial input
-					Ptr,    //Stack Ptr
-					SENDFRAME_THREAD_STACK_SIZE,     //Stack Size
-					15,                    //Priority
-					15,                    //Preempt Threshold
-				    1,                     //Time Slize
-					TX_AUTO_START);        //Auto Start or Auto Activate
+		            "Send Frame Thread",        //Thread Name
+					SendFrameThread,            //Thread Fn Ptr (address)
+					0,                          //Initial input
+					Ptr,                        //Stack Ptr
+					SENDFRAME_THREAD_STACK_SIZE,//Stack Size
+					SEND_FRAME_PRIORITY,        //Priority
+					SEND_FRAME_PRIORITY,        //Preempt Threshold
+					TX_NO_TIME_SLICE,           //Time Slice
+					TX_DONT_START);             //Auto Start or Auto Activate
 
   ret = tx_mutex_create(&MutexI2C2, "I2C2 Mutex", TX_INHERIT);
   ret = tx_semaphore_create(&CameraBufferData[0], "Camera Buffer 1 Semaphore", 0);
@@ -521,6 +520,7 @@ VOID ReadLightThread(ULONG init)
 	    tx_mutex_put(&MutexI2C2);
 		if(ret == VEML6030_Ok)
 		{
+			ret = tx_queue_send(&LightQueue, &light, TX_WAIT_FOREVER);
 			light = Light;
 		}
 		tx_thread_sleep(100);
@@ -552,13 +552,15 @@ VOID CaptureFrameThread(ULONG init)
         if(CameraBufferData[0].tx_semaphore_count == 0)
         {
         	BSP_CameraStart((uint8_t*)CAMERA_FRAMEBUFFER1_ADDR);
+        	tx_thread_resume(&SendFrameThreadPtr);
             tx_thread_suspend(&CaptureFrameThreadPtr);
         }
 
         if(CameraBufferData[1].tx_semaphore_count == 0)
         {
         	BSP_CameraStart((uint8_t*)CAMERA_FRAMEBUFFER2_ADDR);
-            tx_thread_suspend(&CaptureFrameThreadPtr);
+        	tx_thread_resume(&SendFrameThreadPtr);
+        	tx_thread_suspend(&CaptureFrameThreadPtr);
         }
     }
 }
@@ -571,7 +573,7 @@ VOID SendFrameThread(ULONG init)
     {
     	if(CameraBufferData[1].tx_semaphore_count == 0 && CameraBufferData[0].tx_semaphore_count == 0)
     	{
-            tx_thread_relinquish();
+            tx_thread_suspend(&SendFrameThreadPtr);
     	}
 
     	if(CameraBufferData[0].tx_semaphore_count >= 1)
@@ -651,6 +653,7 @@ static VOID DataSendNotify(TX_QUEUE *QueuePtr)
 	{
 		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB07_EVT_Msk, TX_OR);
 	}
+	tx_thread_resume(&MQTTThread);
 }
 
 

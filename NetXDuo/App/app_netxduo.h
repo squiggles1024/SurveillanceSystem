@@ -39,6 +39,7 @@
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
  extern TX_EVENT_FLAGS_GROUP MQTT_TREvent;
+ extern TX_THREAD MQTTThread;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/

@@ -220,7 +220,16 @@ void Error_Handler(void);
 #define MXCHIP_RESET_Pin GPIO_PIN_15
 #define MXCHIP_RESET_GPIO_Port GPIOF
 /* USER CODE BEGIN Private defines */
-
+#define GET_TEMPERATURE_PRIORITY 15
+#define GET_HUMIDITY_PRIORITY    15
+#define GET_LIGHT_PRIORITY       15
+#define GET_PRESSURE_PRIORITY    12
+#define GET_MAGNETIC_PRIORITY    13
+#define GET_MOTION_PRIORITY      10
+#define SEND_ENVDATA_PRIORITY    11
+#define CAPTURE_FRAME_PRIORITY   14
+#define SEND_FRAME_PRIORITY      9
+#define LED_THREAD_PRIORITY      15
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
