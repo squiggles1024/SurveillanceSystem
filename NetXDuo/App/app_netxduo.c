@@ -59,7 +59,7 @@ TX_THREAD IPInitThread, SNTPInitThread, MQTTThread;
 
 TX_SEMAPHORE IP_ADDR_SEM;
 TX_SEMAPHORE SNTP_UPDATE_SEM;
-static UINT MessageCount = 0;
+//static UINT MessageCount = 0;
 
 static ULONG CurrentTime;
 
@@ -375,14 +375,51 @@ static VOID SNTP_Init(ULONG input)
     tx_thread_terminate(&SNTPInitThread);
 }
 
+
+static VOID IP_Address_Changed_CB(NX_IP *IPInstance, VOID *Input)
+{
+	tx_semaphore_put(&IP_ADDR_SEM);
+}
+
+static VOID Time_Update_CB(NX_SNTP_TIME_MESSAGE  *TimeMsg, NX_SNTP_TIME *LocalTime)
+{
+	tx_semaphore_put(&SNTP_UPDATE_SEM);
+}
+
+static VOID MQTTMessageRecieved_CB(NXD_MQTT_CLIENT* Client, UINT MsgCount)
+{
+    UINT Remaining = MsgCount;
+	UINT ActualTopicLength = 0;
+	UINT ActualMessageLength = 0;
+    static ULONG MessageCounter = 0;
+	UINT ret = NX_SUCCESS;
+    while(Remaining > 0)
+    {
+
+    	ret = nxd_mqtt_client_message_get(&MQTTClient,
+    			                          MQTT_TopicBuffer,
+										  MQTT_TopicBufferLen,
+										  &ActualTopicLength,
+										  MQTT_MessageBuffer,
+										  MQTT_MessageBufferLen,
+										  &ActualMessageLength
+										  );
+    	if(ret != NXD_MQTT_SUCCESS)
+    	{
+    		Error_Handler();
+    	}
+    	//printf("Message %lu received: TOPIC = %s, MESSAGE = %s\n", MessageCounter + 1, MQTT_TopicBuffer, MQTT_MessageBuffer);
+    	Remaining--;
+    	MessageCounter++;
+    }
+    //Push Controller Data Here
+}
+
 static VOID MQTT_Loop(ULONG input)
 {
 	UINT ret = NX_SUCCESS;
 	ULONG MQTTEvents = 0;
 	NXD_ADDRESS MQTTServerIP;
-	UINT ActualTopicLength = 0;
-	UINT ActualMessageLength = 0;
-	ULONG MessageCounter = 0;
 
 	float QueueRecieveBuffer;
 
@@ -435,29 +472,6 @@ static VOID MQTT_Loop(ULONG input)
     while(1)
     {
     	tx_event_flags_get(&MQTT_TREvent, MESSAGE_ALL_EVT_Msk, TX_OR_CLEAR, &MQTTEvents, TX_WAIT_FOREVER);
-
-    	if(MQTTEvents & MESSAGE_RECIEVED_EVT_Msk)
-    	{
-            while(MessageCount > 0)
-            {
-
-            	ret = nxd_mqtt_client_message_get(&MQTTClient,
-            			                          MQTT_TopicBuffer,
-												  MQTT_TopicBufferLen,
-												  &ActualTopicLength,
-												  MQTT_MessageBuffer,
-												  MQTT_MessageBufferLen,
-												  &ActualMessageLength
-												  );
-            	if(ret != NXD_MQTT_SUCCESS)
-            	{
-            		Error_Handler();
-            	}
-            	//printf("Message %lu received: TOPIC = %s, MESSAGE = %s\n", MessageCounter + 1, MQTT_TopicBuffer, MQTT_MessageBuffer);
-            	MessageCount--;
-            	MessageCounter++;
-            }
-    	}
 
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB01_EVT_Msk)
     	{
@@ -543,27 +557,7 @@ static VOID MQTT_Loop(ULONG input)
 									0,
 									NX_WAIT_FOREVER);
     	}
-
-
     }
-}
-
-static VOID IP_Address_Changed_CB(NX_IP *IPInstance, VOID *Input)
-{
-	tx_semaphore_put(&IP_ADDR_SEM);
-}
-
-static VOID Time_Update_CB(NX_SNTP_TIME_MESSAGE  *TimeMsg, NX_SNTP_TIME *LocalTime)
-{
-	tx_semaphore_put(&SNTP_UPDATE_SEM);
-}
-
-static VOID MQTTMessageRecieved_CB(NXD_MQTT_CLIENT* Client, UINT MsgCount)
-{
-  //Push Message Count
-  MessageCount = MessageCount + MsgCount;
-  //Signal Receive Event
-  tx_event_flags_set(&MQTT_TREvent,MESSAGE_RECIEVED_EVT_Msk, TX_OR);
 }
 
 static VOID MQTTDisconnected_CB(NXD_MQTT_CLIENT *Client)

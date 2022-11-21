@@ -653,7 +653,6 @@ static VOID DataSendNotify(TX_QUEUE *QueuePtr)
 	{
 		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB07_EVT_Msk, TX_OR);
 	}
-	tx_thread_resume(&MQTTThread);
 }
 
 
