@@ -185,6 +185,25 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
 	  return ret;
   }
 
+  /*Create and allocate space for MQTT Thread*/
+  ret = tx_byte_allocate(byte_pool, (VOID**)&Ptr, MQTT_STACK_SIZE, TX_NO_WAIT);
+  if(ret != TX_SUCCESS)
+  {
+	  return ret;
+  }
+
+  ret = tx_thread_create(&MQTTThread,
+		                 "MQTT Thread",
+						 MQTT_Loop,
+						 0,
+						 Ptr,
+						 MQTT_STACK_SIZE,
+						 SEND_ENVDATA_PRIORITY,
+						 SEND_ENVDATA_PRIORITY,
+						 TX_NO_TIME_SLICE,
+						 TX_DONT_START);
+  ret = tx_event_flags_create(&MQTT_TREvent, "MQTT TxRx Event");
+
   /*Create and allocate space for IP Init Thread*/
   ret = tx_byte_allocate(byte_pool, (VOID**) &Ptr, IP_INIT_STACK_SIZE, TX_NO_WAIT);
   if(ret != TX_SUCCESS)
@@ -198,8 +217,8 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
                          0,
 						 Ptr,
 						 IP_INIT_STACK_SIZE,
-                         5,
-						 5,
+						 IP_INIT_PRIORITY,
+						 IP_INIT_PRIORITY,
 						 TX_NO_TIME_SLICE,
 						 TX_AUTO_START);
 
@@ -216,29 +235,11 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
 						 0,
 						 Ptr,
 						 SNTP_STACK_SIZE,
-						 5,
-						 5,
+						 SNTP_INIT_PRIORITY,
+						 SNTP_INIT_PRIORITY,
 						 TX_NO_TIME_SLICE,
 						 TX_DONT_START);
 
-  /*Create and allocate space for MQTT Thread*/
-  ret = tx_byte_allocate(byte_pool, (VOID**)&Ptr, MQTT_STACK_SIZE, TX_NO_WAIT);
-  if(ret != TX_SUCCESS)
-  {
-	  return ret;
-  }
-
-  ret = tx_thread_create(&MQTTThread,
-		                 "MQTT Thread",
-						 MQTT_Loop,
-						 0,
-						 Ptr,
-						 MQTT_STACK_SIZE,
-						 15,
-						 15,
-						 1,
-						 TX_DONT_START);
-  ret = tx_event_flags_create(&MQTT_TREvent, "MQTT TxRx Event");
   /* USER CODE END MX_NetXDuo_Init */
 
   return ret;
@@ -421,7 +422,7 @@ static VOID MQTT_Loop(ULONG input)
 	ULONG MQTTEvents = 0;
 	NXD_ADDRESS MQTTServerIP;
 
-	float QueueRecieveBuffer;
+	float QueueRecieveBuffer[3];
 
 	MQTTServerIP.nxd_ip_address.v4 = MQTT_SERVER_IP;
 	MQTTServerIP.nxd_ip_version = 4;
@@ -438,7 +439,7 @@ static VOID MQTT_Loop(ULONG input)
 								 &PacketPool,
 								 (VOID*) MqttClientStack,
 								 MQTT_CLIENT_STACK_SIZE,
-								 10,
+								 MQTT_CLIENT_PRIORITY,
 								 NX_NULL,
 								 0);
 	if(ret != NX_SUCCESS)
@@ -472,14 +473,13 @@ static VOID MQTT_Loop(ULONG input)
     while(1)
     {
     	tx_event_flags_get(&MQTT_TREvent, MESSAGE_ALL_EVT_Msk, TX_OR_CLEAR, &MQTTEvents, TX_WAIT_FOREVER);
-
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB01_EVT_Msk)
     	{
-            tx_queue_receive(&TemperatureQueue,(VOID*)&QueueRecieveBuffer,TX_WAIT_FOREVER);
+            tx_queue_receive(&TemperatureQueue,(VOID*)QueueRecieveBuffer,TX_WAIT_FOREVER);
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC01,
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC01),
-									(VOID*)&QueueRecieveBuffer,
-									sizeof(QueueRecieveBuffer),
+									(VOID*)QueueRecieveBuffer,
+									sizeof(QueueRecieveBuffer[0]),
 									NX_TRUE,
 									0,
 									NX_WAIT_FOREVER);
@@ -487,11 +487,11 @@ static VOID MQTT_Loop(ULONG input)
 
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB02_EVT_Msk)
     	{
-            tx_queue_receive(&HumidityQueue,(VOID*)&QueueRecieveBuffer,TX_WAIT_FOREVER);
+            tx_queue_receive(&HumidityQueue,(VOID*)QueueRecieveBuffer,TX_WAIT_FOREVER);
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC02,
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC02),
-									(VOID*)&QueueRecieveBuffer,
-									sizeof(QueueRecieveBuffer),
+									(VOID*)QueueRecieveBuffer,
+									sizeof(QueueRecieveBuffer[0]),
 									NX_TRUE,
 									0,
 									NX_WAIT_FOREVER);
@@ -499,11 +499,11 @@ static VOID MQTT_Loop(ULONG input)
 
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB03_EVT_Msk)
     	{
-            tx_queue_receive(&PressureQueue,(VOID*)&QueueRecieveBuffer,TX_WAIT_FOREVER);
+            tx_queue_receive(&PressureQueue,(VOID*)QueueRecieveBuffer,TX_WAIT_FOREVER);
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC03,
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC03),
-									(VOID*)&QueueRecieveBuffer,
-									sizeof(QueueRecieveBuffer),
+									(VOID*)QueueRecieveBuffer,
+									sizeof(QueueRecieveBuffer[0]),
 									NX_TRUE,
 									0,
 									NX_WAIT_FOREVER);
@@ -511,11 +511,11 @@ static VOID MQTT_Loop(ULONG input)
 
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB04_EVT_Msk)
     	{
-            tx_queue_receive(&LightQueue,(VOID*)&QueueRecieveBuffer,TX_WAIT_FOREVER);
+            tx_queue_receive(&LightQueue,(VOID*)QueueRecieveBuffer,TX_WAIT_FOREVER);
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC04,
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC04),
-									(VOID*)&QueueRecieveBuffer,
-									sizeof(QueueRecieveBuffer),
+									(VOID*)QueueRecieveBuffer,
+									sizeof(QueueRecieveBuffer[0]),
 									NX_TRUE,
 									0,
 									NX_WAIT_FOREVER);
@@ -523,40 +523,19 @@ static VOID MQTT_Loop(ULONG input)
 
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB05_EVT_Msk)
     	{
-            tx_queue_receive(&MagXQueue,(VOID*)&QueueRecieveBuffer,TX_WAIT_FOREVER);
+            tx_queue_receive(&MagQueue,(VOID*)&QueueRecieveBuffer[0],TX_WAIT_FOREVER);
+            tx_queue_receive(&MagQueue,(VOID*)&QueueRecieveBuffer[1],TX_WAIT_FOREVER);
+            tx_queue_receive(&MagQueue,(VOID*)&QueueRecieveBuffer[2],TX_WAIT_FOREVER);
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC05,
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC05),
-									(VOID*)&QueueRecieveBuffer,
+									(VOID*)QueueRecieveBuffer,
 									sizeof(QueueRecieveBuffer),
 									NX_TRUE,
 									0,
 									NX_WAIT_FOREVER);
     	}
 
-    	if(MQTTEvents & MESSAGE_TRANSMIT_PUB06_EVT_Msk)
-    	{
-            tx_queue_receive(&MagYQueue,(VOID*)&QueueRecieveBuffer,TX_WAIT_FOREVER);
-            nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC06,
-            		                STRLEN(MQTT_CLIENT_PUB_TOPIC06),
-									(VOID*)&QueueRecieveBuffer,
-									sizeof(QueueRecieveBuffer),
-									NX_TRUE,
-									0,
-									NX_WAIT_FOREVER);
-    	}
-
-
-    	if(MQTTEvents & MESSAGE_TRANSMIT_PUB07_EVT_Msk)
-    	{
-            tx_queue_receive(&MagZQueue,(VOID*)&QueueRecieveBuffer,TX_WAIT_FOREVER);
-            nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC07,
-            		                STRLEN(MQTT_CLIENT_PUB_TOPIC07),
-									(VOID*)&QueueRecieveBuffer,
-									sizeof(QueueRecieveBuffer),
-									NX_TRUE,
-									0,
-									NX_WAIT_FOREVER);
-    	}
+    	tx_thread_suspend(&MQTTThread);
     }
 }
 

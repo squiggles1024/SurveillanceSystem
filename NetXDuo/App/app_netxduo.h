@@ -40,12 +40,13 @@
 /* USER CODE BEGIN ET */
  extern TX_EVENT_FLAGS_GROUP MQTT_TREvent;
  extern TX_THREAD MQTTThread;
+ extern NXD_MQTT_CLIENT MQTTClient;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
 #define PAYLOAD_SIZE      (1514 + 28 + 2)
-#define PACKET_POOL_SIZE (( PAYLOAD_SIZE + sizeof(NX_PACKET)) * 10)
+#define PACKET_POOL_SIZE (( PAYLOAD_SIZE + sizeof(NX_PACKET)) * 20)
 #define NULL_ADDRESS                (0)
 #define IP_HELPER_STACK_SIZE        (2048)
 #define ARP_STACK_SIZE              (1024)
@@ -81,15 +82,13 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr);
 #define MQTT_CLIENT_PUB_TOPIC02   "Env/Humidity"
 #define MQTT_CLIENT_PUB_TOPIC03   "Env/Pressure"
 #define MQTT_CLIENT_PUB_TOPIC04   "Env/Light"
-#define MQTT_CLIENT_PUB_TOPIC05   "Env/MagneticX"
-#define MQTT_CLIENT_PUB_TOPIC06   "Env/MagneticY"
-#define MQTT_CLIENT_PUB_TOPIC07   "Env/MagneticZ"
-#define MQTT_CLIENT_PUB_TOPIC08   "Drone/Roll"
-#define MQTT_CLIENT_PUB_TOPIC09   "Drone/Pitch"
-#define MQTT_CLIENT_PUB_TOPIC10   "Drone/Yaw"
-#define MQTT_CLIENT_PUB_TOPIC11   "Drone/RollRate"
-#define MQTT_CLIENT_PUB_TOPIC12   "Drone/PitchRate"
-#define MQTT_CLIENT_PUB_TOPIC13   "Env/Video"
+#define MQTT_CLIENT_PUB_TOPIC05   "Env/Magnetic"
+#define MQTT_CLIENT_PUB_TOPIC06   "Drone/Roll"
+#define MQTT_CLIENT_PUB_TOPIC07   "Drone/Pitch"
+#define MQTT_CLIENT_PUB_TOPIC08   "Drone/Yaw"
+#define MQTT_CLIENT_PUB_TOPIC09   "Drone/RollRate"
+#define MQTT_CLIENT_PUB_TOPIC10   "Drone/PitchRate"
+#define MQTT_CLIENT_PUB_TOPIC11   "Env/Video"
 
 #define MESSAGE_RECIEVED_EVT_Msk (1 << 0)
 #define MESSAGE_TRANSMIT_PUB01_EVT_Msk (1 << 1)
@@ -97,14 +96,12 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr);
 #define MESSAGE_TRANSMIT_PUB03_EVT_Msk (1 << 3)
 #define MESSAGE_TRANSMIT_PUB04_EVT_Msk (1 << 4)
 #define MESSAGE_TRANSMIT_PUB05_EVT_Msk (1 << 5)
-#define MESSAGE_TRANSMIT_PUB06_EVT_Msk (1 << 6)
-#define MESSAGE_TRANSMIT_PUB07_EVT_Msk (1 << 7)
-#define MESSAGE_TRANSMIT_PUB08_EVT_Msk (1 << 8)
-#define MESSAGE_TRANSMIT_PUB09_EVT_Msk (1 << 9)
-#define MESSAGE_TRANSMIT_PUB10_EVT_Msk (1 << 10)
-#define MESSAGE_TRANSMIT_PUB11_EVT_Msk (1 << 11)
-#define MESSAGE_TRANSMIT_PUB12_EVT_Msk (1 << 12)
-#define MESSAGE_TRANSMIT_PUB13_EVT_Msk (1 << 13)
+#define MESSAGE_TRANSMIT_PUB06_EVT_Msk (1 << 8)
+#define MESSAGE_TRANSMIT_PUB07_EVT_Msk (1 << 9)
+#define MESSAGE_TRANSMIT_PUB08_EVT_Msk (1 << 10)
+#define MESSAGE_TRANSMIT_PUB09_EVT_Msk (1 << 11)
+#define MESSAGE_TRANSMIT_PUB10_EVT_Msk (1 << 12)
+#define MESSAGE_TRANSMIT_PUB11_EVT_Msk (1 << 13)
 #define MESSAGE_ALL_EVT_Msk (MESSAGE_RECIEVED_EVT_Msk | \
                              MESSAGE_TRANSMIT_PUB01_EVT_Msk | \
 							 MESSAGE_TRANSMIT_PUB02_EVT_Msk | \
@@ -116,9 +113,8 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr);
 							 MESSAGE_TRANSMIT_PUB08_EVT_Msk | \
 							 MESSAGE_TRANSMIT_PUB09_EVT_Msk | \
 							 MESSAGE_TRANSMIT_PUB10_EVT_Msk | \
-							 MESSAGE_TRANSMIT_PUB11_EVT_Msk | \
-							 MESSAGE_TRANSMIT_PUB12_EVT_Msk | \
-							 MESSAGE_TRANSMIT_PUB13_EVT_Msk)
+							 MESSAGE_TRANSMIT_PUB11_EVT_Msk)
+
 /* USER CODE END PD */
 
 /* USER CODE BEGIN 1 */
