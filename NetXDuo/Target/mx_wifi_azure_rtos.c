@@ -71,7 +71,7 @@ NX_PACKET *mx_net_buffer_alloc(uint32_t n)
     nx_driver_information.nx_driver_information_packet_pool_ptr,
     &packet_ptr,
     NX_RECEIVE_PACKET,
-    NX_NO_WAIT);
+    5);
   if (status != NX_SUCCESS)
   {
     MX_STAT_LOG();
