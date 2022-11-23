@@ -220,16 +220,22 @@ void Error_Handler(void);
 #define MXCHIP_RESET_Pin GPIO_PIN_15
 #define MXCHIP_RESET_GPIO_Port GPIOF
 /* USER CODE BEGIN Private defines */
+#define ENV_DATA_QUEUE_SIZE      (100)
+#define SEND_ENVDATA_PRIORITY    16
 #define GET_TEMPERATURE_PRIORITY 15
 #define GET_HUMIDITY_PRIORITY    15
 #define GET_LIGHT_PRIORITY       15
-#define GET_PRESSURE_PRIORITY    12
-#define GET_MAGNETIC_PRIORITY    13
-#define GET_MOTION_PRIORITY      10
-#define SEND_ENVDATA_PRIORITY    11
-#define CAPTURE_FRAME_PRIORITY   14
-#define SEND_FRAME_PRIORITY      9
+#define GET_MAGNETIC_PRIORITY    15
+#define CAPTURE_FRAME_PRIORITY   15
 #define LED_THREAD_PRIORITY      15
+#define SEND_FRAME_PRIORITY      14
+
+#define GET_PRESSURE_PRIORITY    11
+#define GET_MOTION_PRIORITY      10
+#define MQTT_CLIENT_PRIORITY     9      //Receive Controller Data Priority
+
+#define SNTP_INIT_PRIORITY        5
+#define IP_INIT_PRIORITY          5
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
