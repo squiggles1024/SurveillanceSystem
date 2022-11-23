@@ -117,7 +117,7 @@ int main(void)
   MX_TIM7_Init();
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
-  printf("System Starting\r\n");
+  printf("\r\nSystem Starting\r\n");
   BSP_TempHumSensorInit();
   BSP_MagnetometerInit();
   BSP_MotionSensorInit();
@@ -126,8 +126,6 @@ int main(void)
   BSP_RamInit();
   BSP_CameraInit();
   printf("System Initialized\r\n");
-
-
   /* USER CODE END 2 */
 
   MX_ThreadX_Init();
