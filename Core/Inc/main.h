@@ -220,7 +220,7 @@ void Error_Handler(void);
 #define MXCHIP_RESET_Pin GPIO_PIN_15
 #define MXCHIP_RESET_GPIO_Port GPIOF
 /* USER CODE BEGIN Private defines */
-#define ENV_DATA_QUEUE_SIZE      (100)
+#define ENV_DATA_QUEUE_SIZE      (150)
 #define SEND_ENVDATA_PRIORITY    16
 #define GET_TEMPERATURE_PRIORITY 15
 #define GET_HUMIDITY_PRIORITY    15

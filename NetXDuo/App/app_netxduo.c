@@ -422,7 +422,7 @@ static VOID MQTT_Loop(ULONG input)
 	ULONG MQTTEvents = 0;
 	NXD_ADDRESS MQTTServerIP;
 
-	float QueueRecieveBuffer[3];
+	float QueueRecieveBuffer[MAGNETIC_PAYLOAD_SAMPLES*3];
 
 	MQTTServerIP.nxd_ip_address.v4 = MQTT_SERVER_IP;
 	MQTTServerIP.nxd_ip_version = 4;
@@ -475,11 +475,15 @@ static VOID MQTT_Loop(ULONG input)
     	tx_event_flags_get(&MQTT_TREvent, MESSAGE_ALL_EVT_Msk, TX_OR_CLEAR, &MQTTEvents, TX_WAIT_FOREVER);
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB01_EVT_Msk)
     	{
-            tx_queue_receive(&TemperatureQueue,(VOID*)QueueRecieveBuffer,TX_WAIT_FOREVER);
+    		for(uint8_t i = 0; i < TEMPERATURE_PAYLOAD_SAMPLES; i++)
+    		{
+                tx_queue_receive(&TemperatureQueue,(VOID*)&QueueRecieveBuffer[i],TX_WAIT_FOREVER);
+    		}
+
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC01,
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC01),
 									(VOID*)QueueRecieveBuffer,
-									sizeof(QueueRecieveBuffer[0]),
+									TEMPERATURE_QUEUE_SIZE,
 									NX_TRUE,
 									0,
 									NX_WAIT_FOREVER);
@@ -487,11 +491,14 @@ static VOID MQTT_Loop(ULONG input)
 
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB02_EVT_Msk)
     	{
-            tx_queue_receive(&HumidityQueue,(VOID*)QueueRecieveBuffer,TX_WAIT_FOREVER);
+    		for(uint8_t i = 0; i < HUMIDITY_PAYLOAD_SAMPLES; i++)
+    		{
+                tx_queue_receive(&HumidityQueue,(VOID*)&QueueRecieveBuffer[i],TX_WAIT_FOREVER);
+    		}
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC02,
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC02),
 									(VOID*)QueueRecieveBuffer,
-									sizeof(QueueRecieveBuffer[0]),
+									HUMIDITY_QUEUE_SIZE,
 									NX_TRUE,
 									0,
 									NX_WAIT_FOREVER);
@@ -499,11 +506,15 @@ static VOID MQTT_Loop(ULONG input)
 
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB03_EVT_Msk)
     	{
+    		for(uint8_t i = 0; i < PRESSURE_PAYLOAD_SAMPLES; i++)
+    		{
+                tx_queue_receive(&PressureQueue,(VOID*)&QueueRecieveBuffer[i],TX_WAIT_FOREVER);
+    		}
             tx_queue_receive(&PressureQueue,(VOID*)QueueRecieveBuffer,TX_WAIT_FOREVER);
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC03,
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC03),
 									(VOID*)QueueRecieveBuffer,
-									sizeof(QueueRecieveBuffer[0]),
+									PRESSURE_QUEUE_SIZE,
 									NX_TRUE,
 									0,
 									NX_WAIT_FOREVER);
@@ -511,11 +522,15 @@ static VOID MQTT_Loop(ULONG input)
 
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB04_EVT_Msk)
     	{
+    		for(uint8_t i = 0; i < LIGHT_PAYLOAD_SAMPLES; i++)
+    		{
+                tx_queue_receive(&LightQueue,(VOID*)&QueueRecieveBuffer[i],TX_WAIT_FOREVER);
+    		}
             tx_queue_receive(&LightQueue,(VOID*)QueueRecieveBuffer,TX_WAIT_FOREVER);
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC04,
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC04),
 									(VOID*)QueueRecieveBuffer,
-									sizeof(QueueRecieveBuffer[0]),
+									LIGHT_QUEUE_SIZE,
 									NX_TRUE,
 									0,
 									NX_WAIT_FOREVER);
@@ -523,19 +538,21 @@ static VOID MQTT_Loop(ULONG input)
 
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB05_EVT_Msk)
     	{
-            tx_queue_receive(&MagQueue,(VOID*)&QueueRecieveBuffer[0],TX_WAIT_FOREVER);
-            tx_queue_receive(&MagQueue,(VOID*)&QueueRecieveBuffer[1],TX_WAIT_FOREVER);
-            tx_queue_receive(&MagQueue,(VOID*)&QueueRecieveBuffer[2],TX_WAIT_FOREVER);
+    		for(uint8_t i = 0; i < MAGNETIC_PAYLOAD_SAMPLES; i++)
+    		{
+                tx_queue_receive(&MagXQueue,(VOID*)&QueueRecieveBuffer[i],TX_WAIT_FOREVER);
+                tx_queue_receive(&MagYQueue,(VOID*)&QueueRecieveBuffer[i + 10],TX_WAIT_FOREVER);
+                tx_queue_receive(&MagZQueue,(VOID*)&QueueRecieveBuffer[i + 20],TX_WAIT_FOREVER);
+    		}
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC05,
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC05),
 									(VOID*)QueueRecieveBuffer,
-									sizeof(QueueRecieveBuffer),
+									MAGNETIC_QUEUE_SIZE*3,
 									NX_TRUE,
 									0,
 									NX_WAIT_FOREVER);
     	}
-
-    	tx_thread_suspend(&MQTTThread);
+    	tx_thread_relinquish();
     }
 }
 

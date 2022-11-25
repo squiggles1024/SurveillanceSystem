@@ -67,11 +67,12 @@ NX_PACKET *mx_net_buffer_alloc(uint32_t n)
   if (n > nx_driver_information.nx_driver_information_packet_pool_ptr->nx_packet_pool_payload_size)
     return NULL;
 
+
   status = nx_packet_allocate(
     nx_driver_information.nx_driver_information_packet_pool_ptr,
     &packet_ptr,
     NX_RECEIVE_PACKET,
-    5);
+    NX_NO_WAIT);
   if (status != NX_SUCCESS)
   {
     MX_STAT_LOG();

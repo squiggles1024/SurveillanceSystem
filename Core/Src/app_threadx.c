@@ -88,7 +88,9 @@ TX_QUEUE TemperatureQueue;
 TX_QUEUE LightQueue;
 TX_QUEUE PressureQueue;
 TX_QUEUE HumidityQueue;
-TX_QUEUE MagQueue;
+TX_QUEUE MagXQueue;
+TX_QUEUE MagYQueue;
+TX_QUEUE MagZQueue;
 
 /* USER CODE END PV */
 
@@ -299,37 +301,49 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
   {
 	  return TX_POOL_ERROR;
   }
-  ret = tx_queue_create(&TemperatureQueue, "Temperature Queue", TX_1_ULONG, Ptr, 1*sizeof(float));
+  ret = tx_queue_create(&TemperatureQueue, "Temperature Queue", TX_1_ULONG, Ptr, TEMPERATURE_QUEUE_SIZE);
 
   if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, ENV_DATA_QUEUE_SIZE, TX_NO_WAIT) != TX_SUCCESS)
   {
 	  return TX_POOL_ERROR;
   }
-  ret = tx_queue_create(&PressureQueue, "Pressure Queue", TX_1_ULONG, Ptr, 1*sizeof(float));
+  ret = tx_queue_create(&PressureQueue, "Pressure Queue", TX_1_ULONG, Ptr, PRESSURE_QUEUE_SIZE);
 
   if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, ENV_DATA_QUEUE_SIZE, TX_NO_WAIT) != TX_SUCCESS)
   {
 	  return TX_POOL_ERROR;
   }
-  ret = tx_queue_create(&HumidityQueue, "Humidity Queue", TX_1_ULONG, Ptr, 1*sizeof(float));
+  ret = tx_queue_create(&HumidityQueue, "Humidity Queue", TX_1_ULONG, Ptr, HUMIDITY_QUEUE_SIZE);
 
   if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, ENV_DATA_QUEUE_SIZE, TX_NO_WAIT) != TX_SUCCESS)
   {
 	  return TX_POOL_ERROR;
   }
-  ret = tx_queue_create(&LightQueue, "Light Queue", TX_1_ULONG, Ptr, 1*sizeof(float));
+  ret = tx_queue_create(&LightQueue, "Light Queue", TX_1_ULONG, Ptr, LIGHT_QUEUE_SIZE);
 
   if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, ENV_DATA_QUEUE_SIZE, TX_NO_WAIT) != TX_SUCCESS)
   {
 	  return TX_POOL_ERROR;
   }
-  ret = tx_queue_create(&MagQueue, "Mag Queue", TX_1_ULONG, Ptr, 3*sizeof(float));
+  ret = tx_queue_create(&MagXQueue, "MagX Queue", TX_1_ULONG, Ptr, MAGNETIC_QUEUE_SIZE);
+
+  if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, ENV_DATA_QUEUE_SIZE, TX_NO_WAIT) != TX_SUCCESS)
+  {
+	  return TX_POOL_ERROR;
+  }
+  ret = tx_queue_create(&MagYQueue, "MagY Queue", TX_1_ULONG, Ptr, MAGNETIC_QUEUE_SIZE);
+
+  if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, ENV_DATA_QUEUE_SIZE, TX_NO_WAIT) != TX_SUCCESS)
+  {
+	  return TX_POOL_ERROR;
+  }
+  ret = tx_queue_create(&MagZQueue, "MagZ Queue", TX_1_ULONG, Ptr, MAGNETIC_QUEUE_SIZE);
 
   ret = tx_queue_send_notify(&TemperatureQueue,DataSendNotify);
   ret = tx_queue_send_notify(&PressureQueue,DataSendNotify);
   ret = tx_queue_send_notify(&HumidityQueue,DataSendNotify);
   ret = tx_queue_send_notify(&LightQueue,DataSendNotify);
-  ret = tx_queue_send_notify(&MagQueue,DataSendNotify);
+  ret = tx_queue_send_notify(&MagZQueue,DataSendNotify);
   //tx_trace_enable(&tracex_buffer, TRACEX_BUFFER_SIZE,30);
   /* USER CODE END App_ThreadX_Init */
 
@@ -361,6 +375,7 @@ VOID ReadTemperatureThread(ULONG init)
 	int32_t ret = HTS221_Ok;
 	uint32_t SleepTime = 0;
 	float Temperature = 0;
+	float DummyData;
 	while(1)
 	{
 		//Take I2C Mutex (if available)
@@ -369,7 +384,10 @@ VOID ReadTemperatureThread(ULONG init)
 		tx_mutex_put(&MutexI2C2);
 		if(ret == HTS221_DataReady)
 		{
-			tx_queue_flush(&TemperatureQueue);
+			if(TemperatureQueue.tx_queue_available_storage == 0)
+			{
+				tx_queue_receive(&TemperatureQueue, &DummyData, TX_NO_WAIT);
+			}
             ret = tx_queue_send(&TemperatureQueue, (VOID*)&Temperature, TX_WAIT_FOREVER);
 			temp_data = Temperature;
 		}
@@ -393,6 +411,7 @@ VOID ReadHumidityThread(ULONG init)
 	int32_t ret = HTS221_Ok;
 	uint32_t SleepTime = 0;
 	float Humidity = 0;
+	float DummyData;
 	while(1)
 	{
 		//Take I2C Mutex (if available)
@@ -401,7 +420,10 @@ VOID ReadHumidityThread(ULONG init)
 		tx_mutex_put(&MutexI2C2);
 		if(ret == HTS221_DataReady)
 		{
-			tx_queue_flush(&HumidityQueue);
+			if(HumidityQueue.tx_queue_available_storage == 0)
+			{
+				tx_queue_receive(&HumidityQueue, &DummyData, TX_NO_WAIT);
+			}
             ret = tx_queue_send(&HumidityQueue, (VOID*)&Humidity, TX_WAIT_FOREVER);
 			humidity_data = Humidity;
 		}
@@ -425,6 +447,7 @@ VOID ReadPressureThread(ULONG init)
 	int32_t ret = LPS22HH_Ok;
 	uint32_t SleepTime = 0;
 	float Pressure = 0;
+	float DummyData;
 	while(1)
 	{
 		tx_mutex_get(&MutexI2C2,TX_WAIT_FOREVER);
@@ -432,7 +455,10 @@ VOID ReadPressureThread(ULONG init)
 		tx_mutex_put(&MutexI2C2);
 		if(ret == LPS22HH_DataReady)
 		{
-			tx_queue_flush(&PressureQueue);
+			if(PressureQueue.tx_queue_available_storage == 0)
+			{
+				tx_queue_receive(&PressureQueue, &DummyData, TX_NO_WAIT);
+			}
 			ret = tx_queue_send(&PressureQueue, (VOID*)&Pressure, TX_WAIT_FOREVER);
 			pressure_data = Pressure;
 		}
@@ -458,6 +484,7 @@ VOID ReadMagneticThread(ULONG init)
 	float MagX = 0;
 	float MagY = 0;
 	float MagZ = 0;
+	float DummyData;
 	while(1)
 	{
 		tx_mutex_get(&MutexI2C2,TX_WAIT_FOREVER);
@@ -465,10 +492,15 @@ VOID ReadMagneticThread(ULONG init)
 		tx_mutex_put(&MutexI2C2);
 		if(ret == IIS2MDC_DataReady)
 		{
-
-			ret = tx_queue_send(&MagQueue, (VOID*)&MagX, TX_WAIT_FOREVER);
-			ret = tx_queue_send(&MagQueue, (VOID*)&MagY, TX_WAIT_FOREVER);
-			ret = tx_queue_send(&MagQueue, (VOID*)&MagZ, TX_WAIT_FOREVER);
+            if(MagZQueue.tx_queue_available_storage == 0)
+            {
+            	tx_queue_receive(&MagXQueue, &DummyData, TX_NO_WAIT);
+            	tx_queue_receive(&MagYQueue, &DummyData, TX_NO_WAIT);
+            	tx_queue_receive(&MagZQueue, &DummyData, TX_NO_WAIT);
+            }
+			ret = tx_queue_send(&MagXQueue, (VOID*)&MagX, TX_WAIT_FOREVER);
+			ret = tx_queue_send(&MagYQueue, (VOID*)&MagY, TX_WAIT_FOREVER);
+			ret = tx_queue_send(&MagZQueue, (VOID*)&MagZ, TX_WAIT_FOREVER);
 			magx = MagX;
 			magy = MagY;
 			magz = MagZ;
@@ -533,6 +565,7 @@ VOID ReadLightThread(ULONG init)
 {
 	float Light = 0;
 	int32_t ret = 0;
+	float DummyData;
 	while(1)
 	{
 	    tx_mutex_get(&MutexI2C2,TX_WAIT_FOREVER);
@@ -540,7 +573,10 @@ VOID ReadLightThread(ULONG init)
 	    tx_mutex_put(&MutexI2C2);
 		if(ret == VEML6030_Ok)
 		{
-			tx_queue_flush(&LightQueue);
+			if(LightQueue.tx_queue_available_storage == 0)
+			{
+				tx_queue_receive(&LightQueue, &DummyData, TX_NO_WAIT);
+			}
 			ret = tx_queue_send(&LightQueue, &Light, TX_WAIT_FOREVER);
 			light = Light;
 		}
@@ -646,53 +682,30 @@ void HAL_DCACHE_CleanAndInvalidateByAddrCallback(DCACHE_HandleTypeDef *hdcache)
 
 static VOID DataSendNotify(TX_QUEUE *QueuePtr)
 {
+	if(QueuePtr->tx_queue_available_storage != 0) //Queue isn't full yet, return
+	{
+		return;
+	}
+
 	if(QueuePtr == &TemperatureQueue)
 	{
         tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB01_EVT_Msk, TX_OR);
-
-    	if(MQTTClient.nxd_mqtt_client_state == NXD_MQTT_CLIENT_STATE_CONNECTED)
-    	{
-    		tx_thread_resume(&MQTTThread);
-    	}
 	}
 	else if(QueuePtr == &LightQueue)
 	{
 		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB04_EVT_Msk, TX_OR);
-
-		if(MQTTClient.nxd_mqtt_client_state == NXD_MQTT_CLIENT_STATE_CONNECTED)
-		{
-			tx_thread_resume(&MQTTThread);
-		}
 	}
 	else if(QueuePtr == &PressureQueue)
 	{
 		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB03_EVT_Msk, TX_OR);
-
-		if(MQTTClient.nxd_mqtt_client_state == NXD_MQTT_CLIENT_STATE_CONNECTED)
-		{
-			tx_thread_resume(&MQTTThread);
-		}
 	}
 	else if(QueuePtr == &HumidityQueue)
 	{
 		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB02_EVT_Msk, TX_OR);
-
-		if(MQTTClient.nxd_mqtt_client_state == NXD_MQTT_CLIENT_STATE_CONNECTED)
-		{
-			tx_thread_resume(&MQTTThread);
-		}
 	}
-	else if(QueuePtr == &MagQueue)
+	else if(QueuePtr == &MagZQueue)
 	{
-		if(QueuePtr->tx_queue_enqueued == 3)
-		{
-		    tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB05_EVT_Msk, TX_OR);
-		}
-
-		if(MQTTClient.nxd_mqtt_client_state == NXD_MQTT_CLIENT_STATE_CONNECTED)
-		{
-			tx_thread_resume(&MQTTThread);
-		}
+		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB05_EVT_Msk, TX_OR);
 	}
 }
 

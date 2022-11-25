@@ -42,7 +42,7 @@ int32_t mxwifi_probe(void **ll_drv_context);
 
 /* Use At command mode by default, TCP/IP stack is running on module  */
 #ifndef MX_WIFI_NETWORK_BYPASS_MODE
-#define MX_WIFI_NETWORK_BYPASS_MODE                                         (0)
+#define MX_WIFI_NETWORK_BYPASS_MODE                                         (1)
 #endif /* MX_WIFI_NETWORK_BYPASS_MODE */
 
 

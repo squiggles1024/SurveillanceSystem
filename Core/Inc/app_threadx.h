@@ -40,7 +40,9 @@
  extern TX_QUEUE LightQueue;
  extern TX_QUEUE PressureQueue;
  extern TX_QUEUE HumidityQueue;
- extern TX_QUEUE MagQueue;
+ extern TX_QUEUE MagXQueue;
+ extern TX_QUEUE MagYQueue;
+ extern TX_QUEUE MagZQueue;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
