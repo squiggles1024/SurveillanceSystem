@@ -27,6 +27,10 @@
 
 DMA_NodeTypeDef DCMItoMemory;
 DMA_QListTypeDef ProjectDMAQueue;
+DMA_NodeTypeDef SPI_Rx_Node;
+DMA_QListTypeDef SPI_Rx_Queue;
+DMA_NodeTypeDef SPI_Tx_Node;
+DMA_QListTypeDef SPI_Tx_Queue;
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
@@ -42,6 +46,86 @@ DMA_QListTypeDef ProjectDMAQueue;
 /* USER CODE BEGIN PM */
 
 /* USER CODE END PM */
+
+/**
+  * @brief  DMA Linked-list SPI_Rx_Queue configuration
+  * @param  None
+  * @retval None
+  */
+HAL_StatusTypeDef MX_SPI_Rx_Queue_Config(void)
+{
+  HAL_StatusTypeDef ret = HAL_OK;
+  /* DMA node configuration declaration */
+  DMA_NodeConfTypeDef pNodeConfig;
+
+  /* Set node configuration ################################################*/
+  pNodeConfig.NodeType = DMA_GPDMA_LINEAR_NODE;
+  pNodeConfig.Init.Request = GPDMA1_REQUEST_SPI2_RX;
+  pNodeConfig.Init.BlkHWRequest = DMA_BREQ_SINGLE_BURST;
+  pNodeConfig.Init.Direction = DMA_PERIPH_TO_MEMORY;
+  pNodeConfig.Init.SrcInc = DMA_SINC_FIXED;
+  pNodeConfig.Init.DestInc = DMA_DINC_INCREMENTED;
+  pNodeConfig.Init.SrcDataWidth = DMA_SRC_DATAWIDTH_BYTE;
+  pNodeConfig.Init.DestDataWidth = DMA_DEST_DATAWIDTH_BYTE;
+  pNodeConfig.Init.SrcBurstLength = 1;
+  pNodeConfig.Init.DestBurstLength = 1;
+  pNodeConfig.Init.TransferAllocatedPort = DMA_SRC_ALLOCATED_PORT0|DMA_DEST_ALLOCATED_PORT0;
+  pNodeConfig.Init.TransferEventMode = DMA_TCEM_LAST_LL_ITEM_TRANSFER;
+  pNodeConfig.TriggerConfig.TriggerPolarity = DMA_TRIG_POLARITY_MASKED;
+  pNodeConfig.DataHandlingConfig.DataExchange = DMA_EXCHANGE_NONE;
+  pNodeConfig.DataHandlingConfig.DataAlignment = DMA_DATA_RIGHTALIGN_ZEROPADDED;
+  pNodeConfig.SrcAddress = 0;
+  pNodeConfig.DstAddress = 0;
+  pNodeConfig.DataSize = 0;
+
+  /* Build SPI_Rx_Node Node */
+  ret |= HAL_DMAEx_List_BuildNode(&pNodeConfig, &SPI_Rx_Node);
+
+  /* Insert SPI_Rx_Node to Queue */
+  ret |= HAL_DMAEx_List_InsertNode_Tail(&SPI_Rx_Queue, &SPI_Rx_Node);
+
+   return ret;
+}
+
+/**
+  * @brief  DMA Linked-list SPI_Tx_Queue configuration
+  * @param  None
+  * @retval None
+  */
+HAL_StatusTypeDef MX_SPI_Tx_Queue_Config(void)
+{
+  HAL_StatusTypeDef ret = HAL_OK;
+  /* DMA node configuration declaration */
+  DMA_NodeConfTypeDef pNodeConfig;
+
+  /* Set node configuration ################################################*/
+  pNodeConfig.NodeType = DMA_GPDMA_LINEAR_NODE;
+  pNodeConfig.Init.Request = GPDMA1_REQUEST_SPI2_TX;
+  pNodeConfig.Init.BlkHWRequest = DMA_BREQ_SINGLE_BURST;
+  pNodeConfig.Init.Direction = DMA_MEMORY_TO_PERIPH;
+  pNodeConfig.Init.SrcInc = DMA_SINC_INCREMENTED;
+  pNodeConfig.Init.DestInc = DMA_DINC_FIXED;
+  pNodeConfig.Init.SrcDataWidth = DMA_SRC_DATAWIDTH_BYTE;
+  pNodeConfig.Init.DestDataWidth = DMA_DEST_DATAWIDTH_BYTE;
+  pNodeConfig.Init.SrcBurstLength = 1;
+  pNodeConfig.Init.DestBurstLength = 1;
+  pNodeConfig.Init.TransferAllocatedPort = DMA_SRC_ALLOCATED_PORT1|DMA_DEST_ALLOCATED_PORT0;
+  pNodeConfig.Init.TransferEventMode = DMA_TCEM_BLOCK_TRANSFER;
+  pNodeConfig.TriggerConfig.TriggerPolarity = DMA_TRIG_POLARITY_MASKED;
+  pNodeConfig.DataHandlingConfig.DataExchange = DMA_EXCHANGE_NONE;
+  pNodeConfig.DataHandlingConfig.DataAlignment = DMA_DATA_RIGHTALIGN_ZEROPADDED;
+  pNodeConfig.SrcAddress = 0;
+  pNodeConfig.DstAddress = 0;
+  pNodeConfig.DataSize = 0;
+
+  /* Build SPI_Tx_Node Node */
+  ret |= HAL_DMAEx_List_BuildNode(&pNodeConfig, &SPI_Tx_Node);
+
+  /* Insert SPI_Tx_Node to Queue */
+  ret |= HAL_DMAEx_List_InsertNode_Tail(&SPI_Tx_Queue, &SPI_Tx_Node);
+
+   return ret;
+}
 
 /**
   * @brief  DMA Linked-list ProjectDMAQueue configuration

@@ -37,6 +37,8 @@ int32_t mxwifi_probe(void **ll_drv_context);
 #define MX_WIFI_USE_SPI                                                     (1)
 #endif /* MX_WIFI_USE_SPI */
 
+#define DMA_ON_USE (1)
+
 /* do not use RTOS but bare metal approach by default */
 #ifndef MX_WIFI_USE_CMSIS_OS
 #define MX_WIFI_USE_CMSIS_OS                                                (0) 

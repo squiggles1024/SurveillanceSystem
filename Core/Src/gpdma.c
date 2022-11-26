@@ -21,28 +21,41 @@
 #include "gpdma.h"
 
 /* USER CODE BEGIN 0 */
+#include "spi.h"
 #include "dcmi.h"
 #include "linked_list.h"
 extern DMA_NodeTypeDef DCMItoMemory;
 extern DMA_QListTypeDef ProjectDMAQueue;
 static DMA_QListTypeDef  DCMIQueue;
+extern DMA_NodeTypeDef SPI_Rx_Node;
+extern DMA_QListTypeDef SPI_Rx_Queue;
+extern DMA_NodeTypeDef SPI_Tx_Node;
+extern DMA_QListTypeDef SPI_Tx_Queue;
 /* USER CODE END 0 */
 
 DMA_HandleTypeDef handle_GPDMA1_Channel12;
+DMA_HandleTypeDef handle_GPDMA1_Channel7;
+DMA_HandleTypeDef handle_GPDMA1_Channel6;
 DMA_HandleTypeDef handle_GPDMA1_Channel12;
+DMA_HandleTypeDef handle_GPDMA1_Channel7;
+DMA_HandleTypeDef handle_GPDMA1_Channel6;
 
 /* GPDMA1 init function */
 void MX_GPDMA1_Init(void)
 {
 
   /* USER CODE BEGIN GPDMA1_Init 0 */
-
+HAL_StatusTypeDef ret;
   /* USER CODE END GPDMA1_Init 0 */
 
   /* Peripheral clock enable */
   __HAL_RCC_GPDMA1_CLK_ENABLE();
 
   /* GPDMA1 interrupt Init */
+    HAL_NVIC_SetPriority(GPDMA1_Channel6_IRQn, 9, 0);
+    HAL_NVIC_EnableIRQ(GPDMA1_Channel6_IRQn);
+    HAL_NVIC_SetPriority(GPDMA1_Channel7_IRQn, 9, 0);
+    HAL_NVIC_EnableIRQ(GPDMA1_Channel7_IRQn);
     HAL_NVIC_SetPriority(GPDMA1_Channel12_IRQn, 12, 0);
     HAL_NVIC_EnableIRQ(GPDMA1_Channel12_IRQn);
 
@@ -63,11 +76,48 @@ void MX_GPDMA1_Init(void)
   {
     Error_Handler();
   }
+  handle_GPDMA1_Channel7.Instance = GPDMA1_Channel7;
+  handle_GPDMA1_Channel7.InitLinkedList.Priority = DMA_LOW_PRIORITY_HIGH_WEIGHT;
+  handle_GPDMA1_Channel7.InitLinkedList.LinkStepMode = DMA_LSM_FULL_EXECUTION;
+  handle_GPDMA1_Channel7.InitLinkedList.LinkAllocatedPort = DMA_LINK_ALLOCATED_PORT1;
+  handle_GPDMA1_Channel7.InitLinkedList.TransferEventMode = DMA_TCEM_LAST_LL_ITEM_TRANSFER;
+  handle_GPDMA1_Channel7.InitLinkedList.LinkedListMode = DMA_LINKEDLIST_NORMAL;
+  if (HAL_DMAEx_List_Init(&handle_GPDMA1_Channel7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_DMA_ConfigChannelAttributes(&handle_GPDMA1_Channel7, DMA_CHANNEL_PRIV) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  handle_GPDMA1_Channel6.Instance = GPDMA1_Channel6;
+  handle_GPDMA1_Channel6.InitLinkedList.Priority = DMA_LOW_PRIORITY_HIGH_WEIGHT;
+  handle_GPDMA1_Channel6.InitLinkedList.LinkStepMode = DMA_LSM_FULL_EXECUTION;
+  handle_GPDMA1_Channel6.InitLinkedList.LinkAllocatedPort = DMA_LINK_ALLOCATED_PORT1;
+  handle_GPDMA1_Channel6.InitLinkedList.TransferEventMode = DMA_TCEM_LAST_LL_ITEM_TRANSFER;
+  handle_GPDMA1_Channel6.InitLinkedList.LinkedListMode = DMA_LINKEDLIST_NORMAL;
+  if (HAL_DMAEx_List_Init(&handle_GPDMA1_Channel6) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_DMA_ConfigChannelAttributes(&handle_GPDMA1_Channel6, DMA_CHANNEL_PRIV) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE BEGIN GPDMA1_Init 2 */
   MX_ProjectDMAQueue_Config();
   HAL_DMAEx_List_LinkQ(&handle_GPDMA1_Channel12, &ProjectDMAQueue);
-  //HAL_DMAEx_List_Start(&handle_GPDMA1_Channel12);
   __HAL_LINKDMA(&hdcmi, DMA_Handle, handle_GPDMA1_Channel12);
+
+  ret = MX_SPI_Rx_Queue_Config();
+  ret = HAL_DMAEx_List_LinkQ(&handle_GPDMA1_Channel6, &SPI_Rx_Queue);
+  __HAL_LINKDMA(&hspi2, hdmarx, handle_GPDMA1_Channel6);
+
+  ret = MX_SPI_Tx_Queue_Config();
+  ret = HAL_DMAEx_List_LinkQ(&handle_GPDMA1_Channel7, &SPI_Tx_Queue);
+  __HAL_LINKDMA(&hspi2, hdmatx, handle_GPDMA1_Channel7);
+  //HAL_DMAEx_List_Start(&handle_GPDMA1_Channel12);
+
   /* USER CODE END GPDMA1_Init 2 */
 
 }

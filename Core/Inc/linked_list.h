@@ -31,6 +31,8 @@
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
+HAL_StatusTypeDef MX_SPI_Rx_Queue_Config(void);
+HAL_StatusTypeDef MX_SPI_Tx_Queue_Config(void);
 HAL_StatusTypeDef MX_ProjectDMAQueue_Config(void);
 
 #ifdef __cplusplus

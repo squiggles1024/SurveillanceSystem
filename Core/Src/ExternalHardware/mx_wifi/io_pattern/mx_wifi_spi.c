@@ -158,6 +158,20 @@ static void mx_wifi_spi_txrx_task(THREAD_CONTEXT_TYPE argument);
 /* SPI protocol functions */
 void process_txrx_poll(uint32_t timeout);
 
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+    SEM_SIGNAL(spi_transfer_done_sem);
+}
+
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+	SEM_SIGNAL(spi_transfer_done_sem);
+}
+
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+	SEM_SIGNAL(spi_transfer_done_sem);
+}
 
 static void MX_WIFI_IO_DELAY(uint32_t ms)
 {
