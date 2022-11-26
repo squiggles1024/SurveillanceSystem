@@ -552,7 +552,7 @@ static VOID MQTT_Loop(ULONG input)
 									0,
 									NX_WAIT_FOREVER);
     	}
-    	tx_thread_relinquish();
+    	tx_thread_suspend(&MQTTThread);
     }
 }
 
