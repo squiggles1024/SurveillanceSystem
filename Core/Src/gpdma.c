@@ -45,7 +45,7 @@ void MX_GPDMA1_Init(void)
 {
 
   /* USER CODE BEGIN GPDMA1_Init 0 */
-HAL_StatusTypeDef ret;
+
   /* USER CODE END GPDMA1_Init 0 */
 
   /* Peripheral clock enable */
@@ -109,12 +109,12 @@ HAL_StatusTypeDef ret;
   HAL_DMAEx_List_LinkQ(&handle_GPDMA1_Channel12, &ProjectDMAQueue);
   __HAL_LINKDMA(&hdcmi, DMA_Handle, handle_GPDMA1_Channel12);
 
-  ret = MX_SPI_Rx_Queue_Config();
-  ret = HAL_DMAEx_List_LinkQ(&handle_GPDMA1_Channel6, &SPI_Rx_Queue);
+  MX_SPI_Rx_Queue_Config();
+  HAL_DMAEx_List_LinkQ(&handle_GPDMA1_Channel6, &SPI_Rx_Queue);
   __HAL_LINKDMA(&hspi2, hdmarx, handle_GPDMA1_Channel6);
 
-  ret = MX_SPI_Tx_Queue_Config();
-  ret = HAL_DMAEx_List_LinkQ(&handle_GPDMA1_Channel7, &SPI_Tx_Queue);
+  MX_SPI_Tx_Queue_Config();
+  HAL_DMAEx_List_LinkQ(&handle_GPDMA1_Channel7, &SPI_Tx_Queue);
   __HAL_LINKDMA(&hspi2, hdmatx, handle_GPDMA1_Channel7);
   //HAL_DMAEx_List_Start(&handle_GPDMA1_Channel12);
 
