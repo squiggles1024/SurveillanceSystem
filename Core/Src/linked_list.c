@@ -25,9 +25,8 @@
 #include "./BoardSupportPackage/BSP_ram.h"
 /* USER CODE END Includes */
 
-DMA_NodeTypeDef DCMItoMemoryPing;
+DMA_NodeTypeDef DCMItoMemory;
 DMA_QListTypeDef ProjectDMAQueue;
-DMA_NodeTypeDef DCMItoMemoryPong;
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
@@ -80,21 +79,13 @@ HAL_StatusTypeDef MX_ProjectDMAQueue_Config(void)
   pNodeConfig.DstAddress = 0;
   pNodeConfig.DataSize = 0;
 
-  /* Build DCMItoMemoryPing Node */
-  ret |= HAL_DMAEx_List_BuildNode(&pNodeConfig, &DCMItoMemoryPing);
+  /* Build DCMItoMemory Node */
+  ret |= HAL_DMAEx_List_BuildNode(&pNodeConfig, &DCMItoMemory);
 
-  /* Insert DCMItoMemoryPing to Queue */
-  ret |= HAL_DMAEx_List_InsertNode_Tail(&ProjectDMAQueue, &DCMItoMemoryPing);
+  /* Insert DCMItoMemory to Queue */
+  ret |= HAL_DMAEx_List_InsertNode_Tail(&ProjectDMAQueue, &DCMItoMemory);
 
-  /* Set node configuration ################################################*/
-
-  /* Build DCMItoMemoryPong Node */
-  ret |= HAL_DMAEx_List_BuildNode(&pNodeConfig, &DCMItoMemoryPong);
-
-  /* Insert DCMItoMemoryPong to Queue */
-  ret |= HAL_DMAEx_List_InsertNode_Tail(&ProjectDMAQueue, &DCMItoMemoryPong);
-
-  ret |= HAL_DMAEx_List_SetCircularModeConfig(&ProjectDMAQueue, &DCMItoMemoryPing);
+  ret |= HAL_DMAEx_List_SetCircularMode(&ProjectDMAQueue);
 
    return ret;
 }
