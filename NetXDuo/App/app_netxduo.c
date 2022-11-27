@@ -59,6 +59,7 @@ TX_THREAD IPInitThread, SNTPInitThread, MQTTThread;
 
 TX_SEMAPHORE IP_ADDR_SEM;
 TX_SEMAPHORE SNTP_UPDATE_SEM;
+TX_MUTEX SPI_MUTEX;
 //static UINT MessageCount = 0;
 
 static ULONG CurrentTime;
@@ -239,7 +240,11 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
 						 SNTP_INIT_PRIORITY,
 						 TX_NO_TIME_SLICE,
 						 TX_DONT_START);
-
+  if(ret != TX_SUCCESS)
+  {
+	  return ret;
+  }
+  ret = tx_mutex_create(&SPI_MUTEX,"SPI Mutex", TX_INHERIT);
   /* USER CODE END MX_NetXDuo_Init */
 
   return ret;
@@ -396,7 +401,7 @@ static VOID MQTTMessageRecieved_CB(NXD_MQTT_CLIENT* Client, UINT MsgCount)
 	UINT ret = NX_SUCCESS;
     while(Remaining > 0)
     {
-
+    	tx_mutex_get(&SPI_MUTEX,TX_NO_WAIT);
     	ret = nxd_mqtt_client_message_get(&MQTTClient,
     			                          MQTT_TopicBuffer,
 										  MQTT_TopicBufferLen,
@@ -405,6 +410,7 @@ static VOID MQTTMessageRecieved_CB(NXD_MQTT_CLIENT* Client, UINT MsgCount)
 										  MQTT_MessageBufferLen,
 										  &ActualMessageLength
 										  );
+    	tx_mutex_put(&SPI_MUTEX);
     	if(ret != NXD_MQTT_SUCCESS)
     	{
     		Error_Handler();
@@ -479,7 +485,7 @@ static VOID MQTT_Loop(ULONG input)
     		{
                 tx_queue_receive(&TemperatureQueue,(VOID*)&QueueRecieveBuffer[i],TX_WAIT_FOREVER);
     		}
-
+            tx_mutex_get(&SPI_MUTEX,TX_WAIT_FOREVER);
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC01,
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC01),
 									(VOID*)QueueRecieveBuffer,
@@ -487,6 +493,7 @@ static VOID MQTT_Loop(ULONG input)
 									NX_TRUE,
 									0,
 									NX_WAIT_FOREVER);
+            tx_mutex_put(&SPI_MUTEX);
     	}
 
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB02_EVT_Msk)
@@ -495,6 +502,7 @@ static VOID MQTT_Loop(ULONG input)
     		{
                 tx_queue_receive(&HumidityQueue,(VOID*)&QueueRecieveBuffer[i],TX_WAIT_FOREVER);
     		}
+    		tx_mutex_get(&SPI_MUTEX,TX_WAIT_FOREVER);
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC02,
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC02),
 									(VOID*)QueueRecieveBuffer,
@@ -502,6 +510,7 @@ static VOID MQTT_Loop(ULONG input)
 									NX_TRUE,
 									0,
 									NX_WAIT_FOREVER);
+            tx_mutex_put(&SPI_MUTEX);
     	}
 
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB03_EVT_Msk)
@@ -511,6 +520,7 @@ static VOID MQTT_Loop(ULONG input)
                 tx_queue_receive(&PressureQueue,(VOID*)&QueueRecieveBuffer[i],TX_WAIT_FOREVER);
     		}
             tx_queue_receive(&PressureQueue,(VOID*)QueueRecieveBuffer,TX_WAIT_FOREVER);
+            tx_mutex_get(&SPI_MUTEX,TX_WAIT_FOREVER);
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC03,
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC03),
 									(VOID*)QueueRecieveBuffer,
@@ -518,6 +528,7 @@ static VOID MQTT_Loop(ULONG input)
 									NX_TRUE,
 									0,
 									NX_WAIT_FOREVER);
+            tx_mutex_put(&SPI_MUTEX);
     	}
 
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB04_EVT_Msk)
@@ -527,6 +538,7 @@ static VOID MQTT_Loop(ULONG input)
                 tx_queue_receive(&LightQueue,(VOID*)&QueueRecieveBuffer[i],TX_WAIT_FOREVER);
     		}
             tx_queue_receive(&LightQueue,(VOID*)QueueRecieveBuffer,TX_WAIT_FOREVER);
+            tx_mutex_get(&SPI_MUTEX,TX_WAIT_FOREVER);
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC04,
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC04),
 									(VOID*)QueueRecieveBuffer,
@@ -534,6 +546,7 @@ static VOID MQTT_Loop(ULONG input)
 									NX_TRUE,
 									0,
 									NX_WAIT_FOREVER);
+            tx_mutex_put(&SPI_MUTEX);
     	}
 
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB05_EVT_Msk)
@@ -544,6 +557,7 @@ static VOID MQTT_Loop(ULONG input)
                 tx_queue_receive(&MagYQueue,(VOID*)&QueueRecieveBuffer[i + 10],TX_WAIT_FOREVER);
                 tx_queue_receive(&MagZQueue,(VOID*)&QueueRecieveBuffer[i + 20],TX_WAIT_FOREVER);
     		}
+    		tx_mutex_get(&SPI_MUTEX,TX_WAIT_FOREVER);
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC05,
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC05),
 									(VOID*)QueueRecieveBuffer,
@@ -551,6 +565,7 @@ static VOID MQTT_Loop(ULONG input)
 									NX_TRUE,
 									0,
 									NX_WAIT_FOREVER);
+            tx_mutex_put(&SPI_MUTEX);
     	}
     	tx_thread_suspend(&MQTTThread);
     }
