@@ -724,7 +724,7 @@ static VOID DataSendNotify(TX_QUEUE *QueuePtr)
 		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB05_EVT_Msk, TX_OR);
 	}else if(QueuePtr == &CameraQueue)
 	{
-
+        tx_event_flags_set(&MQTT_TREvent, MESSAGE_TRANSMIT_PUB11_EVT_Msk, TX_OR);
 	}
 
 	if(MQTTClient.nxd_mqtt_client_state == NXD_MQTT_CLIENT_STATE_CONNECTED)

@@ -429,6 +429,8 @@ static VOID MQTT_Loop(ULONG input)
 	NXD_ADDRESS MQTTServerIP;
 
 	float QueueRecieveBuffer[MAGNETIC_PAYLOAD_SAMPLES*3];
+	ULONG *FrameBufferPtr;
+	ULONG FrameQueueReceiver = 0;
 
 	MQTTServerIP.nxd_ip_address.v4 = MQTT_SERVER_IP;
 	MQTTServerIP.nxd_ip_version = 4;
@@ -567,6 +569,22 @@ static VOID MQTT_Loop(ULONG input)
 									NX_WAIT_FOREVER);
             tx_mutex_put(&SPI_MUTEX);
     	}
+
+    	if(MQTTEvents & MESSAGE_TRANSMIT_PUB11_EVT_Msk)
+    	{
+    		tx_queue_receive(&CameraQueue, (VOID*)&FrameQueueReceiver, TX_WAIT_FOREVER);
+    		FrameBufferPtr = (ULONG*)FrameQueueReceiver;
+    		tx_mutex_get(&SPI_MUTEX,TX_WAIT_FOREVER);
+            /*nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC05,
+            		                STRLEN(MQTT_CLIENT_PUB_TOPIC05),
+									(VOID*)FrameBufferPtr,
+									CAMERA_DATA_SIZE_BYTES,
+									NX_TRUE,
+									1,
+									NX_WAIT_FOREVER);*/
+            tx_mutex_put(&SPI_MUTEX);
+    	}
+
     	tx_thread_suspend(&MQTTThread);
     }
 }
