@@ -91,6 +91,7 @@ TX_QUEUE HumidityQueue;
 TX_QUEUE MagXQueue;
 TX_QUEUE MagYQueue;
 TX_QUEUE MagZQueue;
+TX_QUEUE CameraQueue;
 
 /* USER CODE END PV */
 
@@ -339,11 +340,18 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
   }
   ret = tx_queue_create(&MagZQueue, "MagZ Queue", TX_1_ULONG, Ptr, MAGNETIC_QUEUE_SIZE);
 
+  if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, ENV_DATA_QUEUE_SIZE, TX_NO_WAIT) != TX_SUCCESS)
+  {
+	  return TX_POOL_ERROR;
+  }
+  ret = tx_queue_create(&CameraQueue, "Camera Queue", TX_1_ULONG, Ptr, CAMERA_QUEUE_SIZE);
+
   ret = tx_queue_send_notify(&TemperatureQueue,DataSendNotify);
   ret = tx_queue_send_notify(&PressureQueue,DataSendNotify);
   ret = tx_queue_send_notify(&HumidityQueue,DataSendNotify);
   ret = tx_queue_send_notify(&LightQueue,DataSendNotify);
   ret = tx_queue_send_notify(&MagZQueue,DataSendNotify);
+  ret = tx_queue_send_notify(&CameraQueue,DataSendNotify);
   //tx_trace_enable(&tracex_buffer, TRACEX_BUFFER_SIZE,30);
   /* USER CODE END App_ThreadX_Init */
 
@@ -669,20 +677,28 @@ void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
 
 void HAL_DCACHE_CleanAndInvalidateByAddrCallback(DCACHE_HandleTypeDef *hdcache)
 {
+	ULONG Dummy;
+	if(CameraQueue.tx_queue_available_storage == 0)
+	{
+		tx_queue_receive(&CameraQueue,&Dummy,TX_NO_WAIT);
+	}
 
 	if((FrameCount % 2)== 0)
 	{
+		Dummy = CAMERA_FRAMEBUFFER1_ADDR;
 		tx_semaphore_put(&CameraBufferData[0]);
 	} else
 	{
+		Dummy = CAMERA_FRAMEBUFFER2_ADDR;
 		tx_semaphore_put(&CameraBufferData[1]);
 	}
+	tx_queue_send(&CameraQueue,&Dummy,TX_NO_WAIT);
 	FrameCount++;
 }
 
 static VOID DataSendNotify(TX_QUEUE *QueuePtr)
 {
-	if(QueuePtr->tx_queue_available_storage != 0) //Queue isn't full yet, return
+	if(QueuePtr->tx_queue_available_storage != 0 && QueuePtr != &CameraQueue)
 	{
 		return;
 	}
@@ -706,6 +722,9 @@ static VOID DataSendNotify(TX_QUEUE *QueuePtr)
 	else if(QueuePtr == &MagZQueue)
 	{
 		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB05_EVT_Msk, TX_OR);
+	}else if(QueuePtr == &CameraQueue)
+	{
+
 	}
 
 	if(MQTTClient.nxd_mqtt_client_state == NXD_MQTT_CLIENT_STATE_CONNECTED)

@@ -43,6 +43,7 @@
  extern TX_QUEUE MagXQueue;
  extern TX_QUEUE MagYQueue;
  extern TX_QUEUE MagZQueue;
+ extern TX_QUEUE CameraQueue;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
