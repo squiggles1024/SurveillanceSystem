@@ -41,12 +41,13 @@
  extern TX_EVENT_FLAGS_GROUP MQTT_TREvent;
  extern TX_THREAD MQTTThread;
  extern NXD_MQTT_CLIENT MQTTClient;
+ extern TX_MUTEX SPI_MUTEX;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
 #define PAYLOAD_SIZE      (1514 + 28 + 2)
-#define PACKET_POOL_SIZE (( PAYLOAD_SIZE + sizeof(NX_PACKET)) * 20)
+#define PACKET_POOL_SIZE (( PAYLOAD_SIZE + sizeof(NX_PACKET)) * 50)
 #define NULL_ADDRESS                (0)
 #define IP_HELPER_STACK_SIZE        (2048)
 #define ARP_STACK_SIZE              (1024)
@@ -130,7 +131,7 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr);
 #define HUMIDITY_PAYLOAD_SAMPLES    (1)
 #define HUMIDITY_MESSAGE_SIZE       (sizeof(float))
 #define HUMIDITY_QUEUE_SIZE         (HUMIDITY_PAYLOAD_SAMPLES * HUMIDITY_MESSAGE_SIZE)
-#define CAMERA_PAYLOAD_FRAMES       (2)
+#define CAMERA_PAYLOAD_FRAMES       (1)
 #define CAMERA_MESSAGE_SIZE         (sizeof(UINT*))
 #define CAMERA_QUEUE_SIZE           (CAMERA_PAYLOAD_FRAMES * CAMERA_MESSAGE_SIZE)
 

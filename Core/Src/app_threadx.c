@@ -79,10 +79,10 @@ TX_THREAD Read_MagneticThreadPtr;
 TX_THREAD Read_LightThreadPtr;
 
 TX_THREAD CaptureFrameThreadPtr;
-TX_THREAD SendFrameThreadPtr;
 
 TX_MUTEX MutexI2C2;
-TX_SEMAPHORE CameraBufferData[2];
+TX_SEMAPHORE CameraCaptureFrame[2];
+TX_SEMAPHORE CameraSendFrame[2];
 
 TX_QUEUE TemperatureQueue;
 TX_QUEUE LightQueue;
@@ -92,7 +92,6 @@ TX_QUEUE MagXQueue;
 TX_QUEUE MagYQueue;
 TX_QUEUE MagZQueue;
 TX_QUEUE CameraQueue;
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -267,6 +266,7 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 	  return TX_POOL_ERROR;
   }
 
+
   ret = tx_thread_create(&CaptureFrameThreadPtr,   //Thread Ptr
 		            "Capture Frame Thread",        //Thread Name
 					CaptureFrameThread,            //Thread Fn Ptr (address)
@@ -275,10 +275,10 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 					CAPFRAME_THREAD_STACK_SIZE,    //Stack Size
 					CAPTURE_FRAME_PRIORITY,        //Priority
 					CAPTURE_FRAME_PRIORITY,        //Preempt Threshold
-					TX_NO_TIME_SLICE,              //Time Slice
+					2,                             //Time Slice
 					TX_AUTO_START);                //Auto Start or Auto Activate
 
-  //Send Frame
+/*  //Send Frame
   if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, SENDFRAME_THREAD_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
   {
 	  return TX_POOL_ERROR;
@@ -294,10 +294,12 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 					SEND_FRAME_PRIORITY,        //Preempt Threshold
 					TX_NO_TIME_SLICE,           //Time Slice
 					TX_DONT_START);             //Auto Start or Auto Activate
-
+*/
   ret = tx_mutex_create(&MutexI2C2, "I2C2 Mutex", TX_INHERIT);
-  ret = tx_semaphore_create(&CameraBufferData[0], "Camera Buffer 1 Semaphore", 0);
-  ret = tx_semaphore_create(&CameraBufferData[1], "Camera Buffer 2 Semaphore", 0);
+  ret = tx_semaphore_create(&CameraCaptureFrame[0], "Camera Buffer 1 Capture Semaphore", 0);
+  ret = tx_semaphore_create(&CameraCaptureFrame[1], "Camera Buffer 2 Capture Semaphore", 0);
+  ret = tx_semaphore_create(&CameraSendFrame[0], "Camera Buffer 1 Send Semaphore", 0);
+  ret = tx_semaphore_create(&CameraSendFrame[1], "Camera Buffer 2 Send Semaphore", 0);
   if(tx_byte_allocate(byte_pool, (VOID **) &Ptr, ENV_DATA_QUEUE_SIZE, TX_NO_WAIT) != TX_SUCCESS)
   {
 	  return TX_POOL_ERROR;
@@ -610,33 +612,35 @@ VOID GreenLEDToggleThread(ULONG init)
 	}
 }
 
+
 VOID CaptureFrameThread(ULONG init)
 {
+	ULONG BufferAddressToSend = 0;
+	BSP_CameraStart((uint8_t*)CAMERA_FRAMEBUFFER1_ADDR);
+	tx_semaphore_get(&CameraCaptureFrame[0],TX_WAIT_FOREVER);
     while(1)
     {
-        if(CameraBufferData[0].tx_semaphore_count == 0)
-        {
-        	BSP_CameraStart((uint8_t*)CAMERA_FRAMEBUFFER1_ADDR);
-        	tx_thread_resume(&SendFrameThreadPtr);
-            tx_thread_suspend(&CaptureFrameThreadPtr);
-        }
+        BSP_CameraStart((uint8_t*)CAMERA_FRAMEBUFFER2_ADDR);
+        BufferAddressToSend = CAMERA_FRAMEBUFFER1_ADDR;
+        tx_queue_send(&CameraQueue,&BufferAddressToSend,TX_WAIT_FOREVER);
+        tx_semaphore_get(&CameraSendFrame[0],TX_WAIT_FOREVER);
+        tx_semaphore_get(&CameraCaptureFrame[1],TX_WAIT_FOREVER);
 
-        if(CameraBufferData[1].tx_semaphore_count == 0)
-        {
-        	BSP_CameraStart((uint8_t*)CAMERA_FRAMEBUFFER2_ADDR);
-        	tx_thread_resume(&SendFrameThreadPtr);
-        	tx_thread_suspend(&CaptureFrameThreadPtr);
-        }
+        BSP_CameraStart((uint8_t*)CAMERA_FRAMEBUFFER1_ADDR);
+        BufferAddressToSend = CAMERA_FRAMEBUFFER2_ADDR;
+        tx_queue_send(&CameraQueue,&BufferAddressToSend,TX_WAIT_FOREVER);
+        tx_semaphore_get(&CameraSendFrame[1],TX_WAIT_FOREVER);
+        tx_semaphore_get(&CameraCaptureFrame[0],TX_WAIT_FOREVER);
     }
 }
 
-
+/*
 VOID SendFrameThread(ULONG init)
 {
 
     while(1)
     {
-    	if(CameraBufferData[1].tx_semaphore_count == 0 && CameraBufferData[0].tx_semaphore_count == 0)
+    	if((CameraBufferData[1].tx_semaphore_count == 0 && CameraBufferData[0].tx_semaphore_count == 0) || MQTTClient.nxd_mqtt_client_state != NXD_MQTT_CLIENT_STATE_CONNECTED)
     	{
             tx_thread_suspend(&SendFrameThreadPtr);
     	}
@@ -656,7 +660,7 @@ VOID SendFrameThread(ULONG init)
     	}
     }
 }
-
+*/
 
 static uint32_t FrameCount = 0;
 void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
@@ -671,34 +675,24 @@ void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
 	{
 		HAL_DCACHE_CleanInvalidByAddr_IT(&hdcache1, (const uint32_t *const)CAMERA_FRAMEBUFFER2_ADDR, CAMERA_DATA_SIZE_BYTES);
 	}
-	tx_thread_resume(&CaptureFrameThreadPtr);
 
 }
 
 void HAL_DCACHE_CleanAndInvalidateByAddrCallback(DCACHE_HandleTypeDef *hdcache)
 {
-	ULONG Dummy;
-	if(CameraQueue.tx_queue_available_storage == 0)
-	{
-		tx_queue_receive(&CameraQueue,&Dummy,TX_NO_WAIT);
-	}
-
 	if((FrameCount % 2)== 0)
 	{
-		Dummy = CAMERA_FRAMEBUFFER1_ADDR;
-		tx_semaphore_put(&CameraBufferData[0]);
+		tx_semaphore_put(&CameraCaptureFrame[0]);
 	} else
 	{
-		Dummy = CAMERA_FRAMEBUFFER2_ADDR;
-		tx_semaphore_put(&CameraBufferData[1]);
+		tx_semaphore_put(&CameraCaptureFrame[1]);
 	}
-	tx_queue_send(&CameraQueue,&Dummy,TX_NO_WAIT);
 	FrameCount++;
 }
 
 static VOID DataSendNotify(TX_QUEUE *QueuePtr)
 {
-	if(QueuePtr->tx_queue_available_storage != 0 && QueuePtr != &CameraQueue)
+	if(QueuePtr->tx_queue_available_storage != 0)
 	{
 		return;
 	}
@@ -724,7 +718,7 @@ static VOID DataSendNotify(TX_QUEUE *QueuePtr)
 		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB05_EVT_Msk, TX_OR);
 	}else if(QueuePtr == &CameraQueue)
 	{
-        tx_event_flags_set(&MQTT_TREvent, MESSAGE_TRANSMIT_PUB11_EVT_Msk, TX_OR);
+		tx_event_flags_set(&MQTT_TREvent,MESSAGE_TRANSMIT_PUB11_EVT_Msk,TX_OR);
 	}
 
 	if(MQTTClient.nxd_mqtt_client_state == NXD_MQTT_CLIENT_STATE_CONNECTED)

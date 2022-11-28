@@ -27,6 +27,7 @@
 #include "nx_ip.h"
 #include CERT_FILE
 #include "app_threadx.h"
+#include "BSP_camera.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -428,9 +429,10 @@ static VOID MQTT_Loop(ULONG input)
 	ULONG MQTTEvents = 0;
 	NXD_ADDRESS MQTTServerIP;
 
+	ULONG *CameraBufferPtr;
+	ULONG CameraQueueReceiver = 0;
+
 	float QueueRecieveBuffer[MAGNETIC_PAYLOAD_SAMPLES*3];
-	ULONG *FrameBufferPtr;
-	ULONG FrameQueueReceiver = 0;
 
 	MQTTServerIP.nxd_ip_address.v4 = MQTT_SERVER_IP;
 	MQTTServerIP.nxd_ip_version = 4;
@@ -572,17 +574,27 @@ static VOID MQTT_Loop(ULONG input)
 
     	if(MQTTEvents & MESSAGE_TRANSMIT_PUB11_EVT_Msk)
     	{
-    		tx_queue_receive(&CameraQueue, (VOID*)&FrameQueueReceiver, TX_WAIT_FOREVER);
-    		FrameBufferPtr = (ULONG*)FrameQueueReceiver;
+    		tx_queue_receive(&CameraQueue, &CameraQueueReceiver,TX_WAIT_FOREVER);
+    		CameraBufferPtr = (VOID*)CameraQueueReceiver;
     		tx_mutex_get(&SPI_MUTEX,TX_WAIT_FOREVER);
-            /*nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC05,
-            		                STRLEN(MQTT_CLIENT_PUB_TOPIC05),
-									(VOID*)FrameBufferPtr,
-									CAMERA_DATA_SIZE_BYTES,
-									NX_TRUE,
-									1,
-									NX_WAIT_FOREVER);*/
-            tx_mutex_put(&SPI_MUTEX);
+    		for(uint8_t i = 0; i < 16; i++)
+    		{
+                nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC11,
+                		                STRLEN(MQTT_CLIENT_PUB_TOPIC11),
+    									(VOID*) (CameraBufferPtr + (CAMERA_DATA_SIZE_BYTES / 16)*i),
+    									CAMERA_DATA_SIZE_BYTES / 16,
+    									NX_TRUE,
+    									0,
+    									NX_WAIT_FOREVER);
+    		}
+    		tx_mutex_put(&SPI_MUTEX);
+    		if(CameraQueueReceiver == CAMERA_FRAMEBUFFER1_ADDR)
+    		{
+    			tx_semaphore_put(&CameraSendFrame[0]);
+    		}else
+    		{
+    			tx_semaphore_put(&CameraSendFrame[1]);
+    		}
     	}
 
     	tx_thread_suspend(&MQTTThread);

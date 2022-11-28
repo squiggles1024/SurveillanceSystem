@@ -228,7 +228,7 @@ void Error_Handler(void);
 #define GET_MAGNETIC_PRIORITY    15
 #define CAPTURE_FRAME_PRIORITY   15
 #define LED_THREAD_PRIORITY      15
-#define SEND_FRAME_PRIORITY      14
+#define SEND_FRAME_PRIORITY      16
 
 #define GET_PRESSURE_PRIORITY    11
 #define GET_MOTION_PRIORITY      10

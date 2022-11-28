@@ -44,6 +44,7 @@
  extern TX_QUEUE MagYQueue;
  extern TX_QUEUE MagZQueue;
  extern TX_QUEUE CameraQueue;
+ extern TX_SEMAPHORE CameraSendFrame[2];
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
