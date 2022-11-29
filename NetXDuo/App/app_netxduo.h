@@ -57,7 +57,7 @@
 #define SNTP_TIMEOUT                (10 * NX_IP_PERIODIC_RATE)
 #define EPOCH_TIME_DIFF              2208988800     /* is equivalent to 70 years in sec calculated with www.epochconverter.com/date-difference */
 #define MQTT_SERVER_IP              IP_ADDRESS(192, 168, 1, 119)
-#define MQTT_KEEPALIVE_TIMER        (60)
+#define MQTT_KEEPALIVE_TIMER        (0)
 #define CERT_FILE                   "ca.h"
 /* USER CODE END EC */
 

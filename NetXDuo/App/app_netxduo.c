@@ -581,12 +581,21 @@ static VOID MQTT_Loop(ULONG input)
     		{
                 nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC11,
                 		                STRLEN(MQTT_CLIENT_PUB_TOPIC11),
-    									(VOID*) (CameraBufferPtr + (CAMERA_DATA_SIZE_BYTES / 16)*i),
-    									CAMERA_DATA_SIZE_BYTES / 16,
+										(VOID*) (CameraBufferPtr + (CAMERA_DATA_SIZE_BYTES / 16)*i),
+										CAMERA_DATA_SIZE_BYTES / 16,
     									NX_TRUE,
     									0,
     									NX_WAIT_FOREVER);
     		}
+    		/*
+            nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC11,
+            		                STRLEN(MQTT_CLIENT_PUB_TOPIC11),
+									(VOID*) (CameraBufferPtr),
+									CAMERA_DATA_SIZE_BYTES,
+									NX_TRUE,
+									0,
+									NX_WAIT_FOREVER);
+			*/
     		tx_mutex_put(&SPI_MUTEX);
     		if(CameraQueueReceiver == CAMERA_FRAMEBUFFER1_ADDR)
     		{
