@@ -581,7 +581,7 @@ static VOID MQTT_Loop(ULONG input)
     		{
                 nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC11,
                 		                STRLEN(MQTT_CLIENT_PUB_TOPIC11),
-										(VOID*) (CameraBufferPtr + (CAMERA_DATA_SIZE_BYTES / 16)*i),
+										(VOID*) (CameraBufferPtr + (CAMERA_DATA_SIZE_BYTES / 64)*i),
 										CAMERA_DATA_SIZE_BYTES / 16,
     									NX_TRUE,
     									0,
