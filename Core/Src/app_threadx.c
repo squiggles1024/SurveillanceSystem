@@ -634,33 +634,6 @@ VOID CaptureFrameThread(ULONG init)
     }
 }
 
-/*
-VOID SendFrameThread(ULONG init)
-{
-
-    while(1)
-    {
-    	if((CameraBufferData[1].tx_semaphore_count == 0 && CameraBufferData[0].tx_semaphore_count == 0) || MQTTClient.nxd_mqtt_client_state != NXD_MQTT_CLIENT_STATE_CONNECTED)
-    	{
-            tx_thread_suspend(&SendFrameThreadPtr);
-    	}
-
-    	if(CameraBufferData[0].tx_semaphore_count >= 1)
-    	{
-    		//Send Frame1 Here
-    		Frame0Send++;
-    		tx_semaphore_get(&CameraBufferData[0],TX_NO_WAIT);
-    	}
-
-    	if(CameraBufferData[1].tx_semaphore_count >= 1)
-    	{
-    		//Send Frame2 Here
-    		Frame1Send++;
-    		tx_semaphore_get(&CameraBufferData[1],TX_NO_WAIT);
-    	}
-    }
-}
-*/
 
 static uint32_t FrameCount = 0;
 void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
