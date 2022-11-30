@@ -577,15 +577,16 @@ static VOID MQTT_Loop(ULONG input)
     		tx_queue_receive(&CameraQueue, &CameraQueueReceiver,TX_WAIT_FOREVER);
     		CameraBufferPtr = (VOID*)CameraQueueReceiver;
     		tx_mutex_get(&SPI_MUTEX,TX_WAIT_FOREVER);
-    		for(uint8_t i = 0; i < 16; i++)
+    		for(uint8_t i = 0; i < 10; i++)
     		{
                 nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC11,
                 		                STRLEN(MQTT_CLIENT_PUB_TOPIC11),
-										(VOID*) (CameraBufferPtr + (CAMERA_DATA_SIZE_BYTES / 64)*i),
-										CAMERA_DATA_SIZE_BYTES / 16,
+										(VOID*) (CameraBufferPtr),
+										CAMERA_DATA_SIZE_BYTES / 10,
     									NX_TRUE,
     									0,
     									NX_WAIT_FOREVER);
+                CameraBufferPtr = CameraBufferPtr + ((CAMERA_DATA_SIZE_BYTES / 10) / 4);
     		}
     		/*
             nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC11,
@@ -597,6 +598,7 @@ static VOID MQTT_Loop(ULONG input)
 									NX_WAIT_FOREVER);
 			*/
     		tx_mutex_put(&SPI_MUTEX);
+    		CameraBufferPtr = CameraBufferPtr - (CAMERA_DATA_SIZE_BYTES / 4);
     		if(CameraQueueReceiver == CAMERA_FRAMEBUFFER1_ADDR)
     		{
     			tx_semaphore_put(&CameraSendFrame[0]);

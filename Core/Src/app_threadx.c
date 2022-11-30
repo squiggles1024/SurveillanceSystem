@@ -636,20 +636,25 @@ VOID CaptureFrameThread(ULONG init)
 
 
 static uint32_t FrameCount = 0;
+
 void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
 
-	BSP_CameraStop();
+	//BSP_CameraStop();
 	if(FrameCount % 2 == 0)
 	{
 		HAL_DCACHE_CleanInvalidByAddr_IT(&hdcache1, (const uint32_t *const)CAMERA_FRAMEBUFFER1_ADDR, CAMERA_DATA_SIZE_BYTES);
+		hdcmi->DMA_Handle->State = HAL_DMA_STATE_READY;
 
 	} else
 	{
 		HAL_DCACHE_CleanInvalidByAddr_IT(&hdcache1, (const uint32_t *const)CAMERA_FRAMEBUFFER2_ADDR, CAMERA_DATA_SIZE_BYTES);
+		hdcmi->DMA_Handle->State = HAL_DMA_STATE_READY;
 	}
 
 }
+
+
 
 void HAL_DCACHE_CleanAndInvalidateByAddrCallback(DCACHE_HandleTypeDef *hdcache)
 {
