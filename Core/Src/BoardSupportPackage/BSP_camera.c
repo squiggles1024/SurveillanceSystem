@@ -28,7 +28,7 @@ BSP_CameraStatus_t BSP_CameraInit(void)
 }
 
 void BSP_CameraStart(uint8_t* Buffer){
-	  HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)Buffer, CAMERA_DATA_SIZE_WORDS);
+	  HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)Buffer, CAMERA_DATA_SIZE_WORDS);
 }
 
 void BSP_CameraStop(void){
@@ -70,7 +70,7 @@ static void BSP_CameraHWInit(void){
       IO.GetTick = BSP_GetTick;
       OV5640_LinkBus(&OV5640_Handle, &IO);
       OV5640_ReadID(&OV5640_Handle,&temp);
-      OV5640_Init(&OV5640_Handle, OV5640_R480x272, CAMERA_PF);
+      OV5640_Init(&OV5640_Handle, OV5640_R320x240, CAMERA_PF);
 }
 
 
