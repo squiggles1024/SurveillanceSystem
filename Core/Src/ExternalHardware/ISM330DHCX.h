@@ -10,18 +10,21 @@
 #include "ISM330DHCX_Registers.h"
 #include <stdint.h>
 
+//Status Codes
 #define ISM330DHCX_Error (-1)
 #define ISM330DHCX_ReadRegErr (-2)
 #define ISM330DHCX_ParamError (-3)
 #define ISM330DHCX_Ok (0)
 #define ISM330DHCX_InitError (-4)
 
+//Magic Numbers
 #define ISM330DHCX_ResetSignal (0x01)
 #define ISM330DHCX_DefaultSetting (0x00)
 
 #define ISM330DHCX_SubMilliPeriod (1)
 #define ISM330DHCX_PeriodOneShot (2)
 
+//Low Level IO Struct
 typedef struct{
     void (*Init)(void);
     void (*DeInit)(void);
@@ -32,11 +35,13 @@ typedef struct{
     uint32_t (*GetTick)(void);
 }ISM330DHCX_IO_t;
 
+//Status codes returned by Read Data functions
 typedef enum{
 	ISM330DHCX_DataReady,
 	ISM330DHCX_DataNotReady = 0xBEEF
 }ISM330DHCX_DataReadyStatus_t;
 
+//Enum used to keep track of whether or not a device handle is initialized.
 typedef enum
 {
 	ISM330DHCX_Uninitialized = 0,
@@ -44,7 +49,6 @@ typedef enum
 }ISM330DHCX_InitStatus_t;
 
 /*PIN_CTRL REG, set bits 0-5 to 1*/
-
 typedef enum{
 	ISM330DHCX_SDOPullupDisconnected = 0,
 	ISM330DHCX_SDOPulledUp = 1 << 6
@@ -359,6 +363,7 @@ typedef enum{
 	ISM330DHCX_TimeStampDisabled = 0
 }ISM330DHCX_TimeStamp_t;
 
+/* Settings Struct to be provided by the user */
 typedef struct{
 	/*****Physical Interface Settings*****/
 	ISM330DHCX_SDOPullUp_t SDO_PU_EN;                        //PIN_CTRL Reg
@@ -431,6 +436,7 @@ typedef struct{
 
 }ISM330DHCX_Init_Struct_t;
 
+//Device Handle definition.
 typedef struct{
 	ISM330DHCX_IO_t IO;
 	ISM330DHCX_Context_t Context;

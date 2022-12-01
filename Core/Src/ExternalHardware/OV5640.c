@@ -2,7 +2,7 @@
  * OV5640.c
  *
  *  Created on: Sep 15, 2022
- *      Author: evanl
+ *      Author: evanl... But really STMicro. I simply reduced their driver to the parts that I need.
  */
 #include "OV5640.h"
 #include <stddef.h>

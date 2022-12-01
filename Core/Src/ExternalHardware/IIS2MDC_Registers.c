@@ -8,6 +8,13 @@
 #include "IIS2MDC_Registers.h"
 #include <stddef.h>
 
+/******************************************************************************************
+ * @Brief: Checks the parameters passed to Read/Write reg functions below.
+ * @Param: Context pointer, Reg to read, Buffer, Buffer Length
+ * @Return: IIS2MDC_REG_OK if params are OK, Error Code if theres a problem.
+ * @Pre Condition: None
+ * @Post Condition: None
+ ******************************************************************************************/
 static int32_t IIS2MDC_ValidateParams(IIS2MDC_Context_t *Context, uint8_t Reg, uint8_t *Buffer, uint8_t Length)
 {
 	int32_t ret = IIS2MDC_REG_OK;
@@ -35,6 +42,13 @@ static int32_t IIS2MDC_ValidateParams(IIS2MDC_Context_t *Context, uint8_t Reg, u
 
 }
 
+/******************************************************************************************
+ * @Brief: Calls context function to read IIS2MDC Register
+ * @Param: Context pointer, Reg to read, Buffer to store data, number of bytes of read
+ * @Return: Status code
+ * @Pre Condition: Low level IO should be initialized
+ * @Post Condition: IIS2MDC device will be read and buffer will contain the data.
+ ******************************************************************************************/
 int32_t IIS2MDC_ReadReg(IIS2MDC_Context_t *Context, uint8_t Reg, uint8_t *Buffer, uint8_t Length)
 {
 	int32_t ret = IIS2MDC_ValidateParams(Context,Reg,Buffer,Length);
@@ -47,6 +61,13 @@ int32_t IIS2MDC_ReadReg(IIS2MDC_Context_t *Context, uint8_t Reg, uint8_t *Buffer
 	return ret;
 }
 
+/******************************************************************************************
+ * @Brief: Calls context function to write IIS2MDC Registers
+ * @Param: Context pointer, Reg to write, Buffer of data to write, number of bytes of write
+ * @Return: Status code
+ * @Pre Condition: Low level IO should be initialized
+ * @Post Condition: Buffer data will be written to given IIS2MDC device register(s)
+ ******************************************************************************************/
 int32_t IIS2MDC_WriteReg(IIS2MDC_Context_t *Context, uint8_t Reg, uint8_t *Buffer, uint8_t Length)
 {
 	int32_t ret = IIS2MDC_ValidateParams(Context,Reg,Buffer,Length);

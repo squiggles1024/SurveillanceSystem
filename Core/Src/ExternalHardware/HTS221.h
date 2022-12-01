@@ -9,12 +9,15 @@
 #define SRC_EXTERNALHARDWARE_HTS221_H_
 #include "HTS221_Registers.h"
 #include <stdint.h>
+/*See HTS221.c for driver details*/
 
+//Status Codes
 #define HTS221_ODR_Error (-2)
 #define HTS221_Error (-1)
 #define HTS221_PeriodOneShot (1)
 #define HTS221_Ok (0)
 
+/*Magic Number defines*/
 #define HTS221_RebootSignal (1 << 7)
 #define HTS221_BDU_ENABLE (1 << 2)
 #define HTS221_START_CONV_SIGNAL (1)
@@ -23,6 +26,7 @@
 #define HTS221_TEMPDATA_Msk (1)
 #define HTS221_HUMDATA_Msk (2)
 
+/* Low Level IO Struct to be provided by user */
 typedef struct{
     void    (*Init)(void);
     void    (*DeInit)(void);
@@ -71,16 +75,19 @@ typedef enum{
 	HTS221_12_5Hz
 }HTS221_OutputDataRate_t;
 
+//Configure DRDY Pin to be active high or active low
 typedef enum{
     HTS221_DataActiveHigh = 0,
 	HTS221_DataActiveLow = 1 << 7
 }HTS221_DataReadySignalPolarity_t;
 
+//Configures the DRDY Pin as Open Drain or push pull
 typedef enum{
    HTS221_DRDY_PushPull = 0,
    HTS221_DRDY_OpenDrain = 1 << 6
 }HTS221_DataReadyPPOD_t;
 
+//Whether or not the DRDY Pin is used.
 typedef enum{
    HTS221_DataReadyDisable = 0,
    HTS221_DataReadyEnable = 1 << 2

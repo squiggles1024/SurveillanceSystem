@@ -8,6 +8,7 @@
 #include "IIS2MDC.h"
 #include <stddef.h>
 
+//Define Magic Numbers
 #define IIS2MDC_ResetSignal (1 << 5)
 #define IIS2MDC_RebootSignal (1 << 6)
 #define IIS2MDC_StartConvSignal (1)
@@ -16,6 +17,7 @@
 #define IIS2MDC_ZDATA_Msk (0x01)
 #define IIS2MDC_ODR_Msk (0x0F)
 
+//Private Function Prototypes
 static int32_t IIS2MDC_SWReset(IIS2MDC_Handle_t *Handle);
 static int32_t IIS2MDC_Reboot(IIS2MDC_Handle_t *Handle);
 static int32_t IIS2MDC_WriteRegWrapper(void *Handle,uint8_t Reg, uint8_t *Buffer, uint8_t Length);
@@ -25,6 +27,13 @@ static void ConvertMagData(uint8_t *buffer, float *magnetism);
 static void DeConvertMagData(float magnetism, uint8_t *buffer);
 
 
+/*******************************************************************************************************************
+ * @Brief:Initializes a IIS2MDC Device Handle
+ * @Params: Device handle ptr to initialize, Settings that handle will be initialized with, IO Driver with, at a minimum a read, write, and GetTick function
+ * @Return: Status Code
+ * @Pre Condition: None
+ * @Post Condition: Device handle and hardware will be initialized.
+ *******************************************************************************************************************/
 int32_t IIS2MDC_Init(IIS2MDC_Handle_t *Handle, IIS2MDC_InitStruct_t Settings, IIS2MDC_IO_t *IO)
 {
     if(Handle->Status != IIS2MDC_Initialized)
@@ -34,7 +43,7 @@ int32_t IIS2MDC_Init(IIS2MDC_Handle_t *Handle, IIS2MDC_InitStruct_t Settings, II
             return IIS2MDC_HandleError;
         }
 
-        if(IO->Read == NULL || IO->Write == NULL || IO->GetTick == NULL)
+        if(IO->Read == NULL || IO->Write == NULL || IO->GetTick == NULL) //User MUST provide these functions at a minimum.
         {
         	return IIS2MDC_IOError;
         }
@@ -72,6 +81,13 @@ int32_t IIS2MDC_Init(IIS2MDC_Handle_t *Handle, IIS2MDC_InitStruct_t Settings, II
     return IIS2MDC_Ok;
 }
 
+/*******************************************************************************************************************
+ * @Brief:Deinitializes a IIS2MDC Device Handle
+ * @Params: Pointer to handle to deinitialize.
+ * @Return: Status Code
+ * @Pre Condition: None
+ * @Post Condition: Device handle and hardware will be deinitialized.
+ *******************************************************************************************************************/
 int32_t IIS2MDC_DeInit(IIS2MDC_Handle_t *Handle)
 {
     if(Handle == NULL)
@@ -99,6 +115,13 @@ int32_t IIS2MDC_DeInit(IIS2MDC_Handle_t *Handle)
     return IIS2MDC_Ok;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Resets an IIS2MDC Device Handle
+ * @Params: Pointer to handle to deinitialize.
+ * @Return: Status Code
+ * @Pre Condition: Device Handle should be initialized.
+ * @Post Condition: Device will be power cycled and registers set to factory defaults.
+ *******************************************************************************************************************/
 int32_t IIS2MDC_ResetDevice(IIS2MDC_Handle_t *Handle)
 {
 	int32_t ret = IIS2MDC_Ok;
@@ -128,6 +151,13 @@ int32_t IIS2MDC_ResetDevice(IIS2MDC_Handle_t *Handle)
 	return IIS2MDC_Ok;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Writes to the OffsetX Device register.
+ * @Params: Pointer to IIS2MDC device handle, value to write to register.
+ * @Return: Status Code
+ * @Pre Condition: Device Handle should be initialized.
+ * @Post Condition: Device will have it's IIS2MDC_REG_OFFSET_X_REGs written to.
+ *******************************************************************************************************************/
 int32_t IIS2MDC_SetOffsetMagnetismX(IIS2MDC_Handle_t *Handle, float Offset)
 {
 	if(Handle->Status != IIS2MDC_Initialized)
@@ -145,6 +175,13 @@ int32_t IIS2MDC_SetOffsetMagnetismX(IIS2MDC_Handle_t *Handle, float Offset)
 	return IIS2MDC_Ok;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Retrieves the the OffsetX Device register value
+ * @Params: Pointer to IIS2MDC device handle, float buffer to store offset value
+ * @Return: Status Code
+ * @Pre Condition: Device Handle should be initialized.
+ * @Post Condition: "Offset" param will contain the value of IIS2MDC_REG_OFFSET_X_REGs
+ *******************************************************************************************************************/
 int32_t IIS2MDC_GetOffsetMagnetismX(IIS2MDC_Handle_t *Handle, float *Offset)
 {
 	if(Handle->Status != IIS2MDC_Initialized)
@@ -161,6 +198,13 @@ int32_t IIS2MDC_GetOffsetMagnetismX(IIS2MDC_Handle_t *Handle, float *Offset)
     return IIS2MDC_Ok;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Writes to the OffsetY Device register.
+ * @Params: Pointer to IIS2MDC device handle, value to write to register.
+ * @Return: Status Code
+ * @Pre Condition: Device Handle should be initialized.
+ * @Post Condition: Device will have it's IIS2MDC_REG_OFFSET_Y_REGs written to.
+ *******************************************************************************************************************/
 int32_t IIS2MDC_SetOffsetMagnetismY(IIS2MDC_Handle_t *Handle, float Offset)
 {
 	if(Handle->Status != IIS2MDC_Initialized)
@@ -178,6 +222,13 @@ int32_t IIS2MDC_SetOffsetMagnetismY(IIS2MDC_Handle_t *Handle, float Offset)
 	return IIS2MDC_Ok;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Retrieves the the OffsetY Device register value
+ * @Params: Pointer to IIS2MDC device handle, float buffer to store offset value
+ * @Return: Status Code
+ * @Pre Condition: Device Handle should be initialized.
+ * @Post Condition: "Offset" param will contain the value of IIS2MDC_REG_OFFSET_Y_REGs
+ *******************************************************************************************************************/
 int32_t IIS2MDC_GetOffsetMagnetismY(IIS2MDC_Handle_t *Handle, float *Offset)
 {
 	if(Handle->Status != IIS2MDC_Initialized)
@@ -194,6 +245,13 @@ int32_t IIS2MDC_GetOffsetMagnetismY(IIS2MDC_Handle_t *Handle, float *Offset)
     return IIS2MDC_Ok;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Writes to the OffsetZ Device register.
+ * @Params: Pointer to IIS2MDC device handle, value to write to register.
+ * @Return: Status Code
+ * @Pre Condition: Device Handle should be initialized.
+ * @Post Condition: Device will have it's IIS2MDC_REG_OFFSET_Z_REGs written to.
+ *******************************************************************************************************************/
 int32_t IIS2MDC_SetOffsetMagnetismZ(IIS2MDC_Handle_t *Handle, float Offset)
 {
 	if(Handle->Status != IIS2MDC_Initialized)
@@ -211,6 +269,13 @@ int32_t IIS2MDC_SetOffsetMagnetismZ(IIS2MDC_Handle_t *Handle, float Offset)
 	return IIS2MDC_Ok;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Retrieves the the OffsetZ Device register value
+ * @Params: Pointer to IIS2MDC device handle, float buffer to store offset value
+ * @Return: Status Code
+ * @Pre Condition: Device Handle should be initialized.
+ * @Post Condition: "Offset" param will contain the value of IIS2MDC_REG_OFFSET_Z_REGs
+ *******************************************************************************************************************/
 int32_t IIS2MDC_GetOffsetMagnetismZ(IIS2MDC_Handle_t *Handle, float *Offset)
 {
 	if(Handle->Status != IIS2MDC_Initialized)
@@ -227,6 +292,13 @@ int32_t IIS2MDC_GetOffsetMagnetismZ(IIS2MDC_Handle_t *Handle, float *Offset)
     return IIS2MDC_Ok;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Starts a magnetism conversion
+ * @Params: pointer to IIS2MDC Handle to begin conversion
+ * @Return: Status Code,
+ * @Pre Condition: Device Handle should be initialized and configured in One Shot Mode.
+ * @Post Condition: IIS2MDC Device will sampling/converting magnetic field.
+ *******************************************************************************************************************/
 int32_t IIS2MDC_StartConversion(IIS2MDC_Handle_t *Handle)
 {
 	if(Handle->Status != IIS2MDC_Initialized)
@@ -254,6 +326,13 @@ int32_t IIS2MDC_StartConversion(IIS2MDC_Handle_t *Handle)
 	return IIS2MDC_Ok;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Reads X, Y, and Z magnetic field values
+ * @Params: pointer to IIS2MDC Handle, and buffers for X, Y, and Z values
+ * @Return: Status Code, IIS2MDC_DataNotReady if conversion isn't done, IIS2MDC_DataReady on successful read
+ * @Pre Condition: Device Handle should be initialized
+ * @Post Condition: Mx, My, and Mz params will contain magnetic field values in milligause if read was successful.
+ *******************************************************************************************************************/
 int32_t IIS2MDC_ReadMagnetismXYZ(IIS2MDC_Handle_t *Handle, float *Mx, float *My, float *Mz)
 {
 	if(Handle->Status != IIS2MDC_Initialized)
@@ -282,6 +361,13 @@ int32_t IIS2MDC_ReadMagnetismXYZ(IIS2MDC_Handle_t *Handle, float *Mx, float *My,
 	return IIS2MDC_DataNotReady;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Reads X magnetic field value
+ * @Params: pointer to IIS2MDC Handle, and buffer for X value
+ * @Return: Status Code, IIS2MDC_DataNotReady if conversion isn't done, IIS2MDC_DataReady on successful read
+ * @Pre Condition: Device Handle should be initialized
+ * @Post Condition: Mx param will contain magnetic field value in milligause if read was successful.
+ *******************************************************************************************************************/
 int32_t IIS2MDC_ReadMagnetismX(IIS2MDC_Handle_t *Handle, float *Mx)
 {
 	if(Handle->Status != IIS2MDC_Initialized)
@@ -308,6 +394,13 @@ int32_t IIS2MDC_ReadMagnetismX(IIS2MDC_Handle_t *Handle, float *Mx)
 	return IIS2MDC_DataNotReady;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Reads Y magnetic field value
+ * @Params: pointer to IIS2MDC Handle, and buffer for Y value
+ * @Return: Status Code, IIS2MDC_DataNotReady if conversion isn't done, IIS2MDC_DataReady on successful read
+ * @Pre Condition: Device Handle should be initialized
+ * @Post Condition: My param will contain magnetic field value in milligause if read was successful.
+ *******************************************************************************************************************/
 int32_t IIS2MDC_ReadMagnetismY(IIS2MDC_Handle_t *Handle, float *My)
 {
 	if(Handle->Status != IIS2MDC_Initialized)
@@ -334,6 +427,13 @@ int32_t IIS2MDC_ReadMagnetismY(IIS2MDC_Handle_t *Handle, float *My)
 	return IIS2MDC_DataNotReady;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Reads Z magnetic field value
+ * @Params: pointer to IIS2MDC Handle, and buffer for Z value
+ * @Return: Status Code, IIS2MDC_DataNotReady if conversion isn't done, IIS2MDC_DataReady on successful read
+ * @Pre Condition: Device Handle should be initialized
+ * @Post Condition: Mz param will contain magnetic field value in milligause if read was successful.
+ *******************************************************************************************************************/
 int32_t IIS2MDC_ReadMagnetismZ(IIS2MDC_Handle_t *Handle, float *Mz)
 {
 	if(Handle->Status != IIS2MDC_Initialized)
@@ -360,7 +460,13 @@ int32_t IIS2MDC_ReadMagnetismZ(IIS2MDC_Handle_t *Handle, float *Mz)
 	return IIS2MDC_DataNotReady;
 }
 
-
+/*******************************************************************************************************************
+ * @Brief: Calls Low Level IO Driver to Write to device registers.
+ * @Params: pointer to IIS2MDC Handle, Reg to write to, Buffer with data to write, number of bytes to write.
+ * @Return: Status Code
+ * @Pre Condition: Device Handle should be initialized
+ * @Post Condition: Device registers will be written to/modified.
+ *******************************************************************************************************************/
 static int32_t IIS2MDC_WriteRegWrapper(void *Handle,uint8_t Reg, uint8_t *Buffer, uint8_t Length)
 {
 	IIS2MDC_Handle_t *Dev= Handle;
@@ -371,6 +477,13 @@ static int32_t IIS2MDC_WriteRegWrapper(void *Handle,uint8_t Reg, uint8_t *Buffer
     return IIS2MDC_IOError;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Calls Low Level IO Driver to read from device registers.
+ * @Params: pointer to IIS2MDC Handle, Reg to read from, Buffer to hold read data, number of bytes to read.
+ * @Return: Status Code
+ * @Pre Condition: Device Handle should be initialized
+ * @Post Condition: "Buffer" param will contain the read data.
+ *******************************************************************************************************************/
 static int32_t IIS2MDC_ReadRegWrapper(void *Handle,uint8_t Reg, uint8_t *Buffer, uint8_t Length)
 {
 	IIS2MDC_Handle_t *Dev= Handle;
@@ -381,6 +494,13 @@ static int32_t IIS2MDC_ReadRegWrapper(void *Handle,uint8_t Reg, uint8_t *Buffer,
     return IIS2MDC_IOError;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Initializes Device handle and hardware according to provided settings. Called from IIS2MDC Init function.
+ * @Params: pointer to IIS2MDC Handle, desired user settings.
+ * @Return: Status Code
+ * @Pre Condition: None
+ * @Post Condition: Device will be reset and registers will be written to according to Settings param.
+ *******************************************************************************************************************/
 static int32_t IIS2MDC_RegisterInit(IIS2MDC_Handle_t *Handle, IIS2MDC_InitStruct_t Settings)
 {
 	int32_t ret = IIS2MDC_ResetDevice(Handle);
@@ -451,6 +571,13 @@ static int32_t IIS2MDC_RegisterInit(IIS2MDC_Handle_t *Handle, IIS2MDC_InitStruct
     return IIS2MDC_Ok;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Resets IIS2MDC Registers to factory default.
+ * @Params: pointer to IIS2MDC Handle
+ * @Return: Status Code
+ * @Pre Condition: IO Should be initialized.
+ * @Post Condition: Device registers will be set to factory default.
+ *******************************************************************************************************************/
 static int32_t IIS2MDC_SWReset(IIS2MDC_Handle_t *Handle)
 {
     int32_t ret = 0;
@@ -473,6 +600,13 @@ static int32_t IIS2MDC_SWReset(IIS2MDC_Handle_t *Handle)
     return IIS2MDC_Ok;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Reboots IIS2MDC Device
+ * @Params: pointer to IIS2MDC Handle
+ * @Return: Status Code
+ * @Pre Condition: IO Should be initialized.
+ * @Post Condition: Device will be power cycled.
+ *******************************************************************************************************************/
 static int32_t IIS2MDC_Reboot(IIS2MDC_Handle_t *Handle)
 {
     int32_t ret = 0;
@@ -487,12 +621,26 @@ static int32_t IIS2MDC_Reboot(IIS2MDC_Handle_t *Handle)
     return IIS2MDC_Ok;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Helper function that converts magnetic data read from device
+ * @Params: pointer to buffer with data read from device. buffer to store converted value
+ * @Return: Status Code
+ * @Pre Condition: None
+ * @Post Condition: None
+ *******************************************************************************************************************/
 static void ConvertMagData(uint8_t *buffer, float *magnetism)
 {
 	int16_t result = (buffer[1] * 256) + buffer[0];
 	*magnetism = result * 1.5f;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Converts a B-field value in milligause to int16 so that it can be written to device registers.
+ * @Params: pointer b-field value, buffer to store de-converted value
+ * @Return: Status Code
+ * @Pre Condition: None
+ * @Post Condition: None
+ *******************************************************************************************************************/
 static void DeConvertMagData(float magnetism, uint8_t *buffer)
 {
     int16_t result = magnetism / 1.5f;
@@ -500,6 +648,13 @@ static void DeConvertMagData(float magnetism, uint8_t *buffer)
     buffer[0] = result & 0x00FF;
 }
 
+/*******************************************************************************************************************
+ * @Brief: Fetches sample period based on device sample frequency.
+ * @Params: Device handle, Buffer to store Period
+ * @Return: Status Code, IIS2MDC_ODR_PeriodOneShot if device in one-show mode.
+ * @Pre Condition: Device should be initialized
+ * @Post Condition: "Period" param will contain sample period in ms.
+ *******************************************************************************************************************/
 int32_t IIS2MDC_GetSamplePeriod(IIS2MDC_Handle_t *Handle, uint32_t *Period)
 {
 	if(Handle->Status != IIS2MDC_Initialized)

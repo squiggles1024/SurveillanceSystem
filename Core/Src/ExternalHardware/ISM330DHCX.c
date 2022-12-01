@@ -5,11 +5,12 @@
  *      Author: evanl
  */
 
-
+/* Includes */
 #include "ISM330DHCX.h"
 #include "ISM330DHCX_Registers.h"
 #include <stddef.h>
 
+/* Private Function Prototypes */
 static int32_t ISM330DHCX_ReadWrapper(void *Handle, uint8_t Reg, uint8_t *Buffer, uint8_t Length);
 static int32_t ISM330DHCX_WriteWrapper(void *Handle, uint8_t Reg, uint8_t *Buffer, uint8_t Length);
 static int32_t ISM330DHCX_RegisterInit(ISM330DHCX_Handle_t *Handle,ISM330DHCX_Init_Struct_t Settings);
@@ -17,13 +18,20 @@ static void ConvertXLData(ISM330DHCX_AccelFullscale_t AccelResolution ,int16_t *
 static void ConvertGData(ISM330DHCX_GyroFullScale_t GyroResolution, int16_t *buffer, float *data);
 static void ConvertTData(uint8_t *buffer, float *data);
 
+/* Magic numbers */
 #define INT_PIN_DATA_NOT_READY() (ret == 0 && (Handle->IntPolarity == ISM330DHCX_IRQ_ActiveHigh)) || (ret != 1 && (Handle->IntPolarity == ISM330DHCX_IRQ_ActiveLow))
 #define XL_DATA_MASK (1U)
 #define G_DATA_MASK  (2U)
 #define T_DATA_MASK  (4U)
 #define ISM330DHCX_BOOT_BIT_MSK (0x80)
 
-
+/***************************************************************************************************************************
+ * @Brief: Initializes ISM330DHCX Handle with provided settings and Low level IO functions
+ * @Params: ISM330DHCX Handle ptr to initialize, Settings handle will be initialized with, struct with required low level IO
+ * @Return: Status code
+ * @Pre Condition: None
+ * @Post Condition: Device handle and hardware will be initialized according to Settings and IO.init.
+ ***************************************************************************************************************************/
 int32_t ISM330DHCX_Init(ISM330DHCX_Handle_t *Handle, ISM330DHCX_Init_Struct_t Settings, ISM330DHCX_IO_t *IO)
 {
     if(Handle == NULL)
@@ -74,6 +82,13 @@ int32_t ISM330DHCX_Init(ISM330DHCX_Handle_t *Handle, ISM330DHCX_Init_Struct_t Se
 
 }
 
+/***************************************************************************************************************************
+ * @Brief: Deinitializes ISM330DHCX Handle
+ * @Params: Handle to deinitialize.
+ * @Return: None
+ * @Pre Condition: None
+ * @Post Condition: Device handle will be deinitialized, and hardware deinitialized according to IO.deinit provided by user.
+ ***************************************************************************************************************************/
 void ISM330DHCX_DeInit(ISM330DHCX_Handle_t *Handle)
 {
 	if(Handle->IO.DeInit != NULL)
@@ -99,12 +114,26 @@ void ISM330DHCX_DeInit(ISM330DHCX_Handle_t *Handle)
     Handle->IntPolarity = 0;
 }
 
+/***************************************************************************************************************************
+ * @Brief: Reset device hardware and re-initialize with given user settings and IO.
+ * @Params: Device handle to reset, settings to reinitialize with, struct with low level IO functions
+ * @Return: Status code
+ * @Pre Condition: Device handle should be initialized.
+ * @Post Condition: Device handle will be reset with given settings.
+ ***************************************************************************************************************************/
 int32_t ISM330DHCX_ResetDevice(ISM330DHCX_Handle_t *Handle, ISM330DHCX_Init_Struct_t Settings, ISM330DHCX_IO_t *IO)
 {
     ISM330DHCX_DeInit(Handle);
     return ISM330DHCX_Init(Handle, Settings, IO);
 }
 
+/***************************************************************************************************************************
+ * @Brief: Links device handle with given low level IO bus
+ * @Params: Device handle ptr, struct with low level IO functions
+ * @Return: Status code
+ * @Pre Condition: None
+ * @Post Condition: Device handle will be assigned low level IO driver.
+ ***************************************************************************************************************************/
 int32_t ISM330DHCX_RegisterIOBus(ISM330DHCX_Handle_t *Handle, ISM330DHCX_IO_t *IO)
 {
     //Validate if Read/Write/GetTick have been provided
@@ -117,6 +146,13 @@ int32_t ISM330DHCX_RegisterIOBus(ISM330DHCX_Handle_t *Handle, ISM330DHCX_IO_t *I
     return ISM330DHCX_Ok;
 }
 
+/***************************************************************************************************************************
+ * @Brief: Reads ISM330DHCX Accelerometer data
+ * @Params: Device handle to read, float buffers to store accelerometer data.
+ * @Return: Status code, ISM330DHCX_DataNotReady if new sample isnt available, ISM330DHCX_DataReady if new sample is read.
+ * @Pre Condition: Device handle should be initialized.
+ * @Post Condition: If new data is available, Ax, Ay, and Az will contain accelerometer data in G's.
+ ***************************************************************************************************************************/
 int32_t ISM330DHCX_ReadAccel(ISM330DHCX_Handle_t *Handle, float *Ax, float *Ay, float *Az)
 {
 	int32_t ret = ISM330DHCX_Ok;
@@ -151,6 +187,13 @@ int32_t ISM330DHCX_ReadAccel(ISM330DHCX_Handle_t *Handle, float *Ax, float *Ay, 
     return ISM330DHCX_DataReady;
 }
 
+/***************************************************************************************************************************
+ * @Brief: Reads ISM330DHCX Gyroscope data
+ * @Params: Device handle to read, float buffers to store gyro data.
+ * @Return: Status code, ISM330DHCX_DataNotReady if new sample isnt available, ISM330DHCX_DataReady if new sample is read.
+ * @Pre Condition: Device handle should be initialized.
+ * @Post Condition: If new data is available, Wx, Wy, and Wz will contain gyroscope data in DPS.
+ ***************************************************************************************************************************/
 int32_t ISM330DHCX_ReadGyro(ISM330DHCX_Handle_t *Handle, float *Wx, float *Wy, float *Wz)
 {
 	int32_t ret = ISM330DHCX_Ok;
@@ -185,6 +228,13 @@ int32_t ISM330DHCX_ReadGyro(ISM330DHCX_Handle_t *Handle, float *Wx, float *Wy, f
     return ISM330DHCX_DataReady;
 }
 
+/***************************************************************************************************************************
+ * @Brief: Reads ISM330DHCX Temperature data
+ * @Params: Device handle to read, float buffers to store Temperature data.
+ * @Return: Status code, ISM330DHCX_DataNotReady if new sample isnt available, ISM330DHCX_DataReady if new sample is read.
+ * @Pre Condition: Device handle should be initialized.
+ * @Post Condition: If new data is available, "Data" will contain temperature data in C.
+ ***************************************************************************************************************************/
 int32_t ISM330DHCX_ReadTemp(ISM330DHCX_Handle_t *Handle, float *Data)
 {
 	int32_t ret = ISM330DHCX_Ok;
@@ -214,6 +264,13 @@ int32_t ISM330DHCX_ReadTemp(ISM330DHCX_Handle_t *Handle, float *Data)
     return ISM330DHCX_DataReady;
 }
 
+/***************************************************************************************************************************
+ * @Brief: Reboots ISM330DHCX Device
+ * @Params: Device handle to reboot
+ * @Return: Status code
+ * @Pre Condition: Device handle should be initialized.
+ * @Post Condition: Device will be power cycled
+ ***************************************************************************************************************************/
 int32_t ISM330DHCX_Reboot(ISM330DHCX_Handle_t *Handle)
 {
     //Put Gyro / Accel In power down mode
@@ -252,6 +309,13 @@ int32_t ISM330DHCX_Reboot(ISM330DHCX_Handle_t *Handle)
     return ISM330DHCX_Ok;
 }
 
+/***************************************************************************************************************************
+ * @Brief: Resets ISM330DHCX Device registers
+ * @Params: Device handle with registers to reset
+ * @Return: Status code
+ * @Pre Condition: Device handle should be initialized.
+ * @Post Condition: Device will have its registers set to factory defaults.
+ ***************************************************************************************************************************/
 int32_t ISM330DHCX_Reset(ISM330DHCX_Handle_t *Handle)
 {
 	//Put Gyro / Accel in power down mode
@@ -288,6 +352,13 @@ int32_t ISM330DHCX_Reset(ISM330DHCX_Handle_t *Handle)
     return ISM330DHCX_Ok;
 }
 
+/***************************************************************************************************************************
+ * @Brief: Reads ISM330DHCX Device Registers
+ * @Params: Device handle, Register to Read from, Buffer to store bytes, number of bytes to read
+ * @Return: Status code
+ * @Pre Condition: Device handle should be initialized.
+ * @Post Condition: Buffer will contain read data.
+ ***************************************************************************************************************************/
 static int32_t ISM330DHCX_ReadWrapper(void *Handle, uint8_t Reg, uint8_t *Buffer, uint8_t Length)
 {
     ISM330DHCX_Handle_t *DevicePtr = (ISM330DHCX_Handle_t*)Handle;
@@ -298,6 +369,13 @@ static int32_t ISM330DHCX_ReadWrapper(void *Handle, uint8_t Reg, uint8_t *Buffer
     return ISM330DHCX_ReadRegErr;
 }
 
+/***************************************************************************************************************************
+ * @Brief: Writes ISM330DHCX Device Registers
+ * @Params: Device handle, Register to write to, Buffer of data to write, number of bytes to write
+ * @Return: Status code
+ * @Pre Condition: Device handle should be initialized.
+ * @Post Condition: Device will have it's registers written to on success.
+ ***************************************************************************************************************************/
 static int32_t ISM330DHCX_WriteWrapper(void *Handle, uint8_t Reg, uint8_t *Buffer, uint8_t Length)
 {
     ISM330DHCX_Handle_t *DevicePtr = (ISM330DHCX_Handle_t*)Handle;
@@ -308,6 +386,13 @@ static int32_t ISM330DHCX_WriteWrapper(void *Handle, uint8_t Reg, uint8_t *Buffe
     return ISM330DHCX_ReadRegErr;
 }
 
+/***************************************************************************************************************************
+ * @Brief: Sets Device registers according to provided settings.
+ * @Params: Device handle, Settings structure
+ * @Return: Status code
+ * @Pre Condition: Device handle should be initialized.
+ * @Post Condition: Device will have it's registers initialized according to settings
+ ***************************************************************************************************************************/
 static int32_t ISM330DHCX_RegisterInit(ISM330DHCX_Handle_t *Handle,ISM330DHCX_Init_Struct_t Settings)
 {
     int32_t ret = ISM330DHCX_Ok;
@@ -467,6 +552,13 @@ static int32_t ISM330DHCX_RegisterInit(ISM330DHCX_Handle_t *Handle,ISM330DHCX_In
     return ISM330DHCX_Ok;
 }
 
+/***************************************************************************************************************************
+ * @Brief: Performs math to convert accel data to Gs
+ * @Params: Accelerometer resolution, buffer with raw data read from accelerometer, float buffer to store data.
+ * @Return: None
+ * @Pre Condition: None
+ * @Post Condition: "data" will contain data in G's
+ ***************************************************************************************************************************/
 static void ConvertXLData(ISM330DHCX_AccelFullscale_t AccelResolution, int16_t *buffer, float *data)
 {
       float ConversionFactor = 0;
@@ -486,6 +578,13 @@ static void ConvertXLData(ISM330DHCX_AccelFullscale_t AccelResolution, int16_t *
       *data = (ConversionFactor * (*buffer)) / 1000.0; //Div by 1000 to convert g, not mg
 }
 
+/***************************************************************************************************************************
+ * @Brief: Performs math to convert gyro data to DPS
+ * @Params: Gyroscope resolution, buffer with raw data read from gyroscope, float buffer to store data.
+ * @Return: None
+ * @Pre Condition: None
+ * @Post Condition: "data" will contain data in DPSs
+ ***************************************************************************************************************************/
 static void ConvertGData(ISM330DHCX_GyroFullScale_t GyroResolution, int16_t *buffer, float *data)
 {
 
@@ -512,12 +611,26 @@ static void ConvertGData(ISM330DHCX_GyroFullScale_t GyroResolution, int16_t *buf
       *data = ConversionFactor * (*buffer) / 1000.0; //Div by 1000 to convert to DPS from mDPS
 }
 
+/***************************************************************************************************************************
+ * @Brief: Performs math to convert temp data to C
+ * @Params:  buffer with raw data read from temp sensor, float buffer to store data.
+ * @Return: None
+ * @Pre Condition: None
+ * @Post Condition: "data" will contain data in C.
+ ***************************************************************************************************************************/
 static void ConvertTData(uint8_t *buffer, float *data)
 {
 	int16_t DataSigned = ((int16_t)buffer[1] << 8) | buffer[0];
 	*data = (DataSigned / 256.0f) + 25.0;
 }
 
+/***************************************************************************************************************************
+ * @Brief: Fetches accelerometer period in ms
+ * @Params: Device handle, buffer to store period
+ * @Return: Status Code
+ * @Pre Condition: Device should be initialized
+ * @Post Condition: "Period" will contain sample period in ms on success.
+ ***************************************************************************************************************************/
 int32_t ISM330DHCX_GetAccelPeriod(ISM330DHCX_Handle_t *Handle, uint32_t *Period)
 {
     if(Handle->Status != ISM330DHCX_Initialized)
@@ -564,6 +677,13 @@ int32_t ISM330DHCX_GetAccelPeriod(ISM330DHCX_Handle_t *Handle, uint32_t *Period)
     return ISM330DHCX_Ok;
 }
 
+/***************************************************************************************************************************
+ * @Brief: Fetches Gyroscope period in ms
+ * @Params: Device handle, buffer to store period
+ * @Return: Status Code
+ * @Pre Condition: Device should be initialized
+ * @Post Condition: "Period" will contain sample period in ms on success.
+ ***************************************************************************************************************************/
 int32_t ISM330DHCX_GetGyroPeriod(ISM330DHCX_Handle_t *Handle, uint32_t *Period)
 {
     if(Handle->Status != ISM330DHCX_Initialized)

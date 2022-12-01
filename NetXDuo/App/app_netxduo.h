@@ -116,19 +116,19 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr);
 							 MESSAGE_TRANSMIT_PUB10_EVT_Msk | \
 							 MESSAGE_TRANSMIT_PUB11_EVT_Msk)
 
-#define PRESSURE_PAYLOAD_SAMPLES    (10)
+#define PRESSURE_PAYLOAD_SAMPLES    (10) //10hz sampling frequency, 10 samples = 1 second of data
 #define PRESSURE_MESSAGE_SIZE       (sizeof(float))
 #define PRESSURE_QUEUE_SIZE         (PRESSURE_PAYLOAD_SAMPLES * PRESSURE_MESSAGE_SIZE)
-#define MAGNETIC_PAYLOAD_SAMPLES    (10)
+#define MAGNETIC_PAYLOAD_SAMPLES    (10) //10hz sampling frequency, 10 samples = 1 second of data
 #define MAGNETIC_MESSAGE_SIZE       (sizeof(float))
 #define MAGNETIC_QUEUE_SIZE         (MAGNETIC_PAYLOAD_SAMPLES * MAGNETIC_MESSAGE_SIZE)
-#define TEMPERATURE_PAYLOAD_SAMPLES (1)
+#define TEMPERATURE_PAYLOAD_SAMPLES (1)  //1Hz sampling frequency
 #define TEMPERATURE_MESSAGE_SIZE    (sizeof(float))
 #define TEMPERATURE_QUEUE_SIZE      (TEMPERATURE_PAYLOAD_SAMPLES * TEMPERATURE_MESSAGE_SIZE)
-#define LIGHT_PAYLOAD_SAMPLES       (1)
+#define LIGHT_PAYLOAD_SAMPLES       (1)  //1Hz sampling frequency
 #define LIGHT_MESSAGE_SIZE          (sizeof(float))
 #define LIGHT_QUEUE_SIZE            (LIGHT_PAYLOAD_SAMPLES * LIGHT_MESSAGE_SIZE)
-#define HUMIDITY_PAYLOAD_SAMPLES    (1)
+#define HUMIDITY_PAYLOAD_SAMPLES    (1)  //1Hz sampling frequency
 #define HUMIDITY_MESSAGE_SIZE       (sizeof(float))
 #define HUMIDITY_QUEUE_SIZE         (HUMIDITY_PAYLOAD_SAMPLES * HUMIDITY_MESSAGE_SIZE)
 #define CAMERA_PAYLOAD_FRAMES       (1)

@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
+//Used to fetch resolution according to IT and GAIN settings
 //Index using [ALS_IT][ALS_GAIN]
 static const float ResolutionLookUpTable[6][4] = {
 		{0.0036, 0.0072, 0.0288, 0.0576},
@@ -18,12 +19,18 @@ static const float ResolutionLookUpTable[6][4] = {
 		{0.1152, 0.2304, 0.9216, 1.8432}
 };
 
-
+/* Private Function Prototypes */
 static void ConvertLight(VEML6030_Handle_t *Handle, uint16_t Buffer, float *Light);
-
 static int32_t VEML6030_ReadRegWrapper(void *Handle, uint8_t Reg, uint8_t *Buffer, uint8_t Length);
 static int32_t VEML6030_WriteRegWrapper(void *Handle, uint8_t Reg, uint8_t *Buffer, uint8_t Length);
 
+/***********************************************************************************************************************************
+ * @Brief: Initializes a VEML6030 Device Handle
+ * @Params: VEML6030 Handle to initialize, Settings for the handle to be initialized with, Low level IO struct to communicate w/ Bus
+ * @Return: Status Code
+ * @Pre Condition: None
+ * @Post Condition: Handle will be initialized according to given settings, Hardware initialized according to provided IO.init()
+ ***********************************************************************************************************************************/
 int32_t VEML6030_Init(VEML6030_Handle_t *Handle, VEML_InitSettings_t Settings, const VEML6030_IO_t *IO)
 {
 	int32_t ret = VEML6030_Ok;
@@ -77,6 +84,13 @@ int32_t VEML6030_Init(VEML6030_Handle_t *Handle, VEML_InitSettings_t Settings, c
 	return VEML6030_Ok;
 }
 
+/***********************************************************************************************************************************
+ * @Brief: Reads light from VEML6030 device
+ * @Params: Device Handle, float buffer to store data in
+ * @Return: Status code
+ * @Pre Condition: VEML6030 handle must be initialized
+ * @Post Condition: "Light" param will contain light value in Lux
+ ***********************************************************************************************************************************/
 int32_t VEML6030_ReadLight(VEML6030_Handle_t *Handle, float *Light)
 {
 	if(Handle == NULL)
@@ -97,6 +111,14 @@ int32_t VEML6030_ReadLight(VEML6030_Handle_t *Handle, float *Light)
 	ConvertLight(Handle,Buffer,Light);
 	return VEML6030_Ok;
 }
+
+/***********************************************************************************************************************************
+ * @Brief: Sets high Threshold for VEML6030 IRQ
+ * @Params: Device Handle, value to set the threshold to
+ * @Return: Status Code
+ * @Pre Condition: VEML6030 handle must be initialized
+ * @Post Condition: High Threshold register in VEML6030 device will be written to.
+ ***********************************************************************************************************************************/
 int32_t VEML6030_SetALSHighThreshold(VEML6030_Handle_t *Handle, float Light)
 {
 	if(Handle == NULL)
@@ -130,6 +152,13 @@ int32_t VEML6030_SetALSHighThreshold(VEML6030_Handle_t *Handle, float Light)
 	return VEML6030_Ok;
 }
 
+/***********************************************************************************************************************************
+ * @Brief: Sets low Threshold for VEML6030 IRQ
+ * @Params: Device Handle, value to set the threshold to
+ * @Return: Status Code
+ * @Pre Condition: VEML6030 handle must be initialized
+ * @Post Condition: Low Threshold register in VEML6030 device will be written to.
+ ***********************************************************************************************************************************/
 int32_t VEML6030_SetALSLowThreshold(VEML6030_Handle_t *Handle, float Light)
 {
 	if(Handle == NULL)
@@ -163,6 +192,13 @@ int32_t VEML6030_SetALSLowThreshold(VEML6030_Handle_t *Handle, float Light)
 	return VEML6030_Ok;
 }
 
+/***********************************************************************************************************************************
+ * @Brief: Retrieves ALS High Threshold value
+ * @Params: Device Handle, float buffer to store register value
+ * @Return: Status Code
+ * @Pre Condition: VEML6030 handle must be initialized
+ * @Post Condition: High Threshold register in VEML6030 device will be read and stored in "Light" param.
+ ***********************************************************************************************************************************/
 int32_t VEML6030_GetALSHighThreshold(VEML6030_Handle_t *Handle, float *Light)
 {
 	if(Handle == NULL)
@@ -185,6 +221,13 @@ int32_t VEML6030_GetALSHighThreshold(VEML6030_Handle_t *Handle, float *Light)
 	return VEML6030_Ok;
 }
 
+/***********************************************************************************************************************************
+ * @Brief: Retrieves ALS Low Threshold value
+ * @Params: Device Handle, float buffer to store register value
+ * @Return: Status Code
+ * @Pre Condition: VEML6030 handle must be initialized
+ * @Post Condition: Low Threshold register in VEML6030 device will be read and stored in "Light" param.
+ ***********************************************************************************************************************************/
 int32_t VEML6030_GetALSLowThreshold(VEML6030_Handle_t *Handle, float *Light)
 {
 	if(Handle == NULL)
@@ -207,7 +250,13 @@ int32_t VEML6030_GetALSLowThreshold(VEML6030_Handle_t *Handle, float *Light)
 	return VEML6030_Ok;
 }
 
-
+/***********************************************************************************************************************************
+ * @Brief: Reads VEML6030 Device Register
+ * @Params: Address of Device Handle, Register to read, Buffer to store read data, number of bytes to read
+ * @Return: Status Code
+ * @Pre Condition: VEML6030 must have functional IO functions
+ * @Post Condition: "Buffer" param will store read bytes
+ ***********************************************************************************************************************************/
 static int32_t VEML6030_ReadRegWrapper(void *Handle, uint8_t Reg, uint8_t *Buffer, uint8_t Length)
 {
 	VEML6030_Handle_t *Dev = Handle;
@@ -220,6 +269,13 @@ static int32_t VEML6030_ReadRegWrapper(void *Handle, uint8_t Reg, uint8_t *Buffe
     return VEML6030_IOError;
 }
 
+/***********************************************************************************************************************************
+ * @Brief: Writes to VEML6030 Device Register
+ * @Params: Address of device handle, Reg to read from, Buffer with data to write, number of bytes to write
+ * @Return: Status Code
+ * @Pre Condition: VEML6030 must have functional IO functions
+ * @Post Condition: VEML6030 Register "Reg" will be written to with data in "Buffer"
+ ***********************************************************************************************************************************/
 static int32_t VEML6030_WriteRegWrapper(void *Handle, uint8_t Reg, uint8_t *Buffer, uint8_t Length)
 {
 	VEML6030_Handle_t *Dev = Handle;
@@ -232,6 +288,13 @@ static int32_t VEML6030_WriteRegWrapper(void *Handle, uint8_t Reg, uint8_t *Buff
     return VEML6030_IOError;
 }
 
+/***********************************************************************************************************************************
+ * @Brief:
+ * @Params:
+ * @Return:
+ * @Pre Condition:
+ * @Post Condition:
+ ***********************************************************************************************************************************/
 static void ConvertLight(VEML6030_Handle_t *Handle, uint16_t Buffer, float *Light)
 {
 	*Light = Buffer * Handle->Resolution;

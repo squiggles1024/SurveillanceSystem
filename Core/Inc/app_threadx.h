@@ -36,15 +36,15 @@
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
- extern TX_QUEUE TemperatureQueue;
- extern TX_QUEUE LightQueue;
- extern TX_QUEUE PressureQueue;
- extern TX_QUEUE HumidityQueue;
- extern TX_QUEUE MagXQueue;
- extern TX_QUEUE MagYQueue;
- extern TX_QUEUE MagZQueue;
- extern TX_QUEUE CameraQueue;
- extern TX_SEMAPHORE CameraSendFrame[2];
+ extern TX_QUEUE TemperatureQueue;             //Queue used for storing Temperature sample for transport over MQTT
+ extern TX_QUEUE LightQueue;                   //Queue used for storing Ambient Light sample for transport over MQTT
+ extern TX_QUEUE PressureQueue;                //Queue used for storing 10 Pressure samples for transport over MQTT
+ extern TX_QUEUE HumidityQueue;                //Queue used for storing humidity sample for transport over MQTT
+ extern TX_QUEUE MagXQueue;                    //Queue used for storing 10 B-Field X samples for transport over MQTT
+ extern TX_QUEUE MagYQueue;                    //Queue used for storing 10 B-Field Y samples for transport over MQTT
+ extern TX_QUEUE MagZQueue;                    //Queue used for storing 10 B-Field Z samples for transport over MQTT
+ extern TX_QUEUE CameraQueue;                  //Queue used for storing pointers to camera frame buffer so video data can be transmitted over MQTT
+ extern TX_SEMAPHORE CameraSendFrame[2];       //Semaphore used to signal that a camera frame has been transmitted, and thus the frame in that frame buffer can be overwritten
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -62,7 +62,7 @@ UINT App_ThreadX_Init(VOID *memory_ptr);
 void MX_ThreadX_Init(void);
 
 /* USER CODE BEGIN EFP */
-void TIM7_ResumeMotionThread(void);
+void TIM7_ResumeMotionThread(void); //Called from Timer7 ISR, resumes thread that reads Accel/Gyro (data that is most critical for drone flight)
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

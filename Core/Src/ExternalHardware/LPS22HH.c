@@ -8,11 +8,13 @@
 #include "LPS22HH.h"
 #include <stddef.h>
 
+/* Magic Numbers */
 #define LPS22HH_ResetSignal (1 << 2)
 #define LPS22HH_RebootSignal (1 << 7)
 #define LPS22HH_StartConvSignal (1)
 #define LPS22HH_PDATA_Msk (0x01)
 
+/* Private Function Prototypes */
 static int32_t LPS22HH_SWReset(LPS22HH_Handle_t *Handle);
 static int32_t LPS22HH_Reboot(LPS22HH_Handle_t *Handle);
 static int32_t LPS22HH_WriteRegWrapper(void *Handle,uint8_t Reg, uint8_t *Buffer, uint8_t Length);
@@ -20,6 +22,13 @@ static int32_t LPS22HH_ReadRegWrapper(void *Handle,uint8_t Reg, uint8_t *Buffer,
 static int32_t LPS22HH_RegisterInit(LPS22HH_Handle_t *Handle, LPS22HH_Init_Struct_t Settings);
 static void ConvertPressureData(uint8_t *buffer, float *pressure);
 
+/**************************************************************************************************************************
+ * @Brief: Initializes a LPS22HH Device Handle
+ * @Params: Handle to initialize, Settings for the handle to be iniialized it, Low level IO Driver to communicate w/ Bus
+ * @Return: Status Code
+ * @Pre Condition: None
+ * @Post Condition: Device handle will be initialized; Hardware will be initialized according to IO.init function provided.
+ **************************************************************************************************************************/
 int32_t LPS22HH_Init(LPS22HH_Handle_t *Handle, LPS22HH_Init_Struct_t Settings, LPS22HH_IO_t *IO)
 {
 	if(Handle->Status != LPS22HH_Initialized)
@@ -57,6 +66,13 @@ int32_t LPS22HH_Init(LPS22HH_Handle_t *Handle, LPS22HH_Init_Struct_t Settings, L
 	return LPS22HH_Ok;
 }
 
+/**********************************************************************************************************************
+ * @Brief: Deinitialize a LPS22HH Device handle
+ * @Params: Handle to deinitialize
+ * @Return: Status code
+ * @Pre Condition: Handle should be initialized already
+ * @Post Condition: Handle will be deinitialized, and hardware de initialized according to provided IO.deinit function.
+ **********************************************************************************************************************/
 int32_t LPS22HH_DeInit(LPS22HH_Handle_t *Handle)
 {
 	if(Handle == NULL)
@@ -83,6 +99,13 @@ int32_t LPS22HH_DeInit(LPS22HH_Handle_t *Handle)
 	return LPS22HH_Ok;
 }
 
+/******************************************************************************************************************
+ * @Brief: Resets LPS22HH Device to factory default settings
+ * @Params: Device handle to reset
+ * @Return: Status Code
+ * @Pre Condition: Device should be initialized.
+ * @Post Condition: LPS22HH Handle will be power cycled and registers reset to factory default
+ ******************************************************************************************************************/
 int32_t LPS22HH_ResetDevice(LPS22HH_Handle_t *Handle)
 {
 	int32_t ret = LPS22HH_Ok;
@@ -107,6 +130,13 @@ int32_t LPS22HH_ResetDevice(LPS22HH_Handle_t *Handle)
 	return LPS22HH_Ok;
 }
 
+/******************************************************************************************************************
+ * @Brief: Sets Reference Pressure register
+ * @Params: LPS22HH Handle, Pressure to set as reference pressure in hPa.
+ * @Return: Status Code
+ * @Pre Condition: Handle should be initialized already.
+ * @Post Condition: RefP register will be set according to Pressure param.
+ ******************************************************************************************************************/
 int32_t LPS22HH_SetReferencePressure(LPS22HH_Handle_t *Handle, float Pressure)
 {
 	if(Handle->Status != LPS22HH_Initialized)
@@ -123,6 +153,13 @@ int32_t LPS22HH_SetReferencePressure(LPS22HH_Handle_t *Handle, float Pressure)
 	return LPS22HH_WriteReg(&Handle->Context, LPS22HH_REG_REF_P_L, (uint8_t*)&NewRefPressure, 2);
 }
 
+/******************************************************************************************************************
+ * @Brief: Get reference pressure register
+ * @Params: LPS22HH device handle, float buffer to store returned value
+ * @Return: Status code
+ * @Pre Condition: Handle should be initialized
+ * @Post Condition: On success, "Pressure" param will contain the RefP register value in hPa
+ ******************************************************************************************************************/
 int32_t LPS22HH_GetReferencePressure(LPS22HH_Handle_t *Handle, float *Pressure)
 {
 	if(Handle->Status != LPS22HH_Initialized)
@@ -144,6 +181,13 @@ int32_t LPS22HH_GetReferencePressure(LPS22HH_Handle_t *Handle, float *Pressure)
 
 }
 
+/******************************************************************************************************************
+ * @Brief: Starts a pressure conversion for a device in One shot mode
+ * @Params: LPS22HH Device handle
+ * @Return: Status code
+ * @Pre Condition: LPS22HH Handle should be initialized
+ * @Post Condition: LPS22HH will begin converting pressure data
+ ******************************************************************************************************************/
 int32_t LPS22HH_StartConversion(LPS22HH_Handle_t *Handle)
 {
 	if(Handle->Status != LPS22HH_Initialized)
@@ -168,6 +212,14 @@ int32_t LPS22HH_StartConversion(LPS22HH_Handle_t *Handle)
 	return LPS22HH_WriteReg(&Handle->Context,LPS22HH_REG_CTRL_REG2, &buffer, 1); //Store
 
 }
+
+/******************************************************************************************************************
+ * @Brief: Read pressure from LPS22HH
+ * @Params: LPS22HH Device handle, float buffer to store pressure
+ * @Return: Status Code, DataNotReady if new sample is not available, DataReady on new sample retrieved.
+ * @Pre Condition: LPS22HH should be initialized. If in one-shot mode, a conversion should have been started.
+ * @Post Condition: "Pressure" will contain pressure measurement in hPa
+ ******************************************************************************************************************/
 int32_t LPS22HH_ReadPressure(LPS22HH_Handle_t *Handle, float *Pressure)
 {
 	if(Handle->Status != LPS22HH_Initialized)
@@ -198,7 +250,13 @@ int32_t LPS22HH_ReadPressure(LPS22HH_Handle_t *Handle, float *Pressure)
 	return LPS22HH_Ok;
 }
 
-
+/******************************************************************************************************************
+ * @Brief: Resets LPS22HH Registers to factory default
+ * @Params: LPS22HH handle
+ * @Return: Status code
+ * @Pre Condition: LPS22HH handle should be initialized.
+ * @Post Condition: LPS22HH Device registers will be reset to defaults
+ ******************************************************************************************************************/
 static int32_t LPS22HH_SWReset(LPS22HH_Handle_t *Handle)
 {
     if(Handle == NULL)
@@ -237,6 +295,13 @@ static int32_t LPS22HH_SWReset(LPS22HH_Handle_t *Handle)
     return ret;
 }
 
+/******************************************************************************************************************
+ * @Brief: Power Cycles LPS22HH
+ * @Params: LPS22HH Device handle
+ * @Return: Status Code
+ * @Pre Condition: LPS22HH should have its IO initialized.
+ * @Post Condition: LPS22HH will be power cycled
+ ******************************************************************************************************************/
 static int32_t LPS22HH_Reboot(LPS22HH_Handle_t *Handle)
 {
     if(Handle == NULL)
@@ -275,6 +340,13 @@ static int32_t LPS22HH_Reboot(LPS22HH_Handle_t *Handle)
     return ret;
 }
 
+/******************************************************************************************************************
+ * @Brief: Calls low level IO function and writes to a LPS22HH device register
+ * @Params: Address of LPS22HH Handle, Reg to write, Buffer with data to write, number of bytes to write
+ * @Return: Status code
+ * @Pre Condition: LPS22HH Handle should be initialized.
+ * @Post Condition: LPS22HH device register will be written to.
+ ******************************************************************************************************************/
 static int32_t LPS22HH_WriteRegWrapper(void *Handle, uint8_t Reg, uint8_t *Buffer, uint8_t Length)
 {
 	LPS22HH_Handle_t *Dev = Handle;
@@ -285,6 +357,13 @@ static int32_t LPS22HH_WriteRegWrapper(void *Handle, uint8_t Reg, uint8_t *Buffe
     return LPS22HH_IOError;
 }
 
+/******************************************************************************************************************
+ * @Brief: Calls low level IO function and reads a LPS22HH device register
+ * @Params: Address of LPS22HH device handle, Register to read, Buffer to store read data, number of bytes to read.
+ * @Return: Status code
+ * @Pre Condition: LPS22HH Handle should be initialized.
+ * @Post Condition:
+ ******************************************************************************************************************/
 static int32_t LPS22HH_ReadRegWrapper(void *Handle,uint8_t Reg, uint8_t *Buffer, uint8_t Length)
 {
 	LPS22HH_Handle_t *Dev = Handle;
@@ -295,6 +374,13 @@ static int32_t LPS22HH_ReadRegWrapper(void *Handle,uint8_t Reg, uint8_t *Buffer,
     return LPS22HH_IOError;
 }
 
+/******************************************************************************************************************
+ * @Brief: Initializes LPS22HH Registers with given settings.
+ * @Params: LPS22HH Handle, Settings to initialize device with
+ * @Return: Status code
+ * @Pre Condition: Device handle must have functioning low level IO struct
+ * @Post Condition: Device registers will be written to according to given settings
+ ******************************************************************************************************************/
 static int32_t LPS22HH_RegisterInit(LPS22HH_Handle_t *Handle, LPS22HH_Init_Struct_t Settings)
 {
 	int32_t ret = LPS22HH_ResetDevice(Handle);
@@ -389,6 +475,13 @@ static int32_t LPS22HH_RegisterInit(LPS22HH_Handle_t *Handle, LPS22HH_Init_Struc
 	return LPS22HH_Ok;
 }
 
+/******************************************************************************************************************
+ * @Brief: Converts data read from LPS22HH into hPa
+ * @Params: buffer with data read from LPS22HH, buffer to store new data
+ * @Return: None
+ * @Pre Condition: None
+ * @Post Condition: "Pressure" param will store pressure in hPa
+ ******************************************************************************************************************/
 static void ConvertPressureData(uint8_t *buffer, float *pressure)
 {
 	int32_t Data;
@@ -404,6 +497,13 @@ static void ConvertPressureData(uint8_t *buffer, float *pressure)
 	*pressure = Data / 4096.0;
 }
 
+/******************************************************************************************************************
+ * @Brief: Gets the LPS22HH sample period in ms. Useful for suspending threads for a given amount of time.
+ * @Params: Device handle, buffer to store period
+ * @Return: Status code
+ * @Pre Condition: LPS22HH Hamdle should be initialized.
+ * @Post Condition: "Period" param will store sample period in ms
+ ******************************************************************************************************************/
 int32_t LPS22HH_GetSamplePeriod(LPS22HH_Handle_t *Handle, uint32_t *Period)
 {
 	if(Handle->Status != LPS22HH_Initialized)

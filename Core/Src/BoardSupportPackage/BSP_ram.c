@@ -5,14 +5,20 @@
  *      Author: evanl
  */
 
-
+/* Includes */
 #include "BSP_ram.h"
 #include "gpio.h"
 #include "octospi.h"
 #include <stdint.h>
 
 
-
+/*********************************************************************************
+ * @Brief: Initialize external RAM in memory mapped mode
+ * @Param: None
+ * @Return: None
+ * @Post Condition: RAM will be initialized and able to use in memory mapped mode.
+ * @Pre Condition: None
+ *********************************************************************************/
 void BSP_RamInit(void){
     OSPI_DelayBlockConfig();
     OSPI_EnableMemMappedMode();
@@ -20,6 +26,13 @@ void BSP_RamInit(void){
    // BSP_RamTest();
 }
 
+/*********************************************************************************
+ * @Brief: Erases external ram chip
+ * @Param: None
+ * @Return: None
+ * @Post Condition: RAM be fully erased
+ * @Pre Condition: BSP_RamInit should have been called already.
+ *********************************************************************************/
 void BSP_RamErase(void){
 	  uint32_t *pRam = (uint32_t*)OSPI1_RAM_BASE;
 	  for(uint32_t i = 0; i < (OSPI1_RAM_LENGTH / 4); i = i + 1){

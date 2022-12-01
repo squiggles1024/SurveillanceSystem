@@ -8,7 +8,8 @@
 #ifndef SRC_BOARDSUPPORTPACKAGE_BSP_LED_H_
 #define SRC_BOARDSUPPORTPACKAGE_BSP_LED_H_
 #include <stdint.h>
-
+/*See BSP_LED.c for detailed descriptions*/
+/*Public function prototypes*/
 void BSP_LEDToggleRed(void);
 void BSP_LEDToggleGreen(void);
 

@@ -5,11 +5,14 @@
  *      Author: evanl
  */
 
+/* See VEML6030.c for driver details*/
+
 #ifndef SRC_EXTERNALHARDWARE_VEML6030_H_
 #define SRC_EXTERNALHARDWARE_VEML6030_H_
 #include <stdint.h>
 #include "VEML6030_Registers.h"
 
+//Status Codes
 #define VEML6030_Ok (0U)
 #define VEML6030_HandleError (-1)
 #define VEML6030_PSM_Err  (-4)
@@ -17,6 +20,7 @@
 #define VEML6030_InitError (-3)
 #define VEML6030_ParamError (-5)
 
+//Initialization States
 #define VEML6030_STATUS_INITIALIZED (0x1)
 #define VEML6030_STATUS_UNINITIALIZED (0x0)
 
@@ -54,12 +58,14 @@ typedef uint8_t VEML6030_PowerSaveMode_t;
 typedef uint16_t VEML6030_IntegrationTime_t;
 typedef uint16_t VEML6030_ALSConfig_t;
 
+//Settings struct
 typedef struct
 {
-	VEML6030_ALSConfig_t ALSConfig;
-	VEML6030_PowerSaveMode_t PowerSavingMode;
+	VEML6030_ALSConfig_t ALSConfig;            //"OR" Together desired settings
+	VEML6030_PowerSaveMode_t PowerSavingMode;  //Power saving settings
 }VEML_InitSettings_t;
 
+//Low level IO Struct
 typedef struct
 {
 	void (*Init)(void);
@@ -70,6 +76,7 @@ typedef struct
 	int32_t (*ReadPin)(void);
 }VEML6030_IO_t;
 
+//Device Handle
 typedef struct
 {
 	VEML6030_IO_t IO;

@@ -8,7 +8,9 @@
 #ifndef SRC_EXTERNALHARDWARE_ISM330DHCX_REGISTERS_H_
 #define SRC_EXTERNALHARDWARE_ISM330DHCX_REGISTERS_H_
 #include <stdint.h>
+/* See ISM330DHCX_Registers.c for function details */
 
+//Status Codes
 #define ISM330DHCX_REG_NO_ERR (0)
 #define ISM330DHCX_REG_PARAM_ERR (1)
 #define ISM330DHCX_BUFFER_PARAM_ERR (2)
@@ -138,12 +140,14 @@
 #define ISM330DHCX_REG_FIFO_OUT_Z_L (0x7DU)
 #define ISM330DHCX_REG_FIFO_OUT_Z_H (0x7EU)
 
+
 typedef struct{
-    void (*Handle);
-    int32_t (*Write)(void*, uint8_t, uint8_t*, uint8_t);
-    int32_t (*Read)(void*, uint8_t, uint8_t*, uint8_t);
+    void (*Handle);                                      //Pointer to the address of the ISM330DHCX Handle (See ISM330DHCX.c/.h)
+    int32_t (*Write)(void*, uint8_t, uint8_t*, uint8_t); //Points to the ISM330DHCX_WriteReg wrapper in ISM330DHCX.c
+    int32_t (*Read)(void*, uint8_t, uint8_t*, uint8_t);  //Points to the ISM330DHCX_ReadReg wrapper in ISM330DHCX.c
 }ISM330DHCX_Context_t;
 
+//These functions call the Read/Write functions in the Context struct. The context struct points to the wrapper functions in ISM330DHCX.c
 int32_t ISM330DHCX_ReadReg(ISM330DHCX_Context_t *Context, uint8_t Reg, uint8_t *Buffer, uint8_t Length);
 int32_t ISM330DHCX_WriteReg(ISM330DHCX_Context_t *Context, uint8_t Reg, uint8_t *Buffer, uint8_t Length);
 

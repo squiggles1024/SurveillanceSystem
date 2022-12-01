@@ -4,7 +4,7 @@
  *  Created on: Sep 16, 2022
  *      Author: evanl
  */
-
+/* Includes */
 #include "../ExternalHardware/HTS221.h"
 #include "../ExternalHardware/LPS22HH.h"
 #include "../ExternalHardware/IIS2MDC.h"
@@ -14,18 +14,19 @@
 #include <stddef.h>
 #include <stdint.h>
 
-
+/* Sensor Device Handles */
 static HTS221_Handle_t TempSensor_Handle = {0};
-
-//uint8_t test_buffer[0x7C] = {0};
-
 static LPS22HH_Handle_t PressureSensor = {0};
-
 static IIS2MDC_Handle_t Magnetometer = {0};
-
 static VEML6030_Handle_t AmbientLightSensor = {0};
 
-
+/*****************************************************************************************************************************************
+ *@Brief: Initializes Temperature and Humidity Sensor handle and hardware
+ *@Param: None
+ *@Return: Status - Either HTS221 Status or HAL Status depending on where/if an error occured
+ *@Post Condition: HTS221 Temp/Hum sensor will be initialized and ready to use
+ *@Pre Condition: GPIO Pins should already be configured
+ *****************************************************************************************************************************************/
 int32_t BSP_TempHumSensorInit(void)
 {
 	int32_t ret = 0;
@@ -49,27 +50,61 @@ int32_t BSP_TempHumSensorInit(void)
 	return ret;
 }
 
+/*****************************************************************************************************************************************
+ *@Brief: Reads temperature sensor
+ *@Param: Pointer to float that will store the result
+ *@Return: Status - Either HTS221 Status or HAL Status depending on where/if an error occured, OR DataNotReady if no new sample is available
+ *@Post Condition: If new data was available, "Result" will contain the temperature in C
+ *@Pre Condition: BSP_TempHumSensorInit should have been called already.
+ *****************************************************************************************************************************************/
 int32_t BSP_ReadTemperature(float *result)
 {
 	return HTS221_ReadTemperature(&TempSensor_Handle, result);
 }
 
-
+/*****************************************************************************************************************************************
+ *@Brief: Reads humidity sensor
+ *@Param: Pointer to float that will store the result
+ *@Return: Status - Either HTS221 Status or HAL Status depending on where/if an error occured, OR DataNotReady if no new sample is available
+ *@Post Condition: If new data was available, "Result" will contain the relative humidity
+ *@Pre Condition: BSP_TempHumSensorInit should have been called already.
+ *****************************************************************************************************************************************/
 int32_t BSP_ReadHumidity(float *result)
 {
 	return HTS221_ReadHumidity(&TempSensor_Handle, result);
 }
 
+/*****************************************************************************************************************************************
+ *@Brief: Turns on HTS221 internal heater. Can be used to remove condensation
+ *@Param: None
+ *@Return: Status - Either HTS221 Status or HAL Status depending on where/if an error occured
+ *@Post Condition: HTS221 Heater will be turned on
+ *@Pre Condition: BSP_TempHumSensorInit should have been called already.
+ *****************************************************************************************************************************************/
 int32_t BSP_EnableHeater(void)
 {
 	return HTS221_EnableHeater(&TempSensor_Handle);
 }
 
+/*****************************************************************************************************************************************
+ *@Brief: Turns off HTS221 internal heater
+ *@Param: None
+ *@Return: Status - Either HTS221 Status or HAL Status depending on where/if an error occured
+ *@Post Condition: HTS221 Heater will be turned off
+ *@Pre Condition: BSP_TempHumSensorInit should have been called already.
+ *****************************************************************************************************************************************/
 int32_t BSP_DisableHeater(void)
 {
 	return HTS221_DisableHeater(&TempSensor_Handle);
 }
 
+/*****************************************************************************************************************************************
+ *@Brief: Initializes Pressure Sensor handle and hardware
+ *@Param: None
+ *@Return: Status - Either LPS22HH Status or HAL Status depending on where/if an error occured
+ *@Post Condition: LPS22HH Pressure sensor will be initialized and ready to use
+ *@Pre Condition: GPIO Pins should already be configured
+ *****************************************************************************************************************************************/
 int32_t BSP_PressureSensorInit(void)
 {
 	LPS22HH_IO_t PressureSensor_IO =
@@ -103,20 +138,26 @@ int32_t BSP_PressureSensorInit(void)
 	return ret;
 }
 
+/*****************************************************************************************************************************************
+ *@Brief: Reads pressure sensor
+ *@Param: Pointer to float that will store the result
+ *@Return: Status - Either LPS22HH Status or HAL Status depending on where/if an error occured, OR DataNotReady if no new sample is available
+ *@Post Condition: If new data was available, "Result" will contain the pressure in hPa
+ *@Pre Condition: BSP_PressureSensorInit should have been called already.
+ *****************************************************************************************************************************************/
 int32_t BSP_ReadPressure(float *result)
 {
 	int32_t ret = LPS22HH_ReadPressure(&PressureSensor, result);
 	return ret;
 }
 
-/*
-int32_t BSP_pressuretest(void)
-{
-    int32_t ret = PressureSensor.IO.Read(0,test_buffer,0x7C);
-    return ret;
-}
-*/
-
+/*****************************************************************************************************************************************
+ *@Brief: Initializes magnetometer handle and hardware
+ *@Param: None
+ *@Return: Status - Either IIS2MDC Status or HAL Status depending on where/if an error occured
+ *@Post Condition: IIS2MDC magnetometer sensor will be initialized and ready to use
+ *@Pre Condition: GPIO Pins should already be configured
+ *****************************************************************************************************************************************/
 int32_t BSP_MagnetometerInit(void)
 {
     IIS2MDC_IO_t MagnetometerIO =
@@ -145,48 +186,103 @@ int32_t BSP_MagnetometerInit(void)
     return ret;
 }
 
+/*****************************************************************************************************************************************
+ *@Brief: Reads all magnetometer sensor axes
+ *@Param: Pointer to floats that will store the results
+ *@Return: Status - Either IIS2MDC Status or HAL Status depending on where/if an error occured, OR DataNotReady if no new samples are available
+ *@Post Condition: If new data was available, "Mx", "My", "Mz"  will contain the magnetic fields in milligause (UNCALIBRATED)
+ *@Pre Condition: BSP_MagnetometerInit should have been called already.
+ *****************************************************************************************************************************************/
 int32_t BSP_ReadMagnetometerXYZ(float *Mx, float *My, float *Mz)
 {
     int32_t ret = IIS2MDC_ReadMagnetismXYZ(&Magnetometer, Mx, My, Mz);
     return ret;
 }
 
+/*****************************************************************************************************************************************
+ *@Brief: Reads magnetometer sensor X Axis
+ *@Param: Pointer to float that will store the result
+ *@Return: Status - Either IIS2MDC Status or HAL Status depending on where/if an error occured, OR DataNotReady if no new sample is available
+ *@Post Condition: If new data was available, "Mx"  will contain the magnetic fields in milligause (UNCALIBRATED)
+ *@Pre Condition: BSP_MagnetometerInit should have been called already.
+ *****************************************************************************************************************************************/
 int32_t BSP_ReadMagnetometerX(float *Mx)
 {
 	int32_t ret = IIS2MDC_ReadMagnetismX(&Magnetometer, Mx);
 	return ret;
 }
 
+/*****************************************************************************************************************************************
+ *@Brief: Reads magnetometer sensor Y Axis
+ *@Param: Pointer to float that will store the result
+ *@Return: Status - Either IIS2MDC Status or HAL Status depending on where/if an error occured, OR DataNotReady if no new sample is available
+ *@Post Condition: If new data was available, "My"  will contain the magnetic fields in milligause (UNCALIBRATED)
+ *@Pre Condition: BSP_MagnetometerInit should have been called already.
+ *****************************************************************************************************************************************/
 int32_t BSP_ReadMagnetometerY(float *My)
 {
 	int32_t ret = IIS2MDC_ReadMagnetismY(&Magnetometer, My);
 	return ret;
 }
 
+/*****************************************************************************************************************************************
+ *@Brief: Reads magnetometer sensor Z Axis
+ *@Param: Pointer to float that will store the result
+ *@Return: Status - Either IIS2MDC Status or HAL Status depending on where/if an error occured, OR DataNotReady if no new sample is available
+ *@Post Condition: If new data was available, "Mz"  will contain the magnetic fields in milligause (UNCALIBRATED)
+ *@Pre Condition: BSP_MagnetometerInit should have been called already.
+ *****************************************************************************************************************************************/
 int32_t BSP_ReadMagnetometerZ(float *Mz)
 {
 	int32_t ret = IIS2MDC_ReadMagnetismZ(&Magnetometer, Mz);
 	return ret;
 }
 
+/*****************************************************************************************************************************************
+ *@Brief: Calculates the period based on the temperatures sensor sample period (in ms). Useful for putting threads to sleep for a time period
+ *@Param: Pointer to uint32_t that will store the period
+ *@Return: Status - Either HTS221 Status or HAL Status depending on where/if an error occured
+ *@Post Condition: Period will contain the period in ms
+ *@Pre Condition: BSP_TempHumSensorInit should have been called already.
+ *****************************************************************************************************************************************/
 int32_t BSP_GetTempPeriod(uint32_t *Period)
 {
     int32_t ret = HTS221_GetSamplePeriod(&TempSensor_Handle, Period);
     return ret;
 }
 
-
+/*****************************************************************************************************************************************
+ *@Brief: Calculates the period based on the magnetometer sensor sample period (in ms). Useful for putting threads to sleep for a time period
+ *@Param: Pointer to uint32_t that will store the period
+ *@Return: Status - Either IIS2MDC Status or HAL Status depending on where/if an error occured
+ *@Post Condition: Period will contain the period in ms
+ *@Pre Condition: BSP_MagnetometerInit should have been called already.
+ *****************************************************************************************************************************************/
 int32_t BSP_GetMagneticPeriod(uint32_t *Period)
 {
     int32_t ret = IIS2MDC_GetSamplePeriod(&Magnetometer, Period);
     return ret;
 }
 
+/*****************************************************************************************************************************************
+ *@Brief: Calculates the period based on the pressure sensor sample period (in ms). Useful for putting threads to sleep for a time period
+ *@Param: Pointer to uint32_t that will store the period
+ *@Return: Status - Either LPS22HH Status or HAL Status depending on where/if an error occured
+ *@Post Condition: Period will contain the period in ms
+ *@Pre Condition: BSP_PressureSensorInit should have been called already.
+ *****************************************************************************************************************************************/
 int32_t BSP_GetPressurePeriod(uint32_t *Period){
     int32_t ret = LPS22HH_GetSamplePeriod(&PressureSensor, Period);
     return ret;
 }
 
+/*****************************************************************************************************************************************
+ *@Brief: Initializes Ambient Light Sensor handle and hardware
+ *@Param: None
+ *@Return: Status - Either VEML6030 Status or HAL Status depending on where/if an error occured
+ *@Post Condition: VEML6030 Ambient Light sensor will be initialized and ready to use
+ *@Pre Condition: GPIO Pins should already be configured
+ *****************************************************************************************************************************************/
 int32_t BSP_AmbientLightInit(void)
 {
     VEML6030_IO_t IO = {
@@ -207,6 +303,13 @@ int32_t BSP_AmbientLightInit(void)
     return ret;
 }
 
+/*****************************************************************************************************************************************
+ *@Brief: Reads ambient light sensor
+ *@Param: Pointer to float that will store the result
+ *@Return: Status - Either VEML6030 Status or HAL Status depending on where/if an error occured
+ *@Post Condition: If new data was available, "Light"  will contain the ambient light in lux
+ *@Pre Condition: BSP_AmbientLightInit should have been called already.
+ *****************************************************************************************************************************************/
 int32_t BSP_ReadAmbientLight(float *Light)
 {
     int32_t ret = VEML6030_ReadLight(&AmbientLightSensor, Light);

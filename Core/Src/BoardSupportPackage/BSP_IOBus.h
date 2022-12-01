@@ -8,7 +8,8 @@
 #ifndef SRC_BOARDSUPPORTPACKAGE_BSP_IOBUS_H_
 #define SRC_BOARDSUPPORTPACKAGE_BSP_IOBUS_H_
 #include <stdint.h>
-
+/* See BSP_IOBus.c for detailed descriptions*/
+/* Public Function prototypes */
 void BSP_I2C1_Init(void);
 void BSP_I2C1_DeInit(void);
 void BSP_I2C2_Init(void);

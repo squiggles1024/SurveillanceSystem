@@ -4,15 +4,23 @@
  *  Created on: Sep 16, 2022
  *      Author: evanl
  */
-
+/* Includes */
 #include "../ExternalHardware/ISM330DHCX.h"
 #include "BSP_IOBus.h"
 #include "BSP_motion.h"
 #include <stddef.h>
 #include "tim.h"
 
+/* Private Variables (Sensor Handle) */
 static ISM330DHCX_Handle_t MotionSensor;
 
+/********************************************************************************************************************************************************************
+ * @Brief: Initializes motion sensor hardware and handle
+ * @Param: None
+ * @Return: HAL Status or ISM330DHCX Status depending on where/if an error occurred.
+ * @Post Condition: Motion sensor handle will be initialized and ready to use
+ * @Pre Condition: None
+ ********************************************************************************************************************************************************************/
 int32_t BSP_MotionSensorInit(void)
 {
 	int32_t ret = 0;
@@ -97,7 +105,7 @@ int32_t BSP_MotionSensorInit(void)
 		return ret;
 	}
 
-	//Discard Junk Samples
+	//Discard Junk Samples. See App Note for details (first few samples are garbage,depending on sample frequency)
 	while(DiscardedXLSamples < 6 && DiscardedGyroSamples < 6)
 	{
         if(BSP_ReadAccelXYZ(&JunkData[0],&JunkData[1],&JunkData[2]) ==ISM330DHCX_DataReady)
@@ -113,6 +121,13 @@ int32_t BSP_MotionSensorInit(void)
 	return ISM330DHCX_Ok;
 }
 
+/********************************************************************************************************************************************************************
+ * @Brief: Reads Accelerometer data
+ * @Param: pointers to floats to store data in
+ * @Return: HAL Status or ISM330DHCX Status depending on where/if an error occurred, DataReady if new data is returned, DataNotReady if new data is not available yet.
+ * @Post Condition: Ax, Ay, Az will have data if new data is available.
+ * @Pre Condition: device should be initialized with BSP_MotionSensorInit
+ ********************************************************************************************************************************************************************/
 int32_t BSP_ReadAccelXYZ(float *Ax, float *Ay, float *Az)
 {
     int32_t ret = 0;
@@ -125,6 +140,13 @@ int32_t BSP_ReadAccelXYZ(float *Ax, float *Ay, float *Az)
 
 }
 
+/********************************************************************************************************************************************************************
+ * @Brief: Reads Gyroscope data
+ * @Param: pointers to floats to store data in
+ * @Return: HAL Status or ISM330DHCX Status depending on where/if an error occurred, DataReady if new data is returned, DataNotReady if new data is not available yet.
+ * @Post Condition: Ax, Ay, Az will have data if new data is available.
+ * @Pre Condition: device should be initialized with BSP_MotionSensorInit
+ ********************************************************************************************************************************************************************/
 int32_t BSP_ReadGyroXYZ(float *Wx, float *Wy, float *Wz)
 {
     int32_t ret = 0;
@@ -144,18 +166,39 @@ int32_t BSP_ReadTemperatureMotion(float *temp)
 }
 */
 
+/********************************************************************************************************************************************************************
+ * @Brief: Retrieves accelerometer period (in ms) based on sample frequency. Useful for putting threads to sleep for an amount of time.
+ * @Param: pointers to uint32 to store period
+ * @Return: HAL Status or ISM330DHCX Status depending on where/if an error occurred
+ * @Post Condition: sample period will be stored in "Period" param
+ * @Pre Condition: device should be initialized with BSP_MotionSensorInit
+ ********************************************************************************************************************************************************************/
 int32_t BSP_GetAccelPeriod(uint32_t *Period)
 {
 	int32_t ret = ISM330DHCX_GetAccelPeriod(&MotionSensor, Period);
 	return ret;
 }
 
+/********************************************************************************************************************************************************************
+ * @Brief: Retrieves gyroscope period (in ms) based on sample frequency. Useful for putting threads to sleep for an amount of time.
+ * @Param: pointers to uint32 to store period
+ * @Return: HAL Status or ISM330DHCX Status depending on where/if an error occurred
+ * @Post Condition: sample period will be stored in "Period" param
+ * @Pre Condition: device should be initialized with BSP_MotionSensorInit
+ ********************************************************************************************************************************************************************/
 int32_t BSP_GetGyroPeriod(uint32_t *Period)
 {
 	int32_t ret = ISM330DHCX_GetGyroPeriod(&MotionSensor, Period);
 	return ret;
 }
 
+/********************************************************************************************************************************************************************
+ * @Brief: Synchronize Timer7 IRQ with Gyro/Accel sample frequency. Timer triggers and enables ReadAccel/Gyro thread.
+ * @Param: none
+ * @Return: none
+ * @Post Condition: Timer7 and associated timer IRQ will be started.
+ * @Pre Condition: device should be initialized with BSP_MotionSensorInit, Timer7 should be initialized but not started.
+ ********************************************************************************************************************************************************************/
 void BSP_SynchronizeIRQ(void)
 {
     float dummy_data[3];
@@ -165,5 +208,6 @@ void BSP_SynchronizeIRQ(void)
     //Wait for New Data
     while(BSP_ReadAccelXYZ(&dummy_data[0],&dummy_data[1],&dummy_data[2]) == ISM330DHCX_DataNotReady);
     BSP_ReadGyroXYZ(&dummy_data[0],&dummy_data[1],&dummy_data[2]);
+    //Start timer
     HAL_TIM_Base_Start_IT(&htim7);
 }

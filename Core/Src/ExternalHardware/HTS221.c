@@ -4,18 +4,25 @@
  *  Created on: Sep 15, 2022
  *      Author: evanl
  */
-
+/* Includes */
 #include "HTS221.h"
 #include <stdint.h>
 #include <stddef.h>
 
+/* Private Helper functions */
 static int32_t HTS221_ReadRegWrapper(void *Handle, uint8_t Reg, uint8_t *Buffer, uint8_t Length);
 static int32_t HTS221_WriteRegWrapper(void *Handle, uint8_t Reg, uint8_t *Buffer, uint8_t Length);
 static int32_t HTS221_RegisterInit(HTS221_Handle_t *Handle, HTS221_Init_Struct_t Settings);
 static int32_t HTS221_CalculateTemperature(HTS221_Handle_t *Handle, float *temperature);
 static int32_t HTS221_CalculateHumidity(HTS221_Handle_t *Handle, float *humidity);
 
-
+/****************************************************************************************************************************
+ * @Brief: Initializes HTS221 Handle and Hardware
+ * @Params: Pointer to Handle to initialize, the desired hardware settings, structure with low level IO funtionality
+ * @Return: Status code
+ * @Pre Condition: None
+ * @Post Condition: HTS221 Handle will be initialized and ready to use.
+ ****************************************************************************************************************************/
 int32_t HTS221_Init(HTS221_Handle_t *Handle, HTS221_Init_Struct_t Settings, HTS221_IO_t *IO)
 {
     if(Handle == NULL)
@@ -46,6 +53,13 @@ int32_t HTS221_Init(HTS221_Handle_t *Handle, HTS221_Init_Struct_t Settings, HTS2
     return HTS221_RegisterInit(Handle, Settings);
 }
 
+/****************************************************************************************************************************
+ * @Brief: Deinitializes HTS221 Handle and Hardware (if DeInit function is provided by user)
+ * @Params: Pointer to Handle to deinitialize.
+ * @Return: None
+ * @Pre Condition: None
+ * @Post Condition: HTS221 Handle will be returned to pre-init state.
+ ****************************************************************************************************************************/
 void HTS221_DeInit(HTS221_Handle_t *Handle)
 {
     if(Handle->IO.DeInit != NULL){
@@ -64,6 +78,13 @@ void HTS221_DeInit(HTS221_Handle_t *Handle)
     Handle->DRDY_Polarity = 0;
 }
 
+/****************************************************************************************************************************
+ * @Brief: Starts a conversion for a HTS221 handle configured in 1 shot mode
+ * @Params: HTS221 Handle pointer
+ * @Return: HTS221 Status code
+ * @Pre Condition: HTS221 handle must be initialized and configured in one-shot-mode.
+ * @Post Condition: HTS221 device will begin a temperature conversion
+ ****************************************************************************************************************************/
 int32_t HTS221_StartConversion(HTS221_Handle_t *Handle)
 {
 	uint8_t temp = 0;
@@ -77,6 +98,13 @@ int32_t HTS221_StartConversion(HTS221_Handle_t *Handle)
 	return HTS221_WriteReg(&Handle->Context,HTS221_REG_CTRL_REG2, &temp, 1); //Store Reg
 }
 
+/****************************************************************************************************************************
+ * @Brief: Turns on HTS221 Heater (used to remove condensation)
+ * @Params: HTS221 Handle pointer
+ * @Return: HTS221 Status code
+ * @Pre Condition: HTS221 handle must be initialized
+ * @Post Condition: HTS221 device will turn on its heater.
+ ****************************************************************************************************************************/
 int32_t HTS221_EnableHeater(HTS221_Handle_t *Handle)
 {
 	uint8_t temp = 0;
@@ -92,6 +120,13 @@ int32_t HTS221_EnableHeater(HTS221_Handle_t *Handle)
 
 }
 
+/****************************************************************************************************************************
+ * @Brief: Turns off HTS221 Heater (used to remove condensation)
+ * @Params: HTS221 Handle pointer
+ * @Return: HTS221 Status code
+ * @Pre Condition: HTS221 handle must be initialized
+ * @Post Condition: HTS221 device will turn off its heater.
+ ****************************************************************************************************************************/
 int32_t HTS221_DisableHeater(HTS221_Handle_t *Handle)
 {
 	uint8_t temp = 0;
@@ -106,12 +141,26 @@ int32_t HTS221_DisableHeater(HTS221_Handle_t *Handle)
 	return HTS221_WriteReg(&Handle->Context,HTS221_REG_CTRL_REG2, &temp, 1); //Store Reg
 }
 
+/****************************************************************************************************************************
+ * @Brief: Resets registers of HTS221 device to default state
+ * @Params: HTS221 Handle pointer
+ * @Return: HTS221 Status code
+ * @Pre Condition: HTS221 handle must be initialized
+ * @Post Condition: HTS221 device registers will be returned to factory default
+ ****************************************************************************************************************************/
 int32_t HTS221_ResetRegisters(HTS221_Handle_t *Handle)
 {
 	uint8_t temp = HTS221_RebootSignal;
     return HTS221_WriteReg(&Handle->Context, HTS221_REG_CTRL_REG2, &temp, 1);
 }
 
+/****************************************************************************************************************************
+ * @Brief: Power cycles HTS221 device
+ * @Params: HTS221 Handle pointer
+ * @Return: HTS221 Status code
+ * @Pre Condition: HTS221 handle must be initialized
+ * @Post Condition: HTS221 device will be power cycled
+ ****************************************************************************************************************************/
 int32_t HTS221_PowerCycle(HTS221_Handle_t *Handle)
 {
 
@@ -128,6 +177,13 @@ int32_t HTS221_PowerCycle(HTS221_Handle_t *Handle)
 	return HTS221_PowerUp(Handle);
 }
 
+/****************************************************************************************************************************
+ * @Brief: Reads temperature from HTS221 device
+ * @Params: HTS221 Handle pointer, float buffer to store value
+ * @Return: HTS221 Status code, HTS221_DataNotReady if a new sample isnt available, HTS221_DataReady if a new sample is read.
+ * @Pre Condition: HTS221 handle must be initialized
+ * @Post Condition: "Temperature" param will store new temperature value if read was successful.
+ ****************************************************************************************************************************/
 int32_t HTS221_ReadTemperature(HTS221_Handle_t *Handle, float *temperature)
 {
     int32_t ret = 0;
@@ -156,6 +212,14 @@ int32_t HTS221_ReadTemperature(HTS221_Handle_t *Handle, float *temperature)
 	}
     return HTS221_CalculateTemperature(Handle, temperature);
 }
+
+/****************************************************************************************************************************
+ * @Brief: Reads humidity from HTS221 device
+ * @Params: HTS221 Handle pointer, float buffer to store value
+ * @Return: HTS221 Status code, HTS221_DataNotReady if a new sample isnt available, HTS221_DataReady if a new sample is read.
+ * @Pre Condition: HTS221 handle must be initialized
+ * @Post Condition: "humidity" param will store new temperature value if read was successful.
+ ****************************************************************************************************************************/
 int32_t HTS221_ReadHumidity(HTS221_Handle_t *Handle, float *humidity)
 {
     int32_t ret = 0;
@@ -186,6 +250,13 @@ int32_t HTS221_ReadHumidity(HTS221_Handle_t *Handle, float *humidity)
 	return HTS221_CalculateHumidity(Handle, humidity);
 }
 
+/****************************************************************************************************************************
+ * @Brief: Place HTS221 Device in power down mode
+ * @Params: HTS221 Handle pointer
+ * @Return: HTS221 Status code
+ * @Pre Condition: HTS221 handle must be initialized
+ * @Post Condition: Device will be in power down mode.
+ ****************************************************************************************************************************/
 int32_t HTS221_PowerDown(HTS221_Handle_t *Handle)
 {
 	uint8_t temp = 0;
@@ -200,6 +271,13 @@ int32_t HTS221_PowerDown(HTS221_Handle_t *Handle)
 	return HTS221_WriteReg(&Handle->Context,HTS221_REG_CTRL_REG1, &temp, 1); //Store Reg
 }
 
+/****************************************************************************************************************************
+ * @Brief: Turns on HTS221 device that is in power down mode.
+ * @Params: HTS221 Handle pointer
+ * @Return: HTS221 Status code
+ * @Pre Condition: HTS221 handle must be initialized
+ * @Post Condition: Device will be turned on again.
+ ****************************************************************************************************************************/
 int32_t HTS221_PowerUp(HTS221_Handle_t *Handle)
 {
 	uint8_t temp = 0;
@@ -214,19 +292,39 @@ int32_t HTS221_PowerUp(HTS221_Handle_t *Handle)
 	return HTS221_WriteReg(&Handle->Context,HTS221_REG_CTRL_REG1, &temp, 1); //Store Reg
 }
 
-
+/****************************************************************************************************************************
+ * @Brief: Calls Low level IO function to read from HTS221 device
+ * @Params: address of HTS221 Handle, Register to read, Buffer to read into, Number of bytes to read.
+ * @Return: HTS221 Status code
+ * @Pre Condition: HTS221 handle must be initialized
+ * @Post Condition: Device register will contain new value
+ ****************************************************************************************************************************/
 static int32_t HTS221_ReadRegWrapper(void *Handle, uint8_t Reg, uint8_t *Buffer, uint8_t Length)
 {
 	HTS221_Handle_t *HTS221_Handle = Handle;
 	return HTS221_Handle->IO.Read(Reg, Buffer, Length);
 }
 
+/****************************************************************************************************************************
+ * @Brief: Calls Low level IO function to write to HTS221 device
+ * @Params: address of HTS221 Handle, Register to write, Buffer with data to write, Number of bytes to write.
+ * @Return: HTS221 Status code
+ * @Pre Condition: HTS221 handle must be initialized
+ * @Post Condition: "Buffer" will contain read data
+ ****************************************************************************************************************************/
 static int32_t HTS221_WriteRegWrapper(void *Handle, uint8_t Reg, uint8_t *Buffer, uint8_t Length)
 {
 	HTS221_Handle_t *HTS221_Handle = Handle;
 	return HTS221_Handle->IO.Write(Reg, Buffer, Length);
 }
 
+/****************************************************************************************************************************
+ * @Brief: Initializes HTS221 device registers according to given settings
+ * @Params: HTS221 Handle pointer, Init struct with desired settings.
+ * @Return: HTS221 Status code
+ * @Pre Condition: None
+ * @Post Condition: Device will have its registers configured according to "Settings"
+ ****************************************************************************************************************************/
 static int32_t HTS221_RegisterInit(HTS221_Handle_t *Handle, HTS221_Init_Struct_t Settings)
 {
     int32_t ret =  0;
@@ -250,6 +348,14 @@ static int32_t HTS221_RegisterInit(HTS221_Handle_t *Handle, HTS221_Init_Struct_t
     return HTS221_WriteReg(&Handle->Context, HTS221_REG_CTRL_REG3, &temp,1);
 }
 
+/****************************************************************************************************************************
+ * @Brief: Performs HTS221 temperature calulation
+ * @Params: HTS221 Handle pointer, float buffer to store calculated value
+ * @Return: HTS221 Status code
+ * @Pre Condition: HTS221 handle must be initialized
+ * @Post Condition: "temperature" will contain the calculated value
+ * Comments: See HTS221 App note for calculation procedure
+ ****************************************************************************************************************************/
 static int32_t HTS221_CalculateTemperature(HTS221_Handle_t *Handle, float *temperature)
 {
 	int32_t ret = 0;
@@ -311,6 +417,14 @@ static int32_t HTS221_CalculateTemperature(HTS221_Handle_t *Handle, float *tempe
     return HTS221_Ok;
 }
 
+/****************************************************************************************************************************
+ * @Brief: Performs HTS221 humidity calulation
+ * @Params: HTS221 Handle pointer, float buffer to store calculated value
+ * @Return: HTS221 Status code
+ * @Pre Condition: HTS221 handle must be initialized
+ * @Post Condition: "humidity" will contain the calculated value
+ * Comments: See HTS221 App note for calculation procedure
+ ****************************************************************************************************************************/
 static int32_t HTS221_CalculateHumidity(HTS221_Handle_t *Handle, float *humidity)
 {
 	int32_t ret = 0;
@@ -376,6 +490,13 @@ static int32_t HTS221_CalculateHumidity(HTS221_Handle_t *Handle, float *humidity
     return HTS221_Ok;
 }
 
+/****************************************************************************************************************************
+ * @Brief: Returns period in ms based on HTS221 handle frequency
+ * @Params: HTS221 Handle pointer, uint32 buffer to store period
+ * @Return: HTS221 Status code, HTS221_ODR_Error is its configured in one shot mode.
+ * @Pre Condition: HTS221 handle must be initialized
+ * @Post Condition: "period" will contain the period in ms
+ ****************************************************************************************************************************/
 int32_t HTS221_GetSamplePeriod(HTS221_Handle_t *Handle, uint32_t *Period)
 {
 	switch(Handle->OutputDataRate)

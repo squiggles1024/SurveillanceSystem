@@ -13,6 +13,8 @@
 #include "IIS2MDC.h"
 #include "VEML6030.h"
 
+/* See BSP_Environment.c for full function descriptions */
+/* Public function prototypes */
 int32_t BSP_TempHumSensorInit(void);
 int32_t BSP_ReadTemperature(float *result);
 int32_t BSP_ReadHumidity(float *result);
@@ -21,7 +23,6 @@ int32_t BSP_DisableHeater(void);
 
 int32_t BSP_PressureSensorInit(void);
 int32_t BSP_ReadPressure(float *result);
-//int32_t BSP_pressuretest(void);
 
 int32_t BSP_MagnetometerInit(void);
 int32_t BSP_ReadMagnetometerXYZ(float *Mx, float *My, float *Mz);

@@ -8,7 +8,8 @@
 #ifndef SRC_EXTERNALHARDWARE_IIS2MDC_REGISTERS_H_
 #define SRC_EXTERNALHARDWARE_IIS2MDC_REGISTERS_H_
 #include <stdint.h>
-
+/*See IIS2MDC_Register.c for driver details*/
+//Error Codes
 #define IIS2MDC_REG_OK          (0)
 #define IIS2MDC_REG_CONTEXT_ERR (1 << 31)  | (1 << 27)
 #define IIS2MDC_REG_BUFFER_ERR  ((1 << 31) | (1 << 30))
@@ -18,17 +19,17 @@
 
 typedef struct
 {
-    void *Handle;
-    int32_t (*Read)(void*,uint8_t,uint8_t*,uint8_t);
-    int32_t (*Write)(void*,uint8_t,uint8_t*,uint8_t);
+    void *Handle;                                     //Pointer to the address of the IIS2MDC Handle (See IIS2MDC.c/.h)
+    int32_t (*Read)(void*,uint8_t,uint8_t*,uint8_t);  //Points to the IIS2MDC_ReadReg wrapper in IIS2MDC.c
+    int32_t (*Write)(void*,uint8_t,uint8_t*,uint8_t); //Points to the IIS2MDC_WriteReg wrapper in IIS2MDC.c
 }IIS2MDC_Context_t;
 
+//These functions call the Read/Write functions in the Context struct. The context struct points to the wrapper functions in IIS2MDC.c
 int32_t IIS2MDC_ReadReg(IIS2MDC_Context_t *Context, uint8_t Reg, uint8_t *Buffer, uint8_t Length);
 int32_t IIS2MDC_WriteReg(IIS2MDC_Context_t *Context, uint8_t Reg, uint8_t *Buffer, uint8_t Length);
 
-/**************************************//**************************************//**************************************
- * Defines
- **************************************//**************************************//**************************************/
+
+//Reg Addresses
 #define IIS2MDC_REG_OFFSET_X_REG_L (0x45U)
 #define IIS2MDC_REG_OFFSET_X_REG_H (0x46U)
 #define IIS2MDC_REG_OFFSET_Y_REG_L (0x47U)

@@ -12,6 +12,8 @@
 #define OSPI1_RAM_LENGTH  (0x800000)
 #define OSPI1_RAM_LAST    (OSPI1_RAM_BASE_ADDR + OSPI1_RAM_LENGTH - 1)
 
+//See BSP_Ram.c for more details.
+
 /*
  * @brief: Initializes external RAM chip (64 Mb) in Memory Mapped mode
  */
