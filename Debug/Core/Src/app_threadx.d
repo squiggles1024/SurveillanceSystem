@@ -64,9 +64,9 @@ Core/Src/app_threadx.o: ../Core/Src/app_threadx.c \
  ../NetXDuo/Target/nx_driver_emw3080.h \
  ../NetXDuo/Target/nx_driver_framework.h ../Core/Inc/tim.h \
  ../Core/Inc/main.h ../Core/Inc/dcache.h \
- ../Core/Src/./BoardSupportPackage/BSP_ram.h \
- ../Core/Src/./BoardSupportPackage/BSP_camera.h \
- ../Core/Src/./BoardSupportPackage/BSP_environment.h \
+ C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/BoardSupportPackage/BSP_ram.h \
+ C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/BoardSupportPackage/BSP_camera.h \
+ C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/BoardSupportPackage/BSP_environment.h \
  C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/LPS22HH.h \
  C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/LPS22HH_Registers.h \
  C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/HTS221.h \
@@ -75,10 +75,10 @@ Core/Src/app_threadx.o: ../Core/Src/app_threadx.c \
  C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/IIS2MDC_Registers.h \
  C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/VEML6030.h \
  C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/VEML6030_Registers.h \
- ../Core/Src/./BoardSupportPackage/BSP_motion.h \
+ C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/BoardSupportPackage/BSP_motion.h \
  C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/ISM330DHCX.h \
  C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/ISM330DHCX_Registers.h \
- ../Core/Src/./BoardSupportPackage/BSP_LED.h
+ C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/BoardSupportPackage/BSP_LED.h
 ../Core/Inc/app_threadx.h:
 ../Middlewares/ST/threadx/common/inc/tx_api.h:
 ../Middlewares/ST/threadx/ports/cortex_m33/gnu/inc/tx_port.h:
@@ -150,9 +150,9 @@ Core/Src/app_threadx.o: ../Core/Src/app_threadx.c \
 ../Core/Inc/tim.h:
 ../Core/Inc/main.h:
 ../Core/Inc/dcache.h:
-../Core/Src/./BoardSupportPackage/BSP_ram.h:
-../Core/Src/./BoardSupportPackage/BSP_camera.h:
-../Core/Src/./BoardSupportPackage/BSP_environment.h:
+C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/BoardSupportPackage/BSP_ram.h:
+C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/BoardSupportPackage/BSP_camera.h:
+C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/BoardSupportPackage/BSP_environment.h:
 C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/LPS22HH.h:
 C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/LPS22HH_Registers.h:
 C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/HTS221.h:
@@ -161,7 +161,7 @@ C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/Surve
 C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/IIS2MDC_Registers.h:
 C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/VEML6030.h:
 C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/VEML6030_Registers.h:
-../Core/Src/./BoardSupportPackage/BSP_motion.h:
+C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/BoardSupportPackage/BSP_motion.h:
 C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/ISM330DHCX.h:
 C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/ExternalHardware/ISM330DHCX_Registers.h:
-../Core/Src/./BoardSupportPackage/BSP_LED.h:
+C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/BoardSupportPackage/BSP_LED.h:

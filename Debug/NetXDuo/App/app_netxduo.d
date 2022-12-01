@@ -64,8 +64,9 @@ NetXDuo/App/app_netxduo.o: ../NetXDuo/App/app_netxduo.c \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_dcmi.h \
  ../Drivers/STM32U5xx_HAL_Driver/Inc/stm32u5xx_hal_exti.h \
  ../AZURE_RTOS/App/app_azure_rtos_config.h ../Core/Inc/main.h \
- ../Core/Inc/app_threadx.h ../NetXDuo/App/app_netxduo.h C:/certs/ca.h \
- C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/BoardSupportPackage/BSP_camera.h
+ ../Core/Inc/app_threadx.h ../NetXDuo/App/app_netxduo.h \
+ C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/BoardSupportPackage/BSP_camera.h \
+ C:/certs/ca.h
 ../NetXDuo/App/app_netxduo.h:
 ../Middlewares/ST/netxduo/common/inc/nx_api.h:
 ../Middlewares/ST/threadx/common/inc/tx_api.h:
@@ -135,5 +136,5 @@ NetXDuo/App/app_netxduo.o: ../NetXDuo/App/app_netxduo.c \
 ../Core/Inc/main.h:
 ../Core/Inc/app_threadx.h:
 ../NetXDuo/App/app_netxduo.h:
-C:/certs/ca.h:
 C:/Users/evanl/OneDrive/Documents/Embedded_Software_Workspaces/ExampleCode/SurveillanceSystem/Core/Src/BoardSupportPackage/BSP_camera.h:
+C:/certs/ca.h:
