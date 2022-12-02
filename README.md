@@ -11,7 +11,7 @@ As of now, the program simply reads data from the on-board sensors, sends the da
 
 Next steps for the project is to add an extended Kalman filter to measure the board's attitude, and implement PID control for 4 brushless DC motors. 
 ![DroneModelFront](images/DroneModelFront.PNG)
-![DroneModelRear](DroneModelRear.PNG)
+![DroneModelRear](images/DroneModelRear.PNG)
 
 The above models have already been 3D printed and assembled:
-![PrintedModel}(PrintedModel.jpg)
+![PrintedModel](PrintedModel.jpg)
