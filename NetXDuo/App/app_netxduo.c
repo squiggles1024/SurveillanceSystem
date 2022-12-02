@@ -601,7 +601,7 @@ static VOID MQTT_Loop(ULONG input)
     		{
                 nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC11,                             //Publish camera data 1 slice at a time.
                 		                STRLEN(MQTT_CLIENT_PUB_TOPIC11),                                  //OpenSSL bug requires the data be sliced into chunks less than 16320 bytes.
-										(VOID*) (CameraBufferPtr),
+										(VOID*) (CameraBufferPtr),                                        //TLS Has a record limit of 16KB
 										CAMERA_DATA_SIZE_BYTES / 10,
     									NX_TRUE,
     									0,
@@ -609,7 +609,7 @@ static VOID MQTT_Loop(ULONG input)
                 CameraBufferPtr = CameraBufferPtr + ((CAMERA_DATA_SIZE_BYTES / 10) / 4);                  //Fetch address of the next image data chunk
     		}
     		/*
-            nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC11,                                 //Uncomment this when the OpenSSL issue is resolved.
+            nxd_mqtt_client_publish(&MQTTClient, MQTT_CLIENT_PUB_TOPIC11,                                 //TLS has a record limit of 16KB
             		                STRLEN(MQTT_CLIENT_PUB_TOPIC11),
 									(VOID*) (CameraBufferPtr),
 									CAMERA_DATA_SIZE_BYTES,
