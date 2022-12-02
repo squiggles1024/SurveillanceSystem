@@ -10,8 +10,10 @@ The most obvious known issue with the project is in the above photo: The horribl
 As of now, the program simply reads data from the on-board sensors, sends the data to an MQTT broker hosted on my local desktop over TLS. In order for someone to recreate the project, they will need to generate their own CA file which will be stored both on the MQTT broker, and the microcontroller. The firmware is ThreadX RTOS based, using NetX Duo as the TCP/IP Stack. 
 
 Next steps for the project is to add an extended Kalman filter to measure the board's attitude, and implement PID control for 4 brushless DC motors. 
+
+
 ![DroneModelFront](images/DroneModelFront.PNG)
 ![DroneModelRear](images/DroneModelRear.PNG)
 
 The above models have already been 3D printed and assembled:
-![PrintedModel](PrintedModel.jpg)
+![PrintedModel](images/PrintedModel.jpg)
